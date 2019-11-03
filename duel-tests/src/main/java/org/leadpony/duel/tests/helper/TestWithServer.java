@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.tests.helper;
+
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+
 /**
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
-
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
+@Retention(RUNTIME)
+@Target(TYPE)
+@ExtendWith(ServerExtension.class)
+public @interface TestWithServer {
 }

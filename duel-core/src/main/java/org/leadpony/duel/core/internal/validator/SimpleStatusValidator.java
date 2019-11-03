@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.internal.validator;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.net.http.HttpResponse;
+
+import org.leadpony.duel.core.spi.ResponseValidator;
+
 /**
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
+class SimpleStatusValidator implements ResponseValidator {
 
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
+    private final int expected;
+
+    SimpleStatusValidator(int expected) {
+        this.expected = expected;
+    }
+
+    @Override
+    public void validateResponse(HttpResponse<?> response) {
+        assertThat(response.statusCode()).isEqualTo(expected);
+    }
 }

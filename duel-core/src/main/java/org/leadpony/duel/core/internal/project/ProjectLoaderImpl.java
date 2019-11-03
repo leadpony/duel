@@ -25,9 +25,9 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
-import org.leadpony.duel.core.api.ProjectLoadingException;
+import org.leadpony.duel.core.api.TestConfigurationException;
+import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.internal.config.ProjectConfig;
 
 /**
@@ -48,7 +48,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
         try {
             return loadProject(this.startPath);
         } catch (IOException e) {
-            throw new ProjectLoadingException(e.getMessage(), e);
+            throw new TestException(e.getMessage(), e);
         }
     }
 
@@ -59,7 +59,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
                 return createProject(projectPath, startPath);
             }
         }
-        throw new ProjectException(Message.PROJECT_NOT_FOUND.asString());
+        throw new TestConfigurationException(Message.PROJECT_NOT_FOUND.asString());
     }
 
     private ProjectImpl createProject(Path projectPath, Path startPath) throws IOException {

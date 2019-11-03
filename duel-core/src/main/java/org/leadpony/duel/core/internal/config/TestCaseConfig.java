@@ -18,21 +18,18 @@ package org.leadpony.duel.core.internal.config;
 
 import java.net.URI;
 
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+
 /**
  * @author leadpony
  */
-public class TestCaseConfig extends Config {
+public final class TestCaseConfig extends TestNodeConfig {
 
-    private String displayName;
     private URI path;
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+    private String method = "GET";
+    private JsonObject request = JsonValue.EMPTY_JSON_OBJECT;
+    private JsonObject response = JsonValue.EMPTY_JSON_OBJECT;
 
     public URI getPath() {
         return path;
@@ -40,5 +37,29 @@ public class TestCaseConfig extends Config {
 
     public void setPath(URI path) {
         this.path = path;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public JsonObject getRequest() {
+        return request;
+    }
+
+    public void setRequest(JsonObject request) {
+        this.request = request;
+    }
+
+    public JsonObject getResponse() {
+        return response;
+    }
+
+    public void setResponse(JsonObject response) {
+        this.response = response;
     }
 }

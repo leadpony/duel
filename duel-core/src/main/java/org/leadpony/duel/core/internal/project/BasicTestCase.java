@@ -18,8 +18,11 @@ package org.leadpony.duel.core.internal.project;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -27,7 +30,9 @@ import javax.json.bind.Jsonb;
 
 import org.leadpony.duel.core.api.TestCase;
 import org.leadpony.duel.core.api.TestContainer;
+import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.internal.config.TestCaseConfig;
+import org.leadpony.duel.core.spi.ResponseValidator;
 
 /**
  * @author leadpony
@@ -37,17 +42,21 @@ class BasicTestCase extends BasicTestNode implements TestCase {
     static final String FILE_PATTERN = "*.test.json";
 
     private final TestCaseConfig config;
+    private final ResponseValidator responseValidator;
 
     BasicTestCase(Path path, TestContext context, TestContainer parent) {
         super(path, context, parent);
         this.config = loadConfig(path);
+        this.responseValidator = context.getResponseValidatorFactory()
+                .createValidator(config.getResponse());
+
     }
 
     /* As a TestNode */
 
     @Override
     public String getName() {
-        String name = config.getDisplayName();
+        String name = config.getName();
         if (name == null) {
             name = super.getName();
         }
@@ -69,6 +78,13 @@ class BasicTestCase extends BasicTestNode implements TestCase {
 
     @Override
     public void run() {
+        runTest();
+    }
+
+    private void runTest() {
+        HttpRequest request = buildRequest();
+        HttpResponse<String> response = sendRequest(request);
+        validateResponse(response);
     }
 
     private TestCaseConfig loadConfig(Path path) {
@@ -76,7 +92,27 @@ class BasicTestCase extends BasicTestNode implements TestCase {
         try (InputStream in = Files.newInputStream(path)) {
             return jsonb.fromJson(in, TestCaseConfig.class);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new TestException(e.getMessage(), e);
         }
+    }
+
+    private HttpRequest buildRequest() {
+        HttpRequest.Builder builder = HttpRequest.newBuilder(getEndpointUrl());
+        return builder.build();
+    }
+
+    private HttpResponse<String> sendRequest(HttpRequest request) {
+        HttpClient client = getContext().getHttpClient();
+        try {
+            return client.send(request, BodyHandlers.ofString());
+        } catch (IOException e) {
+            throw new TestException(e.getMessage(), e);
+        } catch (InterruptedException e) {
+            throw new TestException(e.getMessage(), e);
+        }
+    }
+
+    private void validateResponse(HttpResponse<String> response) {
+        responseValidator.validateResponse(response);
     }
 }

@@ -32,4 +32,6 @@ interface TestContext {
     Jsonb getJsonBinder();
 
     HttpClient getHttpClient();
+
+    ResponseValidatorFactory getResponseValidatorFactory();
 }

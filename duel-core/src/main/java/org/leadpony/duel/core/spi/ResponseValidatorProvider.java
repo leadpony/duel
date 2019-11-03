@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.spi;
+
+import java.util.Collection;
+
+import javax.json.JsonObject;
+
 /**
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
+public interface ResponseValidatorProvider {
 
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
+    void provideValidators(JsonObject config, Collection<ResponseValidator> validators);
 }

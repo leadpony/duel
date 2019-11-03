@@ -16,21 +16,30 @@
 
 package org.leadpony.duel.tests.helper;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.leadpony.duel.tests.server.ApplicationServer;
 
 /**
  * @author leadpony
  */
-@Retention(RUNTIME)
-@Target(METHOD)
-@ArgumentsSource(ProjectArgumentsProvider.class)
-public @interface ProjectSource {
+class ServerExtension implements BeforeAllCallback, AfterAllCallback {
 
-    String[] value();
+    private ApplicationServer server;
+
+    ServerExtension() {
+    }
+
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        server = new ApplicationServer(8080);
+        server.start();
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) throws Exception {
+        server.stop();
+        server = null;
+    }
 }

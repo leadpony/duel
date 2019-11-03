@@ -18,6 +18,7 @@ package org.leadpony.duel.core.internal.project;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
 import java.nio.file.Path;
 
 import javax.json.bind.Jsonb;
@@ -71,9 +72,11 @@ class ProjectImpl implements Project {
     class ProjectTestContext implements TestContext {
 
         private final HttpClient httpClient;
+        private final ResponseValidatorFactory responseValidatorFactory;
 
         ProjectTestContext() {
             this.httpClient = buildHttpClient();
+            this.responseValidatorFactory = new ResponseValidatorFactory();
         }
 
         @Override
@@ -91,9 +94,15 @@ class ProjectImpl implements Project {
             return httpClient;
         }
 
+        @Override
+        public ResponseValidatorFactory getResponseValidatorFactory() {
+            return responseValidatorFactory;
+        }
+
         private HttpClient buildHttpClient() {
             return HttpClient.newBuilder()
                     .version(HttpClient.Version.HTTP_1_1)
+                    .followRedirects(Redirect.NORMAL)
                     .build();
         }
     }

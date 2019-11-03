@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.ProjectException;
+import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.api.ProjectLoader;
 
 /**
@@ -58,6 +58,6 @@ public class ProjectLoaderTest {
         Throwable thrown = catchThrowable(() -> {
             ProjectLoader.loadFrom(path);
         });
-        assertThat(thrown).isInstanceOf(ProjectException.class);
+        assertThat(thrown).isInstanceOf(TestException.class);
     }
 }

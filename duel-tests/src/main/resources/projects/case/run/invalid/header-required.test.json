@@ -1,0 +1,9 @@
+{
+    "path": "greeting",
+
+    "response": {
+        "header": {
+            "required": ["Location"]
+        }
+    }
+}

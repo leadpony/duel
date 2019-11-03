@@ -1,0 +1,11 @@
+{
+    "path": "greeting",
+
+    "response": {
+        "header": {
+            "fields": {
+                "content-type": "application/json;charset=utf-8"
+            }
+        }
+    }
+}

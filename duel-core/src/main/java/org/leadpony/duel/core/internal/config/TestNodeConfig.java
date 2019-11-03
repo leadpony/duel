@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.api;
+package org.leadpony.duel.core.internal.config;
 
 /**
  * @author leadpony
+ *
  */
-@SuppressWarnings("serial")
-public class ProjectLoadingException extends ProjectException {
+public abstract class TestNodeConfig extends Config {
 
-    public ProjectLoadingException(String message, Throwable cause) {
-        super(message, cause);
+    private String name;
+
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(String displayName) {
+        this.name = displayName;
     }
 }

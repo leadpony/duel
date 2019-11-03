@@ -17,15 +17,4 @@
 /**
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
-
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
-}
+package org.leadpony.duel.tests.server;

@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.spi;
+
+import java.net.http.HttpResponse;
+import java.util.Collection;
+
 /**
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
+public interface ResponseValidator {
 
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
+    void validateResponse(HttpResponse<?> response);
+
+    static ResponseValidator alwaysValid() {
+        return reponse -> { };
+    }
+
+    static ResponseValidator collected(Collection<? extends ResponseValidator> validators) {
+        return response -> {
+            for (ResponseValidator validator : validators) {
+                validator.validateResponse(response);
+            }
+        };
+    }
 }

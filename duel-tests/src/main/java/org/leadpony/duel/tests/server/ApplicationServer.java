@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.tests.server;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHandler;
+
 /**
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
+public class ApplicationServer extends Server {
 
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
+    public ApplicationServer(int port) {
+        super(port);
+        ServletHandler handler = new ServletHandler();
+        setHandler(handler);
+        handler.addServletWithMapping(GreetingServlet.class, "/greeting");
+    }
 }

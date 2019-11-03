@@ -17,16 +17,14 @@
 package org.leadpony.duel.core.api;
 
 /**
+ * An exception thrown if there is a configuration error.
+ *
  * @author leadpony
  */
 @SuppressWarnings("serial")
-public class ProjectException extends RuntimeException {
+public class TestConfigurationException extends TestException {
 
-    public ProjectException(String message) {
+    public TestConfigurationException(String message) {
         super(message);
-    }
-
-    public ProjectException(String message, Throwable cause) {
-        super(message, cause);
     }
 }

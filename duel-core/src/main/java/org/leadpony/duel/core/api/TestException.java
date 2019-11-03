@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.api;
+
 /**
+ * An exception thrown by this API.
+ *
  * @author leadpony
  */
-open module org.leadpony.duel.tests {
-    requires java.logging;
-    requires java.servlet;
+@SuppressWarnings("serial")
+public class TestException extends RuntimeException {
 
-    requires org.leadpony.duel.core;
-    requires org.junit.jupiter.api;
-    requires org.assertj.core;
-    requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
+    public TestException(String message) {
+        super(message);
+    }
+
+    public TestException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

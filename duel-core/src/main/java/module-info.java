@@ -19,8 +19,15 @@
  */
 module org.leadpony.duel.core {
     exports org.leadpony.duel.core.api;
+    exports org.leadpony.duel.core.spi;
     opens org.leadpony.duel.core.internal.config;
     requires java.json;
     requires java.json.bind;
     requires java.net.http;
+    requires org.assertj.core;
+
+    uses org.leadpony.duel.core.spi.ResponseValidatorProvider;
+
+    provides org.leadpony.duel.core.spi.ResponseValidatorProvider
+        with org.leadpony.duel.core.internal.validator.DefaultResponseValidatorProvider;
 }

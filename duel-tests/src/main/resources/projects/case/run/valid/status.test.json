@@ -1,0 +1,7 @@
+{
+    "path": "nonexistent",
+
+    "response": {
+        "status": 404
+    }
+}

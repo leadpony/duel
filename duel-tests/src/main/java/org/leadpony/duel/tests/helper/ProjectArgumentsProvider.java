@@ -16,9 +16,7 @@
 
 package org.leadpony.duel.tests.helper;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -36,20 +34,23 @@ public class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationCo
 
     private static final String BASE_PATH = "src/main/resources/projects";
 
-    Path startPath;
+    private String[] values;
 
     @Override
     public void accept(ProjectSource annotation) {
-        this.startPath = Paths.get(BASE_PATH, annotation.value());
+        this.values = annotation.value();
     }
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-        Project project = ProjectLoader.loadFrom(startPath);
-        AtomicInteger index = new AtomicInteger(0);
-        return project.generateTests().children()
-                .filter(node -> node instanceof TestCase)
-                .map(node -> (TestCase) node)
-                .map(node -> Arguments.of(node, index.getAndIncrement()));
+        return Stream.of(values)
+            .map(value -> Paths.get(BASE_PATH, value))
+            .flatMap(path -> {
+                Project project = ProjectLoader.loadFrom(path);
+                return project.generateTests().children()
+                        .filter(node -> node instanceof TestCase)
+                        .map(node -> (TestCase) node)
+                        .map(node -> Arguments.of(node));
+            });
     }
 }
