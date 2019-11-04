@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.assertions;
 
-import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+import java.util.Optional;
 
-import javax.json.bind.Jsonb;
-
-import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.MediaType;
+import org.leadpony.duel.core.spi.Assertion;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * @author leadpony
  */
-interface TestContext {
+abstract class AbstractAssertion implements Assertion {
 
-    Project getProject();
+    @Override
+    public void doAssert(HttpResponse<byte[]> response, Optional<MediaType> mediaType) {
+        doAssert(response);
+    }
 
-    Jsonb getJsonBinder();
+    public void doAssert(HttpResponse<byte[]> response) {
+    }
 
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+    protected static void fail(String message, Object expected, Object actual) {
+        throw new AssertionFailedError(message, expected, actual);
+    }
 }

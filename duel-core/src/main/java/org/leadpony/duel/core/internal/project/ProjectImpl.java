@@ -72,11 +72,11 @@ class ProjectImpl implements Project {
     class ProjectTestContext implements TestContext {
 
         private final HttpClient httpClient;
-        private final ResponseValidatorFactory responseValidatorFactory;
+        private final AssertionFactory responseValidatorFactory;
 
         ProjectTestContext() {
             this.httpClient = buildHttpClient();
-            this.responseValidatorFactory = new ResponseValidatorFactory();
+            this.responseValidatorFactory = new AssertionFactory();
         }
 
         @Override
@@ -95,7 +95,7 @@ class ProjectImpl implements Project {
         }
 
         @Override
-        public ResponseValidatorFactory getResponseValidatorFactory() {
+        public AssertionFactory getAssertionFactory() {
             return responseValidatorFactory;
         }
 

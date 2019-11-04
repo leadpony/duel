@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.core.spi;
 
-import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+import java.util.Optional;
 
-import javax.json.bind.Jsonb;
-
-import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.MediaType;
 
 /**
  * @author leadpony
  */
-interface TestContext {
+public interface Assertion {
 
-    Project getProject();
-
-    Jsonb getJsonBinder();
-
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+    void doAssert(HttpResponse<byte[]> response, Optional<MediaType> mediaType);
 }

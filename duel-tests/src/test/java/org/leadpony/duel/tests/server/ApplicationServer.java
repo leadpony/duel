@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.tests.server;
 
-import java.net.http.HttpClient;
-
-import javax.json.bind.Jsonb;
-
-import org.leadpony.duel.core.api.Project;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHandler;
 
 /**
  * @author leadpony
  */
-interface TestContext {
+public class ApplicationServer extends Server {
 
-    Project getProject();
-
-    Jsonb getJsonBinder();
-
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+    public ApplicationServer(int port) {
+        super(port);
+        ServletHandler handler = new ServletHandler();
+        setHandler(handler);
+        handler.addServletWithMapping(GreetingServlet.class, "/greeting");
+        handler.addServletWithMapping(JsonServlet.class, "/json");
+    }
 }

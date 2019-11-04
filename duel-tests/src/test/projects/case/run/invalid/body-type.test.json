@@ -1,0 +1,9 @@
+{
+    "path": "json",
+
+    "response": {
+        "body": {
+            "data": [1, 2, 3]
+        }
+    }
+}

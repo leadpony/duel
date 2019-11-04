@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.tests.helper;
 
-import java.net.http.HttpClient;
+import java.io.InputStream;
+import java.util.logging.LogManager;
 
-import javax.json.bind.Jsonb;
-
-import org.leadpony.duel.core.api.Project;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * @author leadpony
  */
-interface TestContext {
+class LoggingExtension implements BeforeAllCallback {
 
-    Project getProject();
+    private static final String CONFIG_FILE = "/logging.properties";
 
-    Jsonb getJsonBinder();
-
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        LogManager logManager = LogManager.getLogManager();
+        try (InputStream in = getClass().getResourceAsStream(CONFIG_FILE)) {
+            logManager.readConfiguration(in);
+        }
+    }
 }

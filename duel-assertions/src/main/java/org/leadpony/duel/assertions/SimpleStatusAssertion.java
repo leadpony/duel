@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.assertions;
 
-import java.net.http.HttpClient;
-
-import javax.json.bind.Jsonb;
-
-import org.leadpony.duel.core.api.Project;
+import java.net.http.HttpResponse;
 
 /**
  * @author leadpony
  */
-interface TestContext {
+class SimpleStatusAssertion extends AbstractAssertion {
 
-    Project getProject();
+    private final int expected;
 
-    Jsonb getJsonBinder();
+    SimpleStatusAssertion(int expected) {
+        this.expected = expected;
+    }
 
-    HttpClient getHttpClient();
+    @Override
+    public void doAssert(HttpResponse<byte[]> response) {
+        int actual = response.statusCode();
+        if (this.expected != actual) {
+            fail(buildMessage(actual), this.expected, actual);
+        }
+    }
 
-    AssertionFactory getAssertionFactory();
+    private String buildMessage(int actual) {
+        return Message.STATUS_CODE_NOT_EQUAL.format(this.expected, actual);
+    }
 }

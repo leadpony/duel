@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.core.spi;
 
-import java.net.http.HttpClient;
+import java.util.Collection;
 
-import javax.json.bind.Jsonb;
-
-import org.leadpony.duel.core.api.Project;
+import javax.json.JsonObject;
 
 /**
  * @author leadpony
  */
-interface TestContext {
+public interface AssertionProvider {
 
-    Project getProject();
-
-    Jsonb getJsonBinder();
-
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+    void provideAssertions(JsonObject config, Collection<Assertion> assertions);
 }

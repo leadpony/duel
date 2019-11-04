@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.tests.helper;
 
-import java.net.http.HttpClient;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import javax.json.bind.Jsonb;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import org.leadpony.duel.core.api.Project;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author leadpony
  */
-interface TestContext {
-
-    Project getProject();
-
-    Jsonb getJsonBinder();
-
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+@Retention(RUNTIME)
+@Target(TYPE)
+@ExtendWith(RunWithServerExtension.class)
+public @interface RunWithServer {
 }

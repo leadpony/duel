@@ -25,14 +25,16 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import javax.json.bind.Jsonb;
 
+import org.leadpony.duel.core.api.MediaType;
 import org.leadpony.duel.core.api.TestCase;
 import org.leadpony.duel.core.api.TestContainer;
 import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.internal.config.TestCaseConfig;
-import org.leadpony.duel.core.spi.ResponseValidator;
+import org.leadpony.duel.core.spi.Assertion;
 
 /**
  * @author leadpony
@@ -42,13 +44,13 @@ class BasicTestCase extends BasicTestNode implements TestCase {
     static final String FILE_PATTERN = "*.test.json";
 
     private final TestCaseConfig config;
-    private final ResponseValidator responseValidator;
+    private final Assertion assertion;
 
     BasicTestCase(Path path, TestContext context, TestContainer parent) {
         super(path, context, parent);
         this.config = loadConfig(path);
-        this.responseValidator = context.getResponseValidatorFactory()
-                .createValidator(config.getResponse());
+        this.assertion = context.getAssertionFactory()
+                .createAssertion(config.getResponse());
 
     }
 
@@ -83,7 +85,7 @@ class BasicTestCase extends BasicTestNode implements TestCase {
 
     private void runTest() {
         HttpRequest request = buildRequest();
-        HttpResponse<String> response = sendRequest(request);
+        HttpResponse<byte[]> response = sendRequest(request);
         validateResponse(response);
     }
 
@@ -101,10 +103,10 @@ class BasicTestCase extends BasicTestNode implements TestCase {
         return builder.build();
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) {
+    private HttpResponse<byte[]> sendRequest(HttpRequest request) {
         HttpClient client = getContext().getHttpClient();
         try {
-            return client.send(request, BodyHandlers.ofString());
+            return client.send(request, BodyHandlers.ofByteArray());
         } catch (IOException e) {
             throw new TestException(e.getMessage(), e);
         } catch (InterruptedException e) {
@@ -112,7 +114,9 @@ class BasicTestCase extends BasicTestNode implements TestCase {
         }
     }
 
-    private void validateResponse(HttpResponse<String> response) {
-        responseValidator.validateResponse(response);
+    private void validateResponse(HttpResponse<byte[]> response) {
+        Optional<MediaType> mediaType = response.headers().firstValue("content-type")
+                .map(MediaType::valueOf);
+        assertion.doAssert(response, mediaType);
     }
 }
