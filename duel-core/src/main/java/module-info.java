@@ -25,7 +25,6 @@ module org.leadpony.duel.core {
     requires transitive java.json;
     requires java.json.bind;
     requires java.net.http;
-    requires org.assertj.core;
 
     uses org.leadpony.duel.core.spi.AssertionProvider;
 }

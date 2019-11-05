@@ -26,9 +26,9 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.leadpony.duel.core.api.TestCase;
-import org.leadpony.duel.tests.helper.Logging;
-import org.leadpony.duel.tests.helper.ProjectSource;
-import org.leadpony.duel.tests.helper.RunWithServer;
+import org.leadpony.duel.tests.annotation.Logging;
+import org.leadpony.duel.tests.annotation.ProjectSource;
+import org.leadpony.duel.tests.annotation.RunFakeServer;
 
 /**
  * @author leadpony
@@ -52,7 +52,7 @@ public class TestCaseTest {
     /**
      * @author leadpony
      */
-    @RunWithServer
+    @RunFakeServer
     @Logging
     public static class RunTest {
 

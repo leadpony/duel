@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.tests.server;
-
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
-
 /**
  * @author leadpony
  */
-public class ApplicationServer extends Server {
+module org.leadpony.duel.fake.server {
+    exports org.leadpony.duel.fake.server;
 
-    public ApplicationServer(int port) {
-        super(port);
-        ServletHandler handler = new ServletHandler();
-        setHandler(handler);
-        handler.addServletWithMapping(GreetingServlet.class, "/greeting");
-        handler.addServletWithMapping(JsonServlet.class, "/json");
-    }
+    requires transitive java.servlet;
+    requires org.eclipse.jetty.server;
+    requires org.eclipse.jetty.util;
+    requires org.eclipse.jetty.servlet;
+    requires java.json;
 }

@@ -14,26 +14,9 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.spi;
-
-import java.util.Collection;
-
-import javax.json.JsonObject;
-
 /**
- * A provider of {@link Assertion} instances.
+ * Provides the classes useful for internal packages.
  *
  * @author leadpony
  */
-public interface AssertionProvider {
-
-    /**
-     * Provides assertions configured by the specified JSON object.
-     *
-     * @param config     the configuration for the assertions, never be
-     *                   {@code null}.
-     * @param assertions the collection to which the assertions will be added, never
-     *                   be {@code null}.
-     */
-    void provideAssertions(JsonObject config, Collection<Assertion> assertions);
-}
+package org.leadpony.duel.core.internal.common;

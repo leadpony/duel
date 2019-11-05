@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
@@ -41,7 +40,6 @@ import org.leadpony.duel.core.spi.AssertionProvider;
 public class BasicAssertionProvider implements AssertionProvider {
 
     private final JsonProvider jsonProvider;
-    private final JsonReaderFactory jsonReaderFactory;
     private final JsonWriterFactory jsonWriterFactory;
 
     private static final Map<String, ?> WRITER_CONFIG;
@@ -54,7 +52,6 @@ public class BasicAssertionProvider implements AssertionProvider {
 
     public BasicAssertionProvider() {
         this.jsonProvider = JsonProvider.provider();
-        this.jsonReaderFactory = this.jsonProvider.createReaderFactory(Collections.emptyMap());
         this.jsonWriterFactory = this.jsonProvider.createWriterFactory(WRITER_CONFIG);
     }
 
@@ -149,7 +146,6 @@ public class BasicAssertionProvider implements AssertionProvider {
             if (body.containsKey("data")) {
                 add(new JsonBodyAssertion(body.get("data"),
                         jsonProvider,
-                        jsonReaderFactory,
                         jsonWriterFactory));
             }
         }

@@ -39,9 +39,9 @@ class AssertionFactory {
 
     Assertion createAssertion(JsonObject config) {
         Collection<Assertion> assertions = findAssertions(config);
-        return (response, mediaType) -> {
+        return response -> {
             for (Assertion assertion : assertions) {
-                assertion.doAssert(response, mediaType);
+                assertion.assertOn(response);
             }
         };
     }

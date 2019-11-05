@@ -16,10 +16,6 @@
 
 package org.leadpony.duel.assertions;
 
-import java.net.http.HttpResponse;
-import java.util.Optional;
-
-import org.leadpony.duel.core.api.MediaType;
 import org.leadpony.duel.core.spi.Assertion;
 import org.opentest4j.AssertionFailedError;
 
@@ -27,14 +23,6 @@ import org.opentest4j.AssertionFailedError;
  * @author leadpony
  */
 abstract class AbstractAssertion implements Assertion {
-
-    @Override
-    public void doAssert(HttpResponse<byte[]> response, Optional<MediaType> mediaType) {
-        doAssert(response);
-    }
-
-    public void doAssert(HttpResponse<byte[]> response) {
-    }
 
     protected static void fail(String message, Object expected, Object actual) {
         throw new AssertionFailedError(message, expected, actual);

@@ -18,6 +18,8 @@ package org.leadpony.duel.assertions;
 
 import java.net.http.HttpResponse;
 
+import org.leadpony.duel.core.spi.ResponseBody;
+
 /**
  * @author leadpony
  */
@@ -30,7 +32,7 @@ class SimpleStatusAssertion extends AbstractAssertion {
     }
 
     @Override
-    public void doAssert(HttpResponse<byte[]> response) {
+    public void assertOn(HttpResponse<ResponseBody> response) {
         int actual = response.statusCode();
         if (this.expected != actual) {
             fail(buildMessage(actual), this.expected, actual);

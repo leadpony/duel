@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.tests.helper;
+package org.leadpony.duel.tests.annotation;
 
-import org.junit.jupiter.api.extension.AfterAllCallback;
+import java.io.InputStream;
+import java.util.logging.LogManager;
+
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.leadpony.duel.tests.server.ApplicationServer;
 
 /**
  * @author leadpony
  */
-class RunWithServerExtension implements BeforeAllCallback, AfterAllCallback {
+class LoggingExtension implements BeforeAllCallback {
 
-    private ApplicationServer server;
-
-    RunWithServerExtension() {
-    }
+    private static final String CONFIG_FILE = "/logging.properties";
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        server = new ApplicationServer(8080);
-        server.start();
-    }
-
-    @Override
-    public void afterAll(ExtensionContext context) throws Exception {
-        server.stop();
-        server = null;
+        LogManager logManager = LogManager.getLogManager();
+        try (InputStream in = getClass().getResourceAsStream(CONFIG_FILE)) {
+            logManager.readConfiguration(in);
+        }
     }
 }

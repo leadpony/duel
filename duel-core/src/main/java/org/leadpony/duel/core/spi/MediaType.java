@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.api;
+package org.leadpony.duel.core.spi;
 
+import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -37,14 +37,5 @@ public interface MediaType {
 
     Map<String, String> getParameters();
 
-    /**
-     * Creates a new instance by parsing the supplied string.
-     *
-     * @param value the media type string.
-     * @return the newly created instance of {@code MediaType}.
-     */
-    static MediaType valueOf(String value) {
-        Objects.requireNonNull(value, "value must not be null.");
-        return new MediaTypeParser(value).parse();
-    }
+    Charset getCharset(Charset defaultValue);
 }

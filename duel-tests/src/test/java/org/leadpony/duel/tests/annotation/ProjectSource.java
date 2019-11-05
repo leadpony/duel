@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.spi;
+package org.leadpony.duel.tests.annotation;
 
-import java.util.Collection;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import javax.json.JsonObject;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 /**
- * A provider of {@link Assertion} instances.
- *
  * @author leadpony
  */
-public interface AssertionProvider {
+@Retention(RUNTIME)
+@Target(METHOD)
+@ArgumentsSource(ProjectArgumentsProvider.class)
+public @interface ProjectSource {
 
-    /**
-     * Provides assertions configured by the specified JSON object.
-     *
-     * @param config     the configuration for the assertions, never be
-     *                   {@code null}.
-     * @param assertions the collection to which the assertions will be added, never
-     *                   be {@code null}.
-     */
-    void provideAssertions(JsonObject config, Collection<Assertion> assertions);
+    String[] value();
 }

@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.tests.helper;
+package org.leadpony.duel.tests.annotation;
 
-import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author leadpony
  */
 @Retention(RUNTIME)
-@Target(METHOD)
-@ArgumentsSource(ProjectArgumentsProvider.class)
-public @interface ProjectSource {
-
-    String[] value();
+@Target(TYPE)
+@ExtendWith(RunFakeServerExtension.class)
+public @interface RunFakeServer {
 }

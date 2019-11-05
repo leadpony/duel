@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.leadpony.duel.core.spi.ResponseBody;
+
 /**
  * @author leadpony
  */
@@ -35,7 +37,7 @@ class RequiredHeaderFieldAssertion extends AbstractAssertion {
     }
 
     @Override
-    public void doAssert(HttpResponse<byte[]> response) {
+    public void assertOn(HttpResponse<ResponseBody> response) {
         Set<String> actual = response.headers().map().keySet();
         if (!actual.containsAll(this.expected)) {
             fail(buildMessage(actual), this.expected, actual);

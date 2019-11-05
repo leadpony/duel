@@ -16,18 +16,11 @@
 
 package org.leadpony.duel.assertions;
 
-import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.net.http.HttpResponse;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Optional;
 
 import javax.json.JsonArray;
 import javax.json.JsonPatch;
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
 import javax.json.JsonStructure;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
@@ -35,52 +28,28 @@ import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.spi.JsonProvider;
 
-import org.leadpony.duel.core.api.MediaType;
+import org.leadpony.duel.core.spi.ResponseBody;
 
 /**
  * @author leadpony
  */
 class JsonBodyAssertion extends AbstractAssertion {
 
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
     private final JsonValue expected;
     private final JsonProvider jsonProvider;
-    private final JsonReaderFactory readerFactory;
     private final JsonWriterFactory writerFactory;
 
-    JsonBodyAssertion(JsonValue expected, JsonProvider jsonProvider, JsonReaderFactory readerFactory,
-            JsonWriterFactory writerFactory) {
+    JsonBodyAssertion(JsonValue expected, JsonProvider jsonProvider, JsonWriterFactory writerFactory) {
         this.expected = expected;
         this.jsonProvider = jsonProvider;
-        this.readerFactory = readerFactory;
         this.writerFactory = writerFactory;
     }
 
     @Override
-    public void doAssert(HttpResponse<byte[]> response, Optional<MediaType> mediaType) {
-        Charset encoding = guessCharset(mediaType);
-        JsonValue actual = mapToJson(response.body(), encoding);
+    public void assertOn(HttpResponse<ResponseBody> response) {
+        JsonValue actual = response.body().asJson();
         testValueType(actual.getValueType());
         testValue(actual);
-    }
-
-    private JsonValue mapToJson(byte[] body, Charset encoding) {
-        ByteArrayInputStream in = new ByteArrayInputStream(body);
-        try (JsonReader reader = readerFactory.createReader(in, encoding)) {
-            return reader.readValue();
-        }
-    }
-
-    private static Charset guessCharset(Optional<MediaType> mediaType) {
-        return mediaType.map(type -> {
-            Map<String, String> parameters = type.getParameters();
-            if (parameters.containsKey("charset")) {
-                return Charset.forName(parameters.get("charset"));
-            } else {
-                return DEFAULT_CHARSET;
-            }
-        }).orElse(DEFAULT_CHARSET);
     }
 
     private void testValueType(ValueType actual) {
@@ -110,10 +79,10 @@ class JsonBodyAssertion extends AbstractAssertion {
 
     private String buildMessage(JsonArray diff) {
         return Message.JSON_BODY_STRUCTURE_NOT_EQUAL
-                .format(diffToString(diff));
+                .format(stringifyDiff(diff));
     }
 
-    private String diffToString(JsonArray diff) {
+    private String stringifyDiff(JsonArray diff) {
         StringWriter stringWriter = new StringWriter();
         try (JsonWriter writer = writerFactory.createWriter(stringWriter)) {
             writer.writeArray(diff);

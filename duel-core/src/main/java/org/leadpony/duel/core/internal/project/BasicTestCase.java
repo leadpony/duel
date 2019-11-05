@@ -22,19 +22,23 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
+import java.net.http.HttpResponse.BodySubscriber;
+import java.net.http.HttpResponse.BodySubscribers;
+import java.net.http.HttpResponse.ResponseInfo;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
 import javax.json.bind.Jsonb;
 
-import org.leadpony.duel.core.api.MediaType;
 import org.leadpony.duel.core.api.TestCase;
 import org.leadpony.duel.core.api.TestContainer;
 import org.leadpony.duel.core.api.TestException;
+import org.leadpony.duel.core.internal.common.MediaTypeParser;
 import org.leadpony.duel.core.internal.config.TestCaseConfig;
 import org.leadpony.duel.core.spi.Assertion;
+import org.leadpony.duel.core.spi.MediaType;
+import org.leadpony.duel.core.spi.ResponseBody;
 
 /**
  * @author leadpony
@@ -85,7 +89,7 @@ class BasicTestCase extends BasicTestNode implements TestCase {
 
     private void runTest() {
         HttpRequest request = buildRequest();
-        HttpResponse<byte[]> response = sendRequest(request);
+        HttpResponse<ResponseBody> response = sendRequest(request);
         validateResponse(response);
     }
 
@@ -103,10 +107,10 @@ class BasicTestCase extends BasicTestNode implements TestCase {
         return builder.build();
     }
 
-    private HttpResponse<byte[]> sendRequest(HttpRequest request) {
+    private HttpResponse<ResponseBody> sendRequest(HttpRequest request) {
         HttpClient client = getContext().getHttpClient();
         try {
-            return client.send(request, BodyHandlers.ofByteArray());
+            return client.send(request, this::createBodySubscriber);
         } catch (IOException e) {
             throw new TestException(e.getMessage(), e);
         } catch (InterruptedException e) {
@@ -114,9 +118,22 @@ class BasicTestCase extends BasicTestNode implements TestCase {
         }
     }
 
-    private void validateResponse(HttpResponse<byte[]> response) {
-        Optional<MediaType> mediaType = response.headers().firstValue("content-type")
-                .map(MediaType::valueOf);
-        assertion.doAssert(response, mediaType);
+    private BodySubscriber<ResponseBody> createBodySubscriber(ResponseInfo responseInfo) {
+            return BodySubscribers.mapping(
+                    BodySubscribers.ofByteArray(),
+                    byteArray -> {
+                        return new ResponseBodyImpl(byteArray,
+                                parseMediaType(responseInfo),
+                                getContext());
+                    });
+    }
+
+    private Optional<MediaType> parseMediaType(ResponseInfo responseInfo) {
+        return responseInfo.headers().firstValue("content-type")
+            .map(value -> new MediaTypeParser(value).parse());
+    }
+
+    private void validateResponse(HttpResponse<ResponseBody> response) {
+        assertion.assertOn(response);
     }
 }

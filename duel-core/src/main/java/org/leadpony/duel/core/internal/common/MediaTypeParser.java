@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.api;
+package org.leadpony.duel.core.internal.common;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.leadpony.duel.core.spi.MediaType;
 
 /**
  * A parser for producing an instance of {@link MediaType}.
  *
  * @author leadpony
  */
-final class MediaTypeParser {
+public final class MediaTypeParser {
 
     private final String value;
 
@@ -36,11 +39,11 @@ final class MediaTypeParser {
     private String suffix;
     private Map<String, String> parameters;
 
-    MediaTypeParser(String value) {
+    public MediaTypeParser(String value) {
         this.value = value;
     }
 
-    MediaType parse() {
+    public MediaType parse() {
         String[] parts = this.value.split(";");
         parseTypePart(parts[0]);
         this.parameters = parseParameters(parts);
@@ -142,6 +145,15 @@ final class MediaTypeParser {
         @Override
         public Map<String, String> getParameters() {
             return parameters;
+        }
+
+        @Override
+        public Charset getCharset(Charset defaultValue) {
+            if (parameters.containsKey("charset")) {
+                return Charset.forName(parameters.get("charset"));
+            } else {
+                return defaultValue;
+            }
         }
     }
 }

@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.tests.helper;
-
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import org.junit.jupiter.api.extension.ExtendWith;
-
 /**
+ * Provides a fake application server.
+ *
  * @author leadpony
  */
-@Retention(RUNTIME)
-@Target(TYPE)
-@ExtendWith(LoggingExtension.class)
-public @interface Logging {
-}
+package org.leadpony.duel.fake.server;

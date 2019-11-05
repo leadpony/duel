@@ -1,5 +1,5 @@
 {
-    "path": "greeting",
+    "path": "json/greeting",
 
     "response": {
         "header": {

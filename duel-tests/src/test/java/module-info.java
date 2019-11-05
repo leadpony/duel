@@ -22,11 +22,9 @@ open module org.leadpony.duel.tests {
     requires java.servlet;
 
     requires org.leadpony.duel.core;
+    requires org.leadpony.duel.fake.server;
     requires org.junit.jupiter.api;
     requires org.assertj.core;
     requires org.junit.jupiter.params;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
     requires java.json;
 }

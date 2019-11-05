@@ -20,9 +20,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.nio.file.Path;
+import java.util.Collections;
 
+import javax.json.JsonReaderFactory;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.TestContainer;
@@ -37,6 +40,7 @@ class ProjectImpl implements Project {
     private final Path startPath;
     private final ProjectConfig config;
 
+    private final JsonProvider jsonProvider = JsonProvider.provider();
     private final Jsonb jsonb = JsonbBuilder.create();
 
     ProjectImpl(Path projectPath, Path startPath, ProjectConfig config) {
@@ -72,16 +76,23 @@ class ProjectImpl implements Project {
     class ProjectTestContext implements TestContext {
 
         private final HttpClient httpClient;
+        private final JsonReaderFactory jsonReaderFactory;
         private final AssertionFactory responseValidatorFactory;
 
         ProjectTestContext() {
             this.httpClient = buildHttpClient();
+            this.jsonReaderFactory = jsonProvider.createReaderFactory(Collections.emptyMap());
             this.responseValidatorFactory = new AssertionFactory();
         }
 
         @Override
         public Project getProject() {
             return ProjectImpl.this;
+        }
+
+        @Override
+        public JsonReaderFactory getJsonReaderFactory() {
+            return jsonReaderFactory;
         }
 
         @Override

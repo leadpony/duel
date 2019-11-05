@@ -14,7 +14,31 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.spi;
+
+import java.util.Optional;
+
+import javax.json.JsonValue;
+
 /**
  * @author leadpony
  */
-package org.leadpony.duel.tests.server;
+public interface ResponseBody {
+
+    boolean isEmpty();
+
+    Optional<MediaType> getMediaType();
+
+    /**
+     * Returns this response body as a byte array.
+     * @return the byte array.
+     */
+    byte[] asByteArray();
+
+    /**
+     * Returns this response body as a JSON value.
+     * @return the JSON value.
+     * @throws JsonException if the body is not a JSON.
+     */
+    JsonValue asJson();
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.tests.helper;
+package org.leadpony.duel.tests.annotation;
 
 import java.nio.file.Paths;
 import java.util.stream.Stream;

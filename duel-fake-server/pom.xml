@@ -11,9 +11,9 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>duel-core</artifactId>
+    <artifactId>duel-fake-server</artifactId>
     <packaging>jar</packaging>
-    <name>org.leadpony.duel.core</name>
+    <name>org.leadpony.duel.fake.server</name>
 
     <dependencies>
         <dependency>
@@ -21,23 +21,21 @@
             <artifactId>jakarta.json-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.json.bind</groupId>
-            <artifactId>jakarta.json.bind-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse</groupId>
-            <artifactId>yasson</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.leadpony.joy</groupId>
+            <artifactId>joy</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

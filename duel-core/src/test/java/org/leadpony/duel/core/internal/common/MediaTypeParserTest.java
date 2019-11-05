@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.tests.core;
+package org.leadpony.duel.core.internal.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,12 +24,12 @@ import java.util.Optional;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.leadpony.duel.core.api.MediaType;
+import org.leadpony.duel.core.spi.MediaType;
 
 /**
  * @author leadpony
  */
-public class MediaTypeTest {
+public class MediaTypeParserTest {
 
     /**
      * @author leadpony
@@ -89,7 +89,8 @@ public class MediaTypeTest {
     @ParameterizedTest
     @EnumSource(MediaTypeTestCase.class)
     public void valueOfShouldReturnExpectedMediaType(MediaTypeTestCase test) {
-        MediaType mediaType = MediaType.valueOf(test.value);
+        MediaTypeParser parser = new MediaTypeParser(test.value);
+        MediaType mediaType = parser.parse();
 
         assertThat(mediaType.getType()).isEqualTo(test.type);
         assertThat(mediaType.getSubtype()).isEqualTo(test.subtype);

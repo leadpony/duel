@@ -17,14 +17,19 @@
 package org.leadpony.duel.core.spi;
 
 import java.net.http.HttpResponse;
-import java.util.Optional;
-
-import org.leadpony.duel.core.api.MediaType;
 
 /**
+ * An assertion on the HTTP response.
+ *
  * @author leadpony
  */
 public interface Assertion {
 
-    void doAssert(HttpResponse<byte[]> response, Optional<MediaType> mediaType);
+    /**
+     * Asserts something on the HTTP response.
+     *
+     * @param response  the HTTP response, never be {@code null}.
+     * @throws AssertionError if the assertion failed.
+     */
+    void assertOn(HttpResponse<ResponseBody> response);
 }
