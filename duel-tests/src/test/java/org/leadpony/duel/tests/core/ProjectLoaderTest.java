@@ -44,7 +44,7 @@ public class ProjectLoaderTest {
         Path path = Paths.get(BASE_PATH, "valid", dir);
         Project project = ProjectLoader.loadFrom(path);
 
-        assertThat(project).isNotNull();
+        assertThat((Object) project).isNotNull();
         assertThat(project.getVersion()).isEqualTo(1);
         assertThat(project.getId().toString()).endsWith("/" + dir + "/project.json");
     }

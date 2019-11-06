@@ -1,0 +1,14 @@
+{
+    "path": "echo",
+    "method": "POST",
+    
+    "request": {
+        "body": null
+    },
+
+    "response": {
+        "body": {
+            "data": null
+        }
+    }
+}

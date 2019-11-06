@@ -17,6 +17,12 @@
 package org.leadpony.duel.core.internal.config;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
@@ -26,9 +32,10 @@ import javax.json.JsonValue;
  */
 public final class TestCaseConfig extends TestNodeConfig {
 
+    private static final Request DEFAULT_REQUEST = new Request();
+
     private URI path;
-    private String method = "GET";
-    private JsonObject request = JsonValue.EMPTY_JSON_OBJECT;
+    private Request request = DEFAULT_REQUEST;
     private JsonObject response = JsonValue.EMPTY_JSON_OBJECT;
 
     public URI getPath() {
@@ -39,19 +46,11 @@ public final class TestCaseConfig extends TestNodeConfig {
         this.path = path;
     }
 
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public JsonObject getRequest() {
+    public Request getRequest() {
         return request;
     }
 
-    public void setRequest(JsonObject request) {
+    public void setRequest(Request request) {
         this.request = request;
     }
 
@@ -61,5 +60,58 @@ public final class TestCaseConfig extends TestNodeConfig {
 
     public void setResponse(JsonObject response) {
         this.response = response;
+    }
+
+    /**
+     * @author leadpony
+     */
+    public static class Request {
+
+        private Map<String, List<String>> query = Collections.emptyMap();
+        private Map<String, List<String>> header = Collections.emptyMap();
+        private JsonValue body;
+
+        public Map<String, List<String>> getQuery() {
+            return query;
+        }
+
+        public void setQuery(Map<String, ?> query) {
+            this.query = toMultiMap(query);
+        }
+
+        public Map<String, List<String>> getHeader() {
+            return header;
+        }
+
+        public void setHeader(Map<String, ?> header) {
+            this.header = toMultiMap(header);
+        }
+
+        public Optional<JsonValue> getBody() {
+            return Optional.ofNullable(body);
+        }
+
+        public void setBody(JsonValue body) {
+            if (body == null) {
+                body = JsonValue.NULL;
+            }
+            this.body = body;
+        }
+
+        private static Map<String, List<String>> toMultiMap(Map<String, ?> map) {
+            Map<String, List<String>> newMap = new HashMap<>();
+            map.forEach((key, value) -> {
+                List<String> values = new ArrayList<>();
+                if (value instanceof List) {
+                    ((List<?>) value).stream()
+                        .map(Object::toString)
+                        .forEach(values::add);
+                } else {
+                    values.add(value.toString());
+                }
+                newMap.put(key, values);
+            });
+            return newMap;
+        }
     }
 }

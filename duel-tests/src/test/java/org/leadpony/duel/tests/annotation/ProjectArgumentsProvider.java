@@ -16,6 +16,7 @@
 
 package org.leadpony.duel.tests.annotation;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
@@ -25,7 +26,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.support.AnnotationConsumer;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectLoader;
-import org.leadpony.duel.core.api.TestCase;
+import org.leadpony.duel.core.api.TestGroup;
 
 /**
  * @author leadpony
@@ -45,12 +46,18 @@ public class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationCo
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
         return Stream.of(values)
             .map(value -> Paths.get(BASE_PATH, value))
-            .flatMap(path -> {
-                Project project = ProjectLoader.loadFrom(path);
-                return project.generateTests().children()
-                        .filter(node -> node instanceof TestCase)
-                        .map(node -> (TestCase) node)
-                        .map(node -> Arguments.of(node));
-            });
+            .flatMap(this::testsFromProject);
+    }
+
+    private Stream<Arguments> testsFromProject(Path path) {
+        Project project = ProjectLoader.loadFrom(path);
+        return testsFromGroup(project.createRootGroup());
+    }
+
+    private Stream<Arguments> testsFromGroup(TestGroup group) {
+        Stream<Arguments> children = group.testCases().map(Arguments::of);
+        Stream<Arguments> descendants = group.subgroups()
+                .flatMap(this::testsFromGroup);
+        return Stream.concat(children, descendants);
     }
 }

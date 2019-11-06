@@ -1,0 +1,12 @@
+{
+    "path": "diagnostic/method",
+    "method": "POST",
+    
+    "response": {
+        "body": {
+            "data": {
+                "method": "POST"
+            }
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "path": "echo",
+    "method": "POST",
+    
+    "request": {
+        "body": 365
+    },
+
+    "response": {
+        "body": {
+            "data": 365
+        }
+    }
+}

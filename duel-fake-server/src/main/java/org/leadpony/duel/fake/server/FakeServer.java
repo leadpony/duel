@@ -16,7 +16,14 @@
 
 package org.leadpony.duel.fake.server;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ShutdownHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 
 /**
@@ -24,18 +31,45 @@ import org.eclipse.jetty.servlet.ServletHandler;
  */
 public class FakeServer extends Server {
 
+    private static final int PORT = 8080;
+    private static final String SHUTDOWN_TOKEN = "secret";
+
     public FakeServer(int port) {
         super(port);
+        HandlerList handlers = new HandlerList();
+        handlers.addHandler(new ShutdownHandler(SHUTDOWN_TOKEN));
         ServletHandler handler = new ServletHandler();
-        setHandler(handler);
+        addServlets(handler);
+        handlers.addHandler(handler);
+        setHandler(handlers);
+    }
+
+    private static void addServlets(ServletHandler handler) {
         handler.addServletWithMapping(JsonResourceServlet.class, "/json/*");
-        handler.addServletWithMapping(DiagnosticServlet.class, "/diagnostic");
+        handler.addServletWithMapping(DiagnosticServlet.class, "/diagnostic/*");
+        handler.addServletWithMapping(EchoServlet.class, "/echo/*");
     }
 
     public static void main(String[] args) throws Exception {
-        int port = args.length > 0 ? Integer.valueOf(args[0]) : 8080;
-        FakeServer server = new FakeServer(port);
-        server.start();
-        server.join();
+        if (args.length > 0 && args[0].equals("stop")) {
+            shutdown(PORT);
+        } else {
+            FakeServer server = new FakeServer(PORT);
+            server.start();
+            server.join();
+        }
+    }
+
+    private static void shutdown(int port) {
+        try {
+           URL url = new URL("http://localhost:" + port + "/shutdown?token=" + SHUTDOWN_TOKEN);
+           HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+           connection.setRequestMethod("POST");
+           connection.getResponseCode();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

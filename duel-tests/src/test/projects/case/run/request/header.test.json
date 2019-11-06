@@ -1,0 +1,24 @@
+{
+    "path": "diagnostic/header",
+    "method": "GET",
+    
+    "request": {
+        "header": {
+            "Authorization": "Bearer mF_9.B5f-4.1JqM",
+            "User-Agent": "test"
+        }
+    },
+
+    "response": {
+        "body": {
+            "data": {
+                "header": {
+                    "Authorization": "Bearer mF_9.B5f-4.1JqM",
+                    "User-Agent": "test",
+                    "Host": "localhost:8080",
+                    "Content-Length": "0"
+                }
+            }
+        }
+    }
+}

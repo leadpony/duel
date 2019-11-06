@@ -16,17 +16,16 @@
 
 package org.leadpony.duel.core.internal.config;
 
-import java.net.URI;
-
 /**
  * @author leadpony
  */
 public class ProjectConfig extends Config {
 
-    private static final URI DEFAULT_BASE_URL = URI.create("");
-
     private int version = 1;
-    private URI baseUrl = DEFAULT_BASE_URL;
+
+    public ProjectConfig() {
+        setBaseUrl("");
+    }
 
     public int getVersion() {
         return version;
@@ -34,16 +33,5 @@ public class ProjectConfig extends Config {
 
     public void setVersion(int version) {
         this.version = version;
-    }
-
-    public URI getBaseUrl() {
-        return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        if (!baseUrl.endsWith("/")) {
-            baseUrl = baseUrl + "/";
-        }
-        this.baseUrl = URI.create(baseUrl);
     }
 }

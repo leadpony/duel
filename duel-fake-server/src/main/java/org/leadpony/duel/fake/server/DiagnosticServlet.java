@@ -65,7 +65,8 @@ public class DiagnosticServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
@@ -75,9 +76,26 @@ public class DiagnosticServlet extends HttpServlet {
     }
 
     private JsonObject buildJson(HttpServletRequest request) {
+        String path = request.getPathInfo();
+        if (path == null) {
+            path = "/";
+        }
+
+        final boolean full = path.equals("/");
+
         JsonObjectBuilder builder = builderFactory.createObjectBuilder();
-        builder.add("header", buildHeaderObject(request));
-        builder.add("parameters", buildParametersObject(request));
+        if (full || path.equals("/method")) {
+            builder.add("method", request.getMethod());
+        }
+
+        if (full || path.equals("/header")) {
+            builder.add("header", buildHeaderObject(request));
+        }
+
+        if (full || path.equals("/parameters")) {
+            builder.add("parameters", buildParametersObject(request));
+        }
+
         return builder.build();
     }
 

@@ -16,26 +16,14 @@
 
 package org.leadpony.duel.core.api;
 
-import java.net.URI;
-import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * @author leadpony
  */
-public interface Project {
+public interface PropertyFinder {
 
-    String FILE_NAME = "project.json";
-
-    /**
-     * Returns the version of this project.
-     *
-     * @return the version of this project.
-     */
-    int getVersion();
-
-    URI getId();
-
-    Path getPath();
-
-    TestGroup createRootGroup();
+    default Optional<String> findProperty(String name) {
+        return Optional.empty();
+    }
 }

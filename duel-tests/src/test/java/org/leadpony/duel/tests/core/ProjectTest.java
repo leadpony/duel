@@ -26,7 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectLoader;
-import org.leadpony.duel.core.api.TestContainer;
+import org.leadpony.duel.core.api.TestGroup;
 
 /**
  * @author leadpony
@@ -43,11 +43,11 @@ public class ProjectTest {
         SINGLE(1, 1),
         MULTIPLE(1, 3);
 
-        final int containers;
+        final int groups;
         final int cases;
 
-        ProjectTestCase(int containers, int cases) {
-            this.containers = containers;
+        ProjectTestCase(int groups, int cases) {
+            this.groups = groups;
             this.cases = cases;
         }
 
@@ -71,42 +71,33 @@ public class ProjectTest {
 
     @ParameterizedTest
     @EnumSource(ProjectTestCase.class)
-    public void getBaseUrlShouldReturnExpectedUrl(ProjectTestCase test) {
+    public void getPathShouldReturnExpectedPath(ProjectTestCase test) {
         Project project = ProjectLoader.loadFrom(test.getStartPath());
-
-        assertThat(project.getBaseUrl()).isEqualTo(test.getBaseUrl());
+        Path path = project.getPath();
+        assertThat(path.getFileName().toString()).isEqualTo("project.json");
     }
 
     @ParameterizedTest
     @EnumSource(ProjectTestCase.class)
-    public void generateTestsShouldGenerateExpectedTests(ProjectTestCase test) {
+    public void createRootGroupShouldGenerateExpectedTests(ProjectTestCase test) {
         Project project = ProjectLoader.loadFrom(test.getStartPath());
-        TestContainer root = project.generateTests();
-
-        assertThat((Object) root).isNotNull();
-        assertThat(countContainers(root)).isEqualTo(test.containers);
-        assertThat(countCases(root)).isEqualTo(test.cases);
+        TestGroup group = project.createRootGroup();
+        assertThat(countGroups(group)).isEqualTo(test.groups);
+        assertThat(countCases(group)).isEqualTo(test.cases);
     }
 
-    private int countContainers(TestContainer container) {
-        return container.children()
-                .filter(node -> node instanceof TestContainer)
-                .map(node -> (TestContainer) node)
-                .reduce(1,
-                    (sum, node) -> sum + countContainers(node),
-                    Integer::sum);
+    private long countGroups(TestGroup group) {
+        return group.subgroups()
+                .reduce(1L,
+                    (sum, node) -> sum + countGroups(node),
+                    Long::sum);
     }
 
-    private int countCases(TestContainer container) {
-        return container.children()
-                .reduce(0,
-                    (sum, node) -> {
-                        if (node instanceof TestContainer) {
-                            return sum + countCases((TestContainer) node);
-                        } else {
-                            return sum + 1;
-                        }
-                    },
-                    Integer::sum);
+    private long countCases(TestGroup group) {
+        long count = group.testCases().count();
+        return group.subgroups()
+                .reduce(count,
+                    (sum, node) -> sum + countCases(node),
+                    Long::sum);
     }
 }

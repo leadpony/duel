@@ -1,0 +1,22 @@
+{
+    "path": "diagnostic/parameters",
+    "method": "GET",
+    
+    "request": {
+        "query": {
+            "name": "ferret",
+            "color": "purple"
+        }
+    },
+
+    "response": {
+        "body": {
+            "data": {
+                "parameters": {
+                    "name": "ferret",
+                    "color": "purple"
+                }
+            }
+        }
+    }
+}

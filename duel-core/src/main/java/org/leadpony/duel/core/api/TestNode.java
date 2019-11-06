@@ -18,11 +18,12 @@ package org.leadpony.duel.core.api;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * @author leadpony
  */
-public interface TestNode extends Comparable<TestNode> {
+public interface TestNode extends PropertyFinder, Comparable<TestNode> {
 
     /**
      * Returns the identifier of this node.
@@ -31,6 +32,10 @@ public interface TestNode extends Comparable<TestNode> {
      */
     URI getId();
 
+    Path getPath();
+
+    Path getDirectory();
+
     /**
      * Returns the name of this node for display.
      *
@@ -38,9 +43,14 @@ public interface TestNode extends Comparable<TestNode> {
      */
     String getName();
 
-    Path getPath();
+    /**
+     * Returns the parent of this node.
+     *
+     * @return the parent of this node, may be empty.
+     */
+    Optional<TestNode> getParent();
 
-    TestContainer getParent();
+    URI getBaseUrl();
 
     @Override
     default int compareTo(TestNode other) {

@@ -19,9 +19,23 @@ package org.leadpony.duel.core.api;
 import java.util.stream.Stream;
 
 /**
+ * A group of test cases.
+ *
  * @author leadpony
  */
-public interface TestContainer extends TestNode, Iterable<TestNode> {
+public interface TestGroup extends TestNode, Iterable<TestNode> {
 
-    Stream<TestNode> children();
+    /**
+     * Returns the test cases in this group as a stream.
+     *
+     * @return the stream of the test cases.
+     */
+    Stream<TestCase> testCases();
+
+    /**
+     * Returns the subgroups of this group as a stream.
+     *
+     * @return the stream of the test groups.
+     */
+    Stream<TestGroup> subgroups();
 }

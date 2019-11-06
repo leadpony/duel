@@ -59,7 +59,7 @@ public class TestCaseTest {
         private static final Logger LOG = Logger.getLogger(RunTest.class.getName());
 
         @ParameterizedTest
-        @ProjectSource("case/run/valid")
+        @ProjectSource({"case/run/valid", "case/run/request"})
         public void runShouldSucceedIfResponseIsValid(TestCase test) {
             test.run();
         }

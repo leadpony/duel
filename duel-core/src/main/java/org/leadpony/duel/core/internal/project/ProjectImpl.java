@@ -28,7 +28,7 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.TestContainer;
+import org.leadpony.duel.core.api.TestGroup;
 import org.leadpony.duel.core.internal.config.ProjectConfig;
 
 /**
@@ -37,6 +37,7 @@ import org.leadpony.duel.core.internal.config.ProjectConfig;
 class ProjectImpl implements Project {
 
     private final Path projectPath;
+    @SuppressWarnings("unused")
     private final Path startPath;
     private final ProjectConfig config;
 
@@ -49,10 +50,7 @@ class ProjectImpl implements Project {
         this.config = config;
     }
 
-    @Override
-    public URI getId() {
-        return projectPath.toUri();
-    }
+    /* As a Project */
 
     @Override
     public int getVersion() {
@@ -60,14 +58,19 @@ class ProjectImpl implements Project {
     }
 
     @Override
-    public URI getBaseUrl() {
-        return config.getBaseUrl();
+    public URI getId() {
+        return getPath().toUri();
     }
 
     @Override
-    public TestContainer generateTests() {
+    public Path getPath() {
+        return projectPath;
+    }
+
+    @Override
+    public TestGroup createRootGroup() {
         TestContext context = new ProjectTestContext();
-        return new BasicTestContainer(this.startPath, context, null);
+        return new TestGroupImpl(getPath(), config, context);
     }
 
     /**
