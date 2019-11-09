@@ -18,9 +18,10 @@ package org.leadpony.duel.tests.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -38,7 +39,7 @@ public class ProjectTest {
     /**
      * @author leadpony
      */
-    public enum ProjectTestCase {
+    public enum CountTestCase {
         EMPTY(1, 0),
         SINGLE(1, 1),
         MULTIPLE(1, 3);
@@ -46,40 +47,19 @@ public class ProjectTest {
         final int groups;
         final int cases;
 
-        ProjectTestCase(int groups, int cases) {
+        CountTestCase(int groups, int cases) {
             this.groups = groups;
             this.cases = cases;
         }
 
         Path getStartPath() {
-            return Paths.get(BASE_PATH, name().toLowerCase());
-        }
-
-        URI getBaseUrl() {
-            return URI.create("http://example.org/example-api/");
+            return Paths.get(BASE_PATH, "count", name().toLowerCase());
         }
     }
 
     @ParameterizedTest
-    @EnumSource(ProjectTestCase.class)
-    public void getIdShouldReturnExpectedId(ProjectTestCase test) {
-        Project project = ProjectLoader.loadFrom(test.getStartPath());
-
-        String suffix = "/" + test.name().toLowerCase() + "/project.json";
-        assertThat(project.getId().toString()).endsWith(suffix);
-    }
-
-    @ParameterizedTest
-    @EnumSource(ProjectTestCase.class)
-    public void getPathShouldReturnExpectedPath(ProjectTestCase test) {
-        Project project = ProjectLoader.loadFrom(test.getStartPath());
-        Path path = project.getPath();
-        assertThat(path.getFileName().toString()).isEqualTo("project.json");
-    }
-
-    @ParameterizedTest
-    @EnumSource(ProjectTestCase.class)
-    public void createRootGroupShouldGenerateExpectedTests(ProjectTestCase test) {
+    @EnumSource(CountTestCase.class)
+    public void createRootGroupShouldGenerateExpectedTests(CountTestCase test) {
         Project project = ProjectLoader.loadFrom(test.getStartPath());
         TestGroup group = project.createRootGroup();
         assertThat(countGroups(group)).isEqualTo(test.groups);
@@ -99,5 +79,35 @@ public class ProjectTest {
                 .reduce(count,
                     (sum, node) -> sum + countCases(node),
                     Long::sum);
+    }
+
+    /**
+     * @author leadpony
+     */
+    public enum ProperyTestCase {
+        SIMPLE() {{
+            expected.put("firstName", "John");
+            expected.put("lastName", "Smith");
+        }},
+
+        EXPANDED() {{
+            expected.put("firstName", "John");
+            expected.put("lastName", "Smith");
+            expected.put("fullName", "John Smith");
+        }};
+
+        final Map<String, String> expected = new HashMap<>();
+
+        Path getStartPath() {
+            return Paths.get(BASE_PATH, "property", name().toLowerCase());
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(ProperyTestCase.class)
+    public void getPropertiesShouldReturnPropertiesAsExpected(ProperyTestCase test) {
+        Project project = ProjectLoader.loadFrom(test.getStartPath());
+        var actual = project.getProperties();
+        assertThat(actual).isEqualTo(test.expected);
     }
 }

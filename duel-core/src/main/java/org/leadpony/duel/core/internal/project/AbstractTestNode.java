@@ -20,6 +20,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import org.leadpony.duel.core.api.TestNode;
@@ -67,14 +69,20 @@ abstract class AbstractTestNode implements TestNode {
 
     @Override
     public URI getBaseUrl() {
-        URI url = getConfig().getBaseUrl();
+        String url = getConfig().getBaseUrl();
         if (url != null) {
-            return url;
+            return URI.create(url);
         }
         return getParent()
                 .map(TestNode::getBaseUrl)
                 .orElse(URI.create(""));
     }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(getConfig().getProperties());
+    }
+
 
     @Override
     public String toString() {

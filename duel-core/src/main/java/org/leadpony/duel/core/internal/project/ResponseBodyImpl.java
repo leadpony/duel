@@ -16,15 +16,13 @@
 
 package org.leadpony.duel.core.internal.project;
 
-import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import javax.json.JsonReader;
-import javax.json.JsonReaderFactory;
 import javax.json.JsonValue;
 
+import org.leadpony.duel.core.internal.common.Json;
 import org.leadpony.duel.core.spi.MediaType;
 import org.leadpony.duel.core.spi.ResponseBody;
 
@@ -37,14 +35,12 @@ class ResponseBodyImpl implements ResponseBody {
 
     private final byte[] byteArray;
     private final Optional<MediaType> mediaType;
-    private final TestContext context;
 
     private JsonValue cachedJson;
 
-    ResponseBodyImpl(byte[] byteArray, Optional<MediaType> mediaType, TestContext context) {
+    ResponseBodyImpl(byte[] byteArray, Optional<MediaType> mediaType) {
         this.byteArray = byteArray;
         this.mediaType = mediaType;
-        this.context = context;
     }
 
     @Override
@@ -71,11 +67,7 @@ class ResponseBodyImpl implements ResponseBody {
     }
 
     private JsonValue getJsonValue() {
-        ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
-        JsonReaderFactory factory = context.getJsonReaderFactory();
-        try (JsonReader reader = factory.createReader(in, guessEncoding())) {
-            return reader.readValue();
-        }
+        return Json.readFrom(byteArray, guessEncoding());
     }
 
     private Charset guessEncoding() {

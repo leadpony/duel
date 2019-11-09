@@ -20,12 +20,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.nio.file.Path;
-import java.util.Collections;
-
-import javax.json.JsonReaderFactory;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.spi.JsonProvider;
+import java.util.Map;
 
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.TestGroup;
@@ -40,9 +35,6 @@ class ProjectImpl implements Project {
     @SuppressWarnings("unused")
     private final Path startPath;
     private final ProjectConfig config;
-
-    private final JsonProvider jsonProvider = JsonProvider.provider();
-    private final Jsonb jsonb = JsonbBuilder.create();
 
     ProjectImpl(Path projectPath, Path startPath, ProjectConfig config) {
         this.projectPath = projectPath;
@@ -68,6 +60,11 @@ class ProjectImpl implements Project {
     }
 
     @Override
+    public Map<String, String> getProperties() {
+        return config.getProperties();
+    }
+
+    @Override
     public TestGroup createRootGroup() {
         TestContext context = new ProjectTestContext();
         return new TestGroupImpl(getPath(), config, context);
@@ -79,28 +76,16 @@ class ProjectImpl implements Project {
     class ProjectTestContext implements TestContext {
 
         private final HttpClient httpClient;
-        private final JsonReaderFactory jsonReaderFactory;
         private final AssertionFactory responseValidatorFactory;
 
         ProjectTestContext() {
             this.httpClient = buildHttpClient();
-            this.jsonReaderFactory = jsonProvider.createReaderFactory(Collections.emptyMap());
             this.responseValidatorFactory = new AssertionFactory();
         }
 
         @Override
         public Project getProject() {
             return ProjectImpl.this;
-        }
-
-        @Override
-        public JsonReaderFactory getJsonReaderFactory() {
-            return jsonReaderFactory;
-        }
-
-        @Override
-        public Jsonb getJsonBinder() {
-            return jsonb;
         }
 
         @Override

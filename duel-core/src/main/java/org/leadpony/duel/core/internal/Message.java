@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.core.internal;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -24,11 +25,16 @@ import java.util.ResourceBundle;
  *
  * @author leadpony
  */
-enum Message {
-    PROJECT_NOT_FOUND;
+public enum Message {
+    PROJECT_NOT_FOUND,
+    CYCLIC_PROPERTY_EXPANSION;
 
     private static final String BASE_NAME =
             Message.class.getPackage().getName() + ".messages";
+
+    public String format(Object... arguments) {
+        return MessageFormat.format(asString(), arguments);
+    }
 
     /**
      * Returns this message as a string.

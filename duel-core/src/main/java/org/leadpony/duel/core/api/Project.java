@@ -18,6 +18,7 @@ package org.leadpony.duel.core.api;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * @author leadpony
@@ -36,6 +37,8 @@ public interface Project {
     URI getId();
 
     Path getPath();
+
+    Map<String, String> getProperties();
 
     TestGroup createRootGroup();
 }

@@ -18,6 +18,7 @@ package org.leadpony.duel.core.internal.project;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -84,12 +85,8 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
 
     @Override
     public URI getEndpointUrl() {
-        URI path = getConfig().getPath();
-        if (path.isAbsolute()) {
-            return path;
-        } else {
-            return getBaseUrl().resolve(path);
-        }
+        URI path = URI.create(getConfig().getPath());
+        return getAbsoluteUrl(path);
     }
 
     @Override
@@ -138,9 +135,7 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
     }
 
     private ResponseBody createResponseBody(byte[] byteArray, ResponseInfo responseInfo) {
-        return new ResponseBodyImpl(byteArray,
-                parseMediaType(responseInfo),
-                getContext());
+        return new ResponseBodyImpl(byteArray, parseMediaType(responseInfo));
     }
 
     private Optional<MediaType> parseMediaType(ResponseInfo responseInfo) {
@@ -150,6 +145,29 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
 
     private void validateResponse(HttpResponse<ResponseBody> response) {
         assertion.assertOn(response);
+    }
+
+    private URI getAbsoluteUrl(URI url) {
+        if (url.isAbsolute()) {
+            return url;
+        }
+        URI base = getBaseUrl();
+        String path = base.getPath();
+        if (path != null && !path.endsWith("/")) {
+            path = path + "/";
+        }
+        try {
+            base = new URI(base.getScheme(),
+                    base.getUserInfo(),
+                    base.getHost(),
+                    base.getPort(),
+                    path,
+                    null,
+                    null);
+            return base.resolve(url);
+        } catch (URISyntaxException e) {
+            return url;
+        }
     }
 
     /**

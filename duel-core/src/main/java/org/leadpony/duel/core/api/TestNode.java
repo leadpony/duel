@@ -18,6 +18,7 @@ package org.leadpony.duel.core.api;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -51,6 +52,8 @@ public interface TestNode extends PropertyFinder, Comparable<TestNode> {
     Optional<TestNode> getParent();
 
     URI getBaseUrl();
+
+    Map<String, String> getProperties();
 
     @Override
     default int compareTo(TestNode other) {

@@ -16,7 +16,6 @@
 
 package org.leadpony.duel.core.internal.config;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -25,24 +24,33 @@ import java.util.Map;
  */
 public class Config {
 
-    public static final Config EMPTY = new Config();
-
+    private static final Config EMPTY = new Config();
     private static final String DEFAULT_METHOD = "GET";
 
-    private URI baseUrl;
-
+    private String name;
+    private String baseUrl;
     private String method = DEFAULT_METHOD;
+
     private Map<String, String> properties = Collections.emptyMap();
 
-    public URI getBaseUrl() {
+    public static Config empty() {
+        return EMPTY;
+    }
+
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(String displayName) {
+        this.name = displayName;
+    }
+
+    public String getBaseUrl() {
         return baseUrl;
     }
 
     public void setBaseUrl(String baseUrl) {
-        if (!baseUrl.endsWith("/")) {
-            baseUrl = baseUrl + "/";
-        }
-        this.baseUrl = URI.create(baseUrl);
+        this.baseUrl = baseUrl;
     }
 
     public String getMethod() {

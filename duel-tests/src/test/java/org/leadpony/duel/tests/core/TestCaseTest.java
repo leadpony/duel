@@ -20,12 +20,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.ProjectLoader;
 import org.leadpony.duel.core.api.TestCase;
+import org.leadpony.duel.core.api.TestGroup;
 import org.leadpony.duel.tests.annotation.Logging;
 import org.leadpony.duel.tests.annotation.ProjectSource;
 import org.leadpony.duel.tests.annotation.RunFakeServer;
@@ -34,6 +40,9 @@ import org.leadpony.duel.tests.annotation.RunFakeServer;
  * @author leadpony
  */
 public class TestCaseTest {
+
+    private static final String BASE_PATH = "src/test/projects/case";
+
 
     @SuppressWarnings("serial")
     static final Map<String, String> EXPECTED_ENDPOINT_URL = new HashMap<>() {{
@@ -47,6 +56,35 @@ public class TestCaseTest {
     public void getEndpointUrlShouldReturnCorrectUrl(TestCase test) {
         URI expected = URI.create(EXPECTED_ENDPOINT_URL.get(test.getName()));
         assertThat(test.getEndpointUrl()).isEqualTo(expected);
+    }
+
+    public enum PropertyTestCase {
+        SIMPLE() {{
+            expected.put("firstName", "John");
+            expected.put("lastName", "Smith");
+            expected.put("age", "42");
+        }},
+
+        EXPANDED() {{
+            expected.put("firstName", "John");
+            expected.put("greeting", "Hello John Smith");
+        }};
+
+        final Map<String, String> expected = new HashMap<>();
+
+        Path getStartPath() {
+            return Paths.get(BASE_PATH, "property", name().toLowerCase());
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(PropertyTestCase.class)
+    public void getPropertiesShouldReturnExpectedResult(PropertyTestCase test) {
+        Project project = ProjectLoader.loadFrom(test.getStartPath());
+        TestGroup group = project.createRootGroup();
+        TestCase testCase = group.testCases().findFirst().get();
+        var actual = testCase.getProperties();
+        assertThat(actual).isEqualTo(test.expected);
     }
 
     /**

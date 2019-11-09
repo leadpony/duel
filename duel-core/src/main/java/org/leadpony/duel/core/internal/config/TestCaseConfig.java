@@ -16,10 +16,7 @@
 
 package org.leadpony.duel.core.internal.config;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,19 +27,19 @@ import javax.json.JsonValue;
 /**
  * @author leadpony
  */
-public final class TestCaseConfig extends TestNodeConfig {
+public final class TestCaseConfig extends Config {
 
     private static final Request DEFAULT_REQUEST = new Request();
 
-    private URI path;
+    private String path;
     private Request request = DEFAULT_REQUEST;
     private JsonObject response = JsonValue.EMPTY_JSON_OBJECT;
 
-    public URI getPath() {
+    public String getPath() {
         return path;
     }
 
-    public void setPath(URI path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
@@ -75,16 +72,16 @@ public final class TestCaseConfig extends TestNodeConfig {
             return query;
         }
 
-        public void setQuery(Map<String, ?> query) {
-            this.query = toMultiMap(query);
+        public void setQuery(Map<String, List<String>> query) {
+            this.query = query;
         }
 
         public Map<String, List<String>> getHeader() {
             return header;
         }
 
-        public void setHeader(Map<String, ?> header) {
-            this.header = toMultiMap(header);
+        public void setHeader(Map<String, List<String>> header) {
+            this.header = header;
         }
 
         public Optional<JsonValue> getBody() {
@@ -96,22 +93,6 @@ public final class TestCaseConfig extends TestNodeConfig {
                 body = JsonValue.NULL;
             }
             this.body = body;
-        }
-
-        private static Map<String, List<String>> toMultiMap(Map<String, ?> map) {
-            Map<String, List<String>> newMap = new HashMap<>();
-            map.forEach((key, value) -> {
-                List<String> values = new ArrayList<>();
-                if (value instanceof List) {
-                    ((List<?>) value).stream()
-                        .map(Object::toString)
-                        .forEach(values::add);
-                } else {
-                    values.add(value.toString());
-                }
-                newMap.put(key, values);
-            });
-            return newMap;
         }
     }
 }

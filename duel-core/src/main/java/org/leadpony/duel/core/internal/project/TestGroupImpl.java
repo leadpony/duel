@@ -17,7 +17,6 @@
 package org.leadpony.duel.core.internal.project;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,13 +27,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.json.bind.Jsonb;
-
 import org.leadpony.duel.core.api.TestCase;
 import org.leadpony.duel.core.api.TestGroup;
 import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.api.TestNode;
 import org.leadpony.duel.core.internal.config.Config;
+import org.leadpony.duel.core.internal.config.ConfigLoader;
 import org.leadpony.duel.core.internal.config.TestCaseConfig;
 
 /**
@@ -133,15 +131,15 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
     }
 
     private TestCaseConfig loadCaseConfig(Path path) {
-        Jsonb jsonb = getContext().getJsonBinder();
-        try (InputStream in = Files.newInputStream(path)) {
-            return jsonb.fromJson(in, TestCaseConfig.class);
+        try {
+            ConfigLoader loader = new ConfigLoader(this);
+            return loader.load(path, TestCaseConfig.class);
         } catch (IOException e) {
             throw new TestException(e.getMessage(), e);
         }
     }
 
     private Config loadGroupConfig(Path path) {
-        return Config.EMPTY;
+        return Config.empty();
     }
 }

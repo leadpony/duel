@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.config;
-
 /**
- * @author leadpony
+ * Provides the internal classes.
  *
+ * @author leadpony
  */
-public abstract class TestNodeConfig extends Config {
-
-    private String name;
-
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(String displayName) {
-        this.name = displayName;
-    }
-}
+package org.leadpony.duel.core.internal;

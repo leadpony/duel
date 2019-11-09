@@ -18,9 +18,6 @@ package org.leadpony.duel.core.internal.project;
 
 import java.net.http.HttpClient;
 
-import javax.json.JsonReaderFactory;
-import javax.json.bind.Jsonb;
-
 import org.leadpony.duel.core.api.Project;
 
 /**
@@ -29,10 +26,6 @@ import org.leadpony.duel.core.api.Project;
 interface TestContext {
 
     Project getProject();
-
-    Jsonb getJsonBinder();
-
-    JsonReaderFactory getJsonReaderFactory();
 
     HttpClient getHttpClient();
 

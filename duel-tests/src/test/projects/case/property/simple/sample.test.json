@@ -1,0 +1,9 @@
+{
+    "properties": {
+        "firstName": "John",
+        "lastName": "Smith",
+        "age": "42"
+    },
+    
+    "path": "/"
+}
