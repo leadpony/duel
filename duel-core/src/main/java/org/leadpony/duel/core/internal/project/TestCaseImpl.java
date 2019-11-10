@@ -37,6 +37,7 @@ import java.util.Optional;
 import javax.json.JsonValue;
 
 import org.leadpony.duel.core.api.TestCase;
+import org.leadpony.duel.core.api.TestConfigurationException;
 import org.leadpony.duel.core.api.TestGroup;
 import org.leadpony.duel.core.api.TestNode;
 import org.leadpony.duel.core.api.TestException;
@@ -85,8 +86,8 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
 
     @Override
     public URI getEndpointUrl() {
-        URI path = URI.create(getConfig().getPath());
-        return getAbsoluteUrl(path);
+        String path = getConfig().getPath();
+        return getNormalizedBaseUrl().resolve(path);
     }
 
     @Override
@@ -147,26 +148,23 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
         assertion.assertOn(response);
     }
 
-    private URI getAbsoluteUrl(URI url) {
-        if (url.isAbsolute()) {
-            return url;
-        }
+    private URI getNormalizedBaseUrl() {
         URI base = getBaseUrl();
         String path = base.getPath();
-        if (path != null && !path.endsWith("/")) {
-            path = path + "/";
-        }
-        try {
-            base = new URI(base.getScheme(),
-                    base.getUserInfo(),
-                    base.getHost(),
-                    base.getPort(),
-                    path,
-                    null,
-                    null);
-            return base.resolve(url);
-        } catch (URISyntaxException e) {
-            return url;
+        if (path == null || path.endsWith("/")) {
+            return base;
+        } else {
+            try {
+                return new URI(base.getScheme(),
+                        base.getUserInfo(),
+                        base.getHost(),
+                        base.getPort(),
+                        path + "/",
+                        null,
+                        null);
+            } catch (URISyntaxException e) {
+                throw new TestConfigurationException(e.getMessage(), e);
+            }
         }
     }
 

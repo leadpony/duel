@@ -27,4 +27,8 @@ public class TestConfigurationException extends TestException {
     public TestConfigurationException(String message) {
         super(message);
     }
+
+    public TestConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

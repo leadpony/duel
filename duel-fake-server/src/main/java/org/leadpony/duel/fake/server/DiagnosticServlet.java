@@ -84,15 +84,19 @@ public class DiagnosticServlet extends HttpServlet {
         final boolean full = path.equals("/");
 
         JsonObjectBuilder builder = builderFactory.createObjectBuilder();
-        if (full || path.equals("/method")) {
+        if (full || path.startsWith("/url")) {
+            builder.add("url", request.getRequestURI());
+        }
+
+        if (full || path.startsWith("/method")) {
             builder.add("method", request.getMethod());
         }
 
-        if (full || path.equals("/header")) {
+        if (full || path.startsWith("/header")) {
             builder.add("header", buildHeaderObject(request));
         }
 
-        if (full || path.equals("/parameters")) {
+        if (full || path.startsWith("/parameters")) {
             builder.add("parameters", buildParametersObject(request));
         }
 

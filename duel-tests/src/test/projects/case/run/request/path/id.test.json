@@ -1,0 +1,16 @@
+{
+    "path": "diagnostic/url/books/${id}",
+    "method": "GET",
+    
+    "properties": {
+        "id": "12345"
+    },
+    
+    "response": {
+        "body": {
+            "data": {
+                "url": "/diagnostic/url/books/12345"
+            }
+        }
+    }
+}

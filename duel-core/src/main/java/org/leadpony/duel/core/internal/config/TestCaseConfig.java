@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 /**
@@ -33,7 +32,7 @@ public final class TestCaseConfig extends Config {
 
     private String path;
     private Request request = DEFAULT_REQUEST;
-    private JsonObject response = JsonValue.EMPTY_JSON_OBJECT;
+    private Map<String, JsonValue> response = Collections.emptyMap();
 
     public String getPath() {
         return path;
@@ -51,11 +50,11 @@ public final class TestCaseConfig extends Config {
         this.request = request;
     }
 
-    public JsonObject getResponse() {
+    public Map<String, JsonValue> getResponse() {
         return response;
     }
 
-    public void setResponse(JsonObject response) {
+    public void setResponse(Map<String, JsonValue> response) {
         this.response = response;
     }
 

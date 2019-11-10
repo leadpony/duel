@@ -17,8 +17,9 @@
 package org.leadpony.duel.core.spi;
 
 import java.util.Collection;
+import java.util.Map;
 
-import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 /**
  * A provider of {@link Assertion} instances.
@@ -35,5 +36,5 @@ public interface AssertionProvider {
      * @param assertions the collection to which the assertions will be added, never
      *                   be {@code null}.
      */
-    void provideAssertions(JsonObject config, Collection<Assertion> assertions);
+    void provideAssertions(Map<String, JsonValue> config, Collection<Assertion> assertions);
 }

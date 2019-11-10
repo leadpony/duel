@@ -28,9 +28,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * A utility class for operating on Java beans.
+ *
  * @author leadpony
  */
-public class Beans {
+public final class Beans {
+
+    private Beans() {
+    }
 
     public static Map<String, Object> asMap(Object bean) {
         Objects.requireNonNull(bean, "bean must not be null.");
@@ -38,6 +43,8 @@ public class Beans {
     }
 
     /**
+     * A map wrapper of the bean.
+     *
      * @author leadpony
      */
     private static class BeanMap extends AbstractMap<String, Object> {
@@ -46,12 +53,16 @@ public class Beans {
         private final Set<Entry<String, Object>> entries;
         private final Map<String, Entry<String, Object>> entryMap;
 
+        /**
+         * Constructs this map.
+         *
+         * @param bean the bean wrapped by this map.
+         */
         BeanMap(Object bean) {
             this.bean = bean;
             this.entries = createMapEntries(bean);
-            this.entryMap = this.entries.stream()
-                    .collect(Collectors.toMap(
-                            entry -> entry.getKey(), Function.identity()));
+            this.entryMap = this.entries.stream().collect(
+                    Collectors.toMap(Entry::getKey, Function.identity()));
         }
 
         @Override
@@ -104,6 +115,8 @@ public class Beans {
         }
 
         /**
+         * An entry of the map.
+         *
          * @author leadpony
          */
         private class MapEntry implements Map.Entry<String, Object> {
@@ -112,8 +125,14 @@ public class Beans {
             private final Method getter;
             private final Method setter;
 
+            /**
+             * Constructs this entry.
+             *
+             * @param getter the getter method of the property.
+             * @param setter the setter method of the property.
+             */
             MapEntry(Method getter, Method setter) {
-                this.name = extractName(getter);
+                this.name = extractPropertyName(getter);
                 this.getter = getter;
                 this.setter = setter;
             }
@@ -168,7 +187,7 @@ public class Beans {
                        || thisValue.equals(otherValue);
             }
 
-            private String extractName(Method method) {
+            private String extractPropertyName(Method method) {
                 String methodName = method.getName();
                 return methodName.substring(3, 4).toLowerCase()
                         + methodName.substring(4);

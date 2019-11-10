@@ -19,9 +19,10 @@ package org.leadpony.duel.core.internal.project;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 
-import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
@@ -37,7 +38,7 @@ class AssertionFactory {
         this.providers = findProviders();
     }
 
-    Assertion createAssertion(JsonObject config) {
+    Assertion createAssertion(Map<String, JsonValue> config) {
         Collection<Assertion> assertions = findAssertions(config);
         return response -> {
             for (Assertion assertion : assertions) {
@@ -53,7 +54,7 @@ class AssertionFactory {
         return providers;
     }
 
-    private Collection<Assertion> findAssertions(JsonObject config) {
+    private Collection<Assertion> findAssertions(Map<String, JsonValue> config) {
         List<Assertion> assertions = new ArrayList<>();
         for (AssertionProvider provider : this.providers) {
             provider.provideAssertions(config, assertions);

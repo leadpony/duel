@@ -43,19 +43,36 @@ public class TestCaseTest {
 
     private static final String BASE_PATH = "src/test/projects/case";
 
+    public enum EndpointTestCase {
+        ABSOLUTE("http://example.org/bookstore/books/"),
+        EXPANDED("http://example.org/bookstore/books/salinger/catcherintherye"),
+        FULLPATH("http://example.org/library/books/"),
+        RELATIVE("http://example.org/bookstore/books/");
 
-    @SuppressWarnings("serial")
-    static final Map<String, String> EXPECTED_ENDPOINT_URL = new HashMap<>() {{
-       put("absolute.test.json", "http://example.org/example-api/articles/");
-       put("fullpath.test.json", "http://example.org/publisher-api/articles/");
-       put("relative.test.json", "http://example.org/example-api/articles/");
-    }};
+        final URI expected;
+
+        EndpointTestCase(String expected) {
+            this.expected = URI.create(expected);
+        }
+
+        Path getStartPath() {
+            return Paths.get(BASE_PATH, "endpoint", name().toLowerCase());
+        }
+    }
+
+    private static TestCase findFirstTestCase(Path path) {
+        Project project = ProjectLoader.loadFrom(path);
+        TestGroup group = project.createRootGroup();
+        TestCase testCase = group.testCases().findFirst().get();
+        return testCase;
+    }
 
     @ParameterizedTest
-    @ProjectSource("case/endpoint")
-    public void getEndpointUrlShouldReturnCorrectUrl(TestCase test) {
-        URI expected = URI.create(EXPECTED_ENDPOINT_URL.get(test.getName()));
-        assertThat(test.getEndpointUrl()).isEqualTo(expected);
+    @EnumSource(EndpointTestCase.class)
+    public void getEndpointUrlShouldReturnCorrectUrl(EndpointTestCase test) {
+        TestCase testCase = findFirstTestCase(test.getStartPath());
+        var actual = testCase.getEndpointUrl();
+        assertThat(actual).isEqualTo(test.expected);
     }
 
     public enum PropertyTestCase {
@@ -80,9 +97,7 @@ public class TestCaseTest {
     @ParameterizedTest
     @EnumSource(PropertyTestCase.class)
     public void getPropertiesShouldReturnExpectedResult(PropertyTestCase test) {
-        Project project = ProjectLoader.loadFrom(test.getStartPath());
-        TestGroup group = project.createRootGroup();
-        TestCase testCase = group.testCases().findFirst().get();
+        TestCase testCase = findFirstTestCase(test.getStartPath());
         var actual = testCase.getProperties();
         assertThat(actual).isEqualTo(test.expected);
     }
