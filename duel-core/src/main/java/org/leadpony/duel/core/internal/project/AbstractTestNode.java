@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import org.leadpony.duel.core.api.Parameter;
 import org.leadpony.duel.core.api.TestNode;
 import org.leadpony.duel.core.internal.config.Config;
 
@@ -53,13 +54,8 @@ abstract class AbstractTestNode implements TestNode {
     }
 
     @Override
-    public Path getDirectory() {
-        return getPath().getParent();
-    }
-
-    @Override
     public String getName() {
-        return getPath().getFileName().toString();
+        return getConfig().getName();
     }
 
     @Override
@@ -68,14 +64,19 @@ abstract class AbstractTestNode implements TestNode {
     }
 
     @Override
-    public URI getBaseUrl() {
-        String url = getConfig().getBaseUrl();
-        if (url != null) {
-            return URI.create(url);
+    public Object get(Parameter parameter) {
+        requireNonNull(parameter, "parameter must not be null.");
+        Object value = getConfig().getParameter(parameter);
+        if (value != null) {
+            return value;
         }
-        return getParent()
-                .map(TestNode::getBaseUrl)
-                .orElse(URI.create(""));
+        return getParent().map(parent -> parent.get(parameter))
+                          .orElse(parameter.defaultValue());
+    }
+
+    @Override
+    public String getAsString(Parameter parameter) {
+        return get(parameter).toString();
     }
 
     @Override

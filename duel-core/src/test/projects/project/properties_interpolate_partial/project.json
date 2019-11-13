@@ -1,0 +1,6 @@
+{
+    "properties": {
+        "lastName": "Smith",
+        "fullName": "${firstName} ${lastName}"
+    }
+}

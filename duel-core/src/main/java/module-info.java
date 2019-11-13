@@ -20,11 +20,15 @@
 module org.leadpony.duel.core {
     exports org.leadpony.duel.core.api;
     exports org.leadpony.duel.core.spi;
+
+    opens org.leadpony.duel.core.internal;
     opens org.leadpony.duel.core.internal.config;
 
     requires transitive java.json;
     requires java.json.bind;
+    requires java.logging;
     requires java.net.http;
+    requires org.opentest4j;
 
     uses org.leadpony.duel.core.spi.AssertionProvider;
 }

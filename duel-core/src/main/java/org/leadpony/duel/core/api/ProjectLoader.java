@@ -33,8 +33,7 @@ public interface ProjectLoader {
      *
      * @param startPath the path from which the project will be loaded.
      * @return the loaded project.
-     * @throws TestException if an I/O error occurred while loading.
-     * @throws TestConfigurationException if the project is not configured correctly.
+     * @throws ProjectException if an I/O error occurred while loading the project.
      * @throws NullPointerException if {@code startPath} is {@code null}.
      */
     static Project loadFrom(Path startPath) {
@@ -46,8 +45,7 @@ public interface ProjectLoader {
      * Loads a project.
      *
      * @return the loaded project.
-     * @throws TestException if an I/O error occurred while loading.
-     * @throws TestConfigurationException if the project is not configured correctly.
+     * @throws ProjectException if an I/O error occurred while loading the project.
      */
     Project load();
 }

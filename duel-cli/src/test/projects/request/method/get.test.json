@@ -1,0 +1,12 @@
+{
+    "path": "/method",
+    "method": "GET",
+    
+    "response": {
+        "body": {
+            "data": {
+                "method": "GET"
+            }
+        }
+    }
+}

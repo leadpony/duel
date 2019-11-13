@@ -19,7 +19,6 @@ package org.leadpony.duel.core.internal.project;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -36,16 +35,18 @@ import java.util.Optional;
 
 import javax.json.JsonValue;
 
+import org.leadpony.duel.core.api.Parameter;
 import org.leadpony.duel.core.api.TestCase;
-import org.leadpony.duel.core.api.TestConfigurationException;
 import org.leadpony.duel.core.api.TestGroup;
 import org.leadpony.duel.core.api.TestNode;
-import org.leadpony.duel.core.api.TestException;
+import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.common.MediaTypeParser;
+import org.leadpony.duel.core.internal.common.UrlBuilder;
 import org.leadpony.duel.core.internal.config.TestCaseConfig;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.MediaType;
 import org.leadpony.duel.core.spi.ResponseBody;
+import org.opentest4j.IncompleteExecutionException;
 
 /**
  * @author leadpony
@@ -70,11 +71,11 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
 
     @Override
     public String getName() {
-        String name = getConfig().getName();
-        if (name == null) {
-            name = super.getName();
+        String name = super.getName();
+        if (name != null) {
+            return name;
         }
-        return name;
+        return getPath().getFileName().toString();
     }
 
     @Override
@@ -86,8 +87,7 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
 
     @Override
     public URI getEndpointUrl() {
-        String path = getConfig().getPath();
-        return getNormalizedBaseUrl().resolve(path);
+        return buildEndpointUri();
     }
 
     @Override
@@ -108,11 +108,14 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
         validateResponse(response);
     }
 
+    private TestCaseConfig.Request getRequestConfig() {
+        return getConfig().getRequest();
+    }
+
     private HttpRequest buildRequest() {
-        TestCaseConfig.Request request = config.getRequest();
+        TestCaseConfig.Request request = getRequestConfig();
         RequestBuilder builder = new RequestBuilder(getEndpointUrl(), config.getMethod());
-        builder.addQuery(request.getQuery())
-               .addHeader(request.getHeader());
+        builder.addHeader(request.getHeader());
         request.getBody().ifPresent(builder::addBody);
         return builder.build();
     }
@@ -122,9 +125,11 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
         try {
             return client.send(request, this::createBodySubscriber);
         } catch (IOException e) {
-            throw new TestException(e.getMessage(), e);
+            throw new IncompleteExecutionException(
+                    Message.NETWORK_FAILURE.asString(), e);
         } catch (InterruptedException e) {
-            throw new TestException(e.getMessage(), e);
+            throw new IncompleteExecutionException(
+                    Message.NETWORK_OPERATION_INTERRUPTED.asString(), e);
         }
     }
 
@@ -148,24 +153,30 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
         assertion.assertOn(response);
     }
 
-    private URI getNormalizedBaseUrl() {
-        URI base = getBaseUrl();
-        String path = base.getPath();
-        if (path == null || path.endsWith("/")) {
-            return base;
-        } else {
-            try {
-                return new URI(base.getScheme(),
-                        base.getUserInfo(),
-                        base.getHost(),
-                        base.getPort(),
-                        path + "/",
-                        null,
-                        null);
-            } catch (URISyntaxException e) {
-                throw new TestConfigurationException(e.getMessage(), e);
-            }
+    private URI buildEndpointUri() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.withScheme(getAsString(Parameter.SCHEME))
+               .withHost(getAsString(Parameter.HOST));
+
+        Object port = get(Parameter.PORT);
+        if (port != null) {
+            builder.withPort((int) port);
         }
+
+        builder.withPath(getFullPath());
+        builder.withQuery(getRequestConfig().getQuery());
+
+        try {
+            return builder.build();
+        } catch (URISyntaxException e) {
+            throw new IncompleteExecutionException(
+                    Message.BAD_ENDPOINT_URL.asString(),
+                    e);
+        }
+    }
+
+    private String getFullPath() {
+        return getAsString(Parameter.BASE_PATH) + getConfig().getPath();
     }
 
     /**
@@ -173,25 +184,19 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
      */
     private class RequestBuilder {
 
-        private final HttpRequest.Builder underlying = HttpRequest.newBuilder();
-        private final URI url;
+        private final HttpRequest.Builder builder = HttpRequest.newBuilder();
         private final String method;
         private BodyPublisher bodyPublisher = BodyPublishers.noBody();
 
         RequestBuilder(URI url, String method) {
-            this.url = url;
+            this.builder.uri(url);
             this.method = method;
-        }
-
-        RequestBuilder addQuery(Map<String, List<String>> query) {
-            underlying.uri(composeUrl(query));
-            return this;
         }
 
         RequestBuilder addHeader(Map<String, List<String>> header) {
             header.forEach((name, values) -> {
                 for (String value : values) {
-                    underlying.header(name, value);
+                    builder.header(name, value);
                 }
             });
             return this;
@@ -203,31 +208,8 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
         }
 
         HttpRequest build() {
-            underlying.method(method, bodyPublisher);
-            return underlying.build();
+            builder.method(method, bodyPublisher);
+            return builder.build();
         }
-
-        private URI composeUrl(Map<String, List<String>> query) {
-            if (query.isEmpty()) {
-                return this.url;
-            }
-            StringBuilder builder = new StringBuilder(this.url.toString());
-            char seprator = '?';
-            for (var entry : query.entrySet()) {
-                String key = entry.getKey();
-                for (String value : entry.getValue()) {
-                    builder.append(seprator)
-                        .append(encode(key))
-                        .append('=')
-                        .append(encode(value));
-                }
-                seprator = '&';
-            }
-            return URI.create(builder.toString());
-        }
-    }
-
-    private static String encode(String original) {
-        return URLEncoder.encode(original, StandardCharsets.UTF_8);
     }
 }

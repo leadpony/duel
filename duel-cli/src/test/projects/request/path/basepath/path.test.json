@@ -1,0 +1,12 @@
+{
+    "path": "/books/",
+    "method": "GET",
+    
+    "response": {
+        "body": {
+            "data": {
+                "url": "/diagnostic/url/books/"
+            }
+        }
+    }
+}

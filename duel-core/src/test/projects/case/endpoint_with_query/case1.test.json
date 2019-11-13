@@ -1,0 +1,9 @@
+{
+    "path": "/books",
+    
+    "request": {
+        "query": {
+            "lang": "en"
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "version": 1,
+    "scheme": "http",
+    "host": "example.org",
+    "port": 8080
+}

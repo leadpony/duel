@@ -33,9 +33,12 @@ public interface TestNode extends PropertyFinder, Comparable<TestNode> {
      */
     URI getId();
 
+    /**
+     * Returns the path to this node.
+     *
+     * @return the path to this node.
+     */
     Path getPath();
-
-    Path getDirectory();
 
     /**
      * Returns the name of this node for display.
@@ -51,8 +54,22 @@ public interface TestNode extends PropertyFinder, Comparable<TestNode> {
      */
     Optional<TestNode> getParent();
 
-    URI getBaseUrl();
+    /**
+     * Returns the value of the specified parameter.
+     *
+     * @param parameter the parameter to retrieve.
+     * @return the value of the specified parameter.
+     * @throws NullPointerException if the specified {@code parameter} is {@code null}.
+     */
+    Object get(Parameter parameter);
 
+    String getAsString(Parameter parameter);
+
+    /**
+     * Returns all the properties defined in this node.
+     *
+     * @return all the properties as an immutable map.
+     */
     Map<String, String> getProperties();
 
     @Override

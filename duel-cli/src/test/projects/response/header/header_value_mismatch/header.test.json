@@ -1,0 +1,9 @@
+{
+    "path": "/json/greeting",
+
+    "response": {
+        "header": {
+            "content-type": "text/html"
+        }
+    }
+}

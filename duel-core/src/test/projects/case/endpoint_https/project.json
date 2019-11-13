@@ -1,0 +1,6 @@
+{
+    "version": 1,
+    "scheme": "https",
+    "host": "example.org",
+    "basePath": "/bookstore"
+}

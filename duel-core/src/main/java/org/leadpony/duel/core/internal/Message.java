@@ -27,6 +27,13 @@ import java.util.ResourceBundle;
  */
 public enum Message {
     PROJECT_NOT_FOUND,
+    BAD_PROJECT,
+    BAD_TEST_CASE,
+    BAD_ENDPOINT_URL,
+    FILE_READ_FAILURE,
+    DIRECTORY_READ_FAILURE,
+    NETWORK_FAILURE,
+    NETWORK_OPERATION_INTERRUPTED,
     CYCLIC_PROPERTY_EXPANSION;
 
     private static final String BASE_NAME =

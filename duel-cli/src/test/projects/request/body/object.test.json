@@ -1,0 +1,22 @@
+{
+    "path": "/echo",
+    "method": "POST",
+    
+    "request": {
+        "body": {
+            "firstName": "John",
+            "lastName": "Smith",
+            "age": 42
+        }
+    },
+
+    "response": {
+        "body": {
+            "data": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "age": 42
+            }
+        }
+    }
+}

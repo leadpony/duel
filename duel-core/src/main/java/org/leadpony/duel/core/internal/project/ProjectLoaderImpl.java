@@ -20,10 +20,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.json.bind.JsonbException;
+
 import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
-import org.leadpony.duel.core.api.TestConfigurationException;
-import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.config.ConfigLoader;
 import org.leadpony.duel.core.internal.config.ProjectConfig;
@@ -41,25 +42,31 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     @Override
     public Project load() {
-        try {
-            return loadProject(this.startPath);
-        } catch (IOException e) {
-            throw new TestException(e.getMessage(), e);
-        }
+        return loadProject(this.startPath);
     }
 
-    private Project loadProject(Path startPath) throws IOException {
+    private Project loadProject(Path startPath) {
         for (Path dir = startPath; dir != null; dir = dir.getParent()) {
             Path projectPath = dir.resolve(Project.FILE_NAME);
             if (Files.exists(projectPath) && Files.isRegularFile(projectPath)) {
                 return createProject(projectPath, startPath);
             }
         }
-        throw new TestConfigurationException(Message.PROJECT_NOT_FOUND.asString());
+        throw new ProjectException(Message.PROJECT_NOT_FOUND.asString());
     }
 
-    private ProjectImpl createProject(Path projectPath, Path startPath) throws IOException {
-        ProjectConfig config = new ConfigLoader().load(projectPath, ProjectConfig.class);
-        return new ProjectImpl(projectPath, startPath, config);
+    private ProjectImpl createProject(Path projectPath, Path startPath) {
+        try {
+            ProjectConfig config = new ConfigLoader().load(projectPath, ProjectConfig.class);
+            return new ProjectImpl(projectPath.getParent(), startPath, config);
+        } catch (JsonbException e) {
+            throw new ProjectException(
+                    Message.BAD_PROJECT.format(projectPath),
+                    e);
+        } catch (IOException e) {
+            throw new ProjectException(
+                    Message.FILE_READ_FAILURE.format(projectPath),
+                    e);
+        }
     }
 }

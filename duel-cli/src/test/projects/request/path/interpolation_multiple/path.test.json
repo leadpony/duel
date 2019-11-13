@@ -1,0 +1,17 @@
+{
+    "path": "/${country}/${state}",
+    "method": "GET",
+    
+    "properties": {
+        "country": "US",
+        "state": "NY"
+    },
+    
+    "response": {
+        "body": {
+            "data": {
+                "url": "/diagnostic/url/US/NY"
+            }
+        }
+    }
+}

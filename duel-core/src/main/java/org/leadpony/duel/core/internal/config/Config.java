@@ -19,6 +19,8 @@ package org.leadpony.duel.core.internal.config;
 import java.util.Collections;
 import java.util.Map;
 
+import org.leadpony.duel.core.api.Parameter;
+
 /**
  * @author leadpony
  */
@@ -28,6 +30,10 @@ public class Config {
     private static final String DEFAULT_METHOD = "GET";
 
     private String name;
+    private String scheme;
+    private String host;
+    private Integer port;
+    private String basePath;
     private String baseUrl;
     private String method = DEFAULT_METHOD;
 
@@ -43,6 +49,44 @@ public class Config {
 
     public final void setName(String displayName) {
         this.name = displayName;
+    }
+
+    public final String getScheme() {
+        return scheme;
+    }
+
+    public final void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public final String getHost() {
+        return host;
+    }
+
+    public final void setHost(String host) {
+        this.host = host;
+    }
+
+    public final Integer getPort() {
+        return port;
+    }
+
+    public final void setPort(Integer port) {
+        this.port = port;
+    }
+
+    /**
+     * @return the basePath
+     */
+    public final String getBasePath() {
+        return basePath;
+    }
+
+    /**
+     * @param basePath the basePath to set
+     */
+    public final void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 
     public String getBaseUrl() {
@@ -67,5 +111,22 @@ public class Config {
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
+    }
+
+    public Object getParameter(Parameter parameter) {
+        switch (parameter) {
+        case SCHEME:
+            return getScheme();
+        case HOST:
+            return getHost();
+        case PORT:
+            return getPort();
+        case BASE_PATH:
+            return getBasePath();
+        case METHOD:
+            return getMethod();
+        default:
+            throw new IllegalArgumentException();
+        }
     }
 }

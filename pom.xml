@@ -14,10 +14,10 @@
 
     <modules>
         <module>duel-core</module>
-        <module>duel-assertion-basic</module>
+        <module>duel-assertion/duel-assertion-basic</module>
         <module>duel-fake-server</module>
-        <module>duel-tests</module>
         <module>duel-cli</module>
+        <module>duel-assembly</module>
     </modules>
 
     <properties>
@@ -25,6 +25,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.22.v20191022</jetty.version>
+        <checkstyle.config.location>../checkstyle.xml</checkstyle.config.location>
     </properties>
 
     <dependencyManagement>
@@ -109,7 +110,6 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>3.1.0</version>
                     <configuration>
-                        <configLocation>../checkstyle.xml</configLocation>
                         <excludes>**/module-info.java</excludes>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         <includeTestResources>true</includeTestResources>
@@ -142,7 +142,7 @@
                         <argLine>
                         -Duser.language=en
                         --add-exports org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
-                        --add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED 
+                        --add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
                         </argLine>
                         <excludes>
                             <!-- do all tests -->

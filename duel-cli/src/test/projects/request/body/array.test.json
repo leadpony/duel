@@ -1,0 +1,14 @@
+{
+    "path": "/echo",
+    "method": "POST",
+    
+    "request": {
+        "body": ["apple", "orange", "plum"]
+    },
+
+    "response": {
+        "body": {
+            "data": ["apple", "orange", "plum"]
+        }
+    }
+}

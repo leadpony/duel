@@ -1,7 +1,0 @@
-{
-    "path": "books/${author}/${title}",
-    
-    "properties": {
-        "title": "catcherintherye"
-    }
-}

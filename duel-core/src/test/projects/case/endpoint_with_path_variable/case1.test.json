@@ -1,0 +1,7 @@
+{
+    "path": "/books/${id}",
+    
+    "properties": {
+        "id": 12345
+    }
+}

@@ -1,7 +1,0 @@
-{
-    "baseUrl": "http://example.org/bookstore/",
-    
-    "properties": {
-        "author": "salinger"
-    }
-}

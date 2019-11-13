@@ -27,13 +27,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.json.bind.JsonbException;
+
 import org.leadpony.duel.core.api.TestCase;
 import org.leadpony.duel.core.api.TestGroup;
-import org.leadpony.duel.core.api.TestException;
 import org.leadpony.duel.core.api.TestNode;
+import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.config.Config;
 import org.leadpony.duel.core.internal.config.ConfigLoader;
 import org.leadpony.duel.core.internal.config.TestCaseConfig;
+import org.opentest4j.IncompleteExecutionException;
 
 /**
  * @author leadpony
@@ -44,8 +47,8 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
 
     private final Config config;
 
-    TestGroupImpl(Path path, Config config, TestContext context) {
-        super(path, context);
+    TestGroupImpl(Path dir, Config config, TestContext context) {
+        super(dir, context);
         this.config = config;
     }
 
@@ -56,16 +59,27 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
         return Stream.concat(testCases(), subgroups()).iterator();
     }
 
+    /* As a TestNode */
+
+    @Override
+    public String getName() {
+        String name = super.getName();
+        if (name != null) {
+            return name;
+        }
+        return getPath().getFileName().toString();
+    }
+
     /* As a TestGroup */
 
     @Override
     public Stream<TestCase> testCases() {
-        return findTestCases(getDirectory()).stream();
+        return findTestCases(getPath()).stream();
     }
 
     @Override
     public Stream<TestGroup> subgroups() {
-        return findSubgroups(getDirectory()).stream();
+        return findSubgroups(getPath()).stream();
     }
 
     /* As a AbstractTestNode */
@@ -84,7 +98,9 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
                 }
             }
         } catch (IOException e) {
-            throw new TestException(e.getMessage(), e);
+            throw new IncompleteExecutionException(
+                    Message.DIRECTORY_READ_FAILURE.format(dir),
+                    e);
         }
         Collections.sort(children);
         return children;
@@ -99,7 +115,9 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
                 }
             }
         } catch (IOException e) {
-            throw new TestException(e.getMessage(), e);
+            throw new IncompleteExecutionException(
+                    Message.DIRECTORY_READ_FAILURE.format(dir),
+                    e);
         }
         Collections.sort(children);
         return children;
@@ -134,8 +152,14 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
         try {
             ConfigLoader loader = new ConfigLoader(this);
             return loader.load(path, TestCaseConfig.class);
+        } catch (JsonbException e) {
+            throw new IncompleteExecutionException(
+                    Message.BAD_TEST_CASE.format(path),
+                    e);
         } catch (IOException e) {
-            throw new TestException(e.getMessage(), e);
+            throw new IncompleteExecutionException(
+                    Message.FILE_READ_FAILURE.format(path),
+                    e);
         }
     }
 

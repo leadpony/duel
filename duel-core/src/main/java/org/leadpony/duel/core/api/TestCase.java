@@ -23,5 +23,10 @@ import java.net.URI;
  */
 public interface TestCase extends TestNode, Runnable {
 
+    /**
+     * Returns the target URL of this test case including query strings.
+     *
+     * @return the target URL of this test case.
+     */
     URI getEndpointUrl();
 }

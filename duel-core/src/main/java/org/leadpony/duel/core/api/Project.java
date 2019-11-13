@@ -36,6 +36,11 @@ public interface Project {
 
     URI getId();
 
+    /**
+     * Returns the directory containing this project.
+     *
+     * @return the directory containing this project.
+     */
     Path getPath();
 
     Map<String, String> getProperties();

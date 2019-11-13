@@ -23,4 +23,6 @@ module org.leadpony.duel.cli {
     requires transitive org.leadpony.duel.core;
 
     uses java.util.spi.ToolProvider;
+
+    opens org.leadpony.duel.cli to org.junit.platform.commons;
 }

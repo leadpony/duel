@@ -31,13 +31,13 @@ import org.leadpony.duel.core.internal.config.ProjectConfig;
  */
 class ProjectImpl implements Project {
 
-    private final Path projectPath;
+    private final Path projectDir;
     @SuppressWarnings("unused")
     private final Path startPath;
     private final ProjectConfig config;
 
-    ProjectImpl(Path projectPath, Path startPath, ProjectConfig config) {
-        this.projectPath = projectPath;
+    ProjectImpl(Path projectDir, Path startPath, ProjectConfig config) {
+        this.projectDir = projectDir;
         this.startPath = startPath;
         this.config = config;
     }
@@ -56,7 +56,7 @@ class ProjectImpl implements Project {
 
     @Override
     public Path getPath() {
-        return projectPath;
+        return projectDir;
     }
 
     @Override
@@ -67,7 +67,7 @@ class ProjectImpl implements Project {
     @Override
     public TestGroup createRootGroup() {
         TestContext context = new ProjectTestContext();
-        return new TestGroupImpl(getPath(), config, context);
+        return new TestGroupImpl(projectDir, config, context);
     }
 
     /**

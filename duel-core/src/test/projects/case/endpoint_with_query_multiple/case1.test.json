@@ -1,0 +1,10 @@
+{
+    "path": "/books",
+    
+    "request": {
+        "query": {
+            "lang": "en",
+            "year": 1970
+        }
+    }
+}

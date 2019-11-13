@@ -19,21 +19,29 @@ package org.leadpony.duel.core.internal.common;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.adapter.JsonbAdapter;
+import javax.json.bind.serializer.DeserializationContext;
+import javax.json.bind.serializer.JsonbDeserializer;
 import javax.json.spi.JsonProvider;
+import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParser.Event;
 
 /**
  * @author leadpony
@@ -99,25 +107,47 @@ public class Json {
 
     private static Jsonb createBinder() {
         JsonbConfig config = new JsonbConfig();
-        config.withAdapters(STRING_LIST_ADAPTER);
+        config.withDeserializers(MAP_DESERIALIZER);
         return JsonbBuilder.newBuilder()
                 .withProvider(getProvider())
                 .withConfig(config)
                 .build();
     }
 
-    private static final JsonbAdapter<List<String>, String> STRING_LIST_ADAPTER = new JsonbAdapter<>() {
+    private static final MapDeserializer MAP_DESERIALIZER = new MapDeserializer();
+
+    private static class MapDeserializer implements JsonbDeserializer<Map<String, List<String>>> {
+
+        @SuppressWarnings("serial")
+        private static final Type LIST_TYPE = new ArrayList<String>() { }.getClass().getGenericSuperclass();
 
         @Override
-        public String adaptToJson(List<String> obj) throws Exception {
-            throw new UnsupportedOperationException();
+        public Map<String, List<String>> deserialize(JsonParser parser, DeserializationContext ctx, Type rtType) {
+            Map<String, List<String>> map = new LinkedHashMap<>();
+            while (parser.hasNext()) {
+                Event event = parser.next();
+                if (event == Event.END_OBJECT) {
+                    break;
+                }
+                if (event == Event.KEY_NAME) {
+                    String key = parser.getString();
+                    event = parser.next();
+                    if (event == Event.START_ARRAY) {
+                        List<String> values = ctx.deserialize(LIST_TYPE, parser);
+                        map.put(key, values);
+                    } else {
+                        List<String> values = new ArrayList<>();
+                        JsonValue value = parser.getValue();
+                        if (value.getValueType() == ValueType.STRING) {
+                            values.add(((JsonString) value).getString());
+                        } else {
+                            values.add(value.toString());
+                        }
+                        map.put(key, values);
+                    }
+                }
+            }
+            return map;
         }
-
-        @Override
-        public List<String> adaptFromJson(String obj) throws Exception {
-            List<String> list = new ArrayList<>();
-            list.add(obj);
-            return list;
-        }
-    };
+    }
 }

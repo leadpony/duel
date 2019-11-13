@@ -1,0 +1,7 @@
+{
+    "path": "/json/greeting",
+
+    "response": {
+        "required": ["Content-Type"]
+    }
+}

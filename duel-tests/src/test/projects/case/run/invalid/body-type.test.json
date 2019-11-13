@@ -1,9 +1,0 @@
-{
-    "path": "json/rfc7159-object",
-
-    "response": {
-        "body": {
-            "data": [1, 2, 3]
-        }
-    }
-}

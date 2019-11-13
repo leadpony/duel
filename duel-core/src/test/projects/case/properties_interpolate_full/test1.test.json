@@ -1,0 +1,8 @@
+{
+    "path": "/",
+
+    "properties": {
+        "firstName": "John",
+        "greeting": "Hello ${firstName} ${lastName}"
+    }
+}

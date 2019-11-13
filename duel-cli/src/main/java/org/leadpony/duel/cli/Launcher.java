@@ -30,7 +30,9 @@ import org.leadpony.duel.core.api.ProjectLoader;
  */
 public class Launcher {
 
-    private final Path projectPath;
+    private static final int FAILED = -1;
+
+    private final Path dir;
 
     private PrintStream out = System.out;
     private PrintStream err = System.err;
@@ -41,18 +43,23 @@ public class Launcher {
     };
 
     public Launcher() {
-        this.projectPath = Paths.get(System.getProperty("user.dir"));
+        this.dir = Paths.get(System.getProperty("user.dir"));
     }
 
-    public Launcher(Path projectPath) {
-        this.projectPath = projectPath;
+    Launcher(Path dir) {
+        this.dir = dir;
     }
 
     int launch(String... args) {
-        Project project = loadProject(projectPath);
-        ProjectTest.setProject(project);
-        int exitCode = runConsole(ARGS);
-        return exitCode;
+        try {
+            Project project = loadProject(dir);
+            ProjectTest.setProject(project);
+            int exitCode = runConsole(ARGS);
+            return exitCode;
+        } catch (Exception e) {
+            err.println(e.getMessage());
+            return FAILED;
+        }
     }
 
     private int runConsole(String... args) {
@@ -60,7 +67,8 @@ public class Launcher {
         if (tool.isPresent()) {
             return tool.get().run(out, err, args);
         }
-        return 1;
+        err.println("No ToolProvider found.");
+        return FAILED;
     }
 
     private static Project loadProject(Path path) {

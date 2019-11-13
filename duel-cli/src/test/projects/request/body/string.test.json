@@ -1,0 +1,14 @@
+{
+    "path": "/echo",
+    "method": "POST",
+    
+    "request": {
+        "body": "hello world"
+    },
+
+    "response": {
+        "body": {
+            "data": "hello world"
+        }
+    }
+}

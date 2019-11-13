@@ -18,21 +18,22 @@ package org.leadpony.duel.cli;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Properties;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.leadpony.duel.fake.server.FakeServer;
 
 /**
  * @author leadpony
  */
 public class LauncherTest {
-
-    private static final String BASE_PATH = "src/test/projects";
 
     public static class RunTest {
 
@@ -50,35 +51,31 @@ public class LauncherTest {
             server = null;
         }
 
-        public enum ProjectTestCase {
-            EMPTY(0),
-            HEADER_VALUE_MATCH(0),
-            HEADER_VALUE_MISMATCH(1),
-            JSON_BODY_MATCH(0),
-            JSON_BODY_MISMATCH(1),
-            JSON_BODY_TYPE_MISMATCH(1),
-            REQUIRED_HEADER_EXISTS(0),
-            REQUIRED_HEADER_MISSING(1),
-            STATUS_CODE_EXPECTED(0),
-            STATUS_CODE_UNEXPECTED(1);
-
-            final int exitCode;
-
-            ProjectTestCase(int exitCode) {
-                this.exitCode = exitCode;
-            }
-
-            Path getProjectPath() {
-                return Paths.get(BASE_PATH, name().toLowerCase());
-            }
+        @ParameterizedTest
+        @ProjectSource("src/test/projects")
+        public void launchShouldReturnExpectedCode(Path dir) throws IOException {
+            Path projectDir = Path.of("src/test/projects").resolve(dir);
+            Launcher launcher = new Launcher(projectDir);
+            int actual = launcher.launch();
+            int expected = getExpectetExitCode(projectDir);
+            assertThat(actual).isEqualTo(expected);
         }
 
-        @ParameterizedTest
-        @EnumSource(ProjectTestCase.class)
-        public void runShouldRunTestsAsExpected(ProjectTestCase test) {
-            Launcher launcher = new Launcher(test.getProjectPath());
-            int exitCode = launcher.launch();
-            assertThat(exitCode).isEqualTo(test.exitCode);
+        private static int getExpectetExitCode(Path dir) throws IOException {
+            Properties properties = new Properties();
+            Path path = dir.resolve("result.properties");
+            try (InputStream in = Files.newInputStream(path)) {
+                properties.load(in);
+            }
+            return Integer.valueOf(properties.getProperty("exit"));
+        }
+
+        @Test
+        public void launchShoudReturn2IfNoProjectFound() {
+            Path dir = Path.of("src/test/projects/nonexistent");
+            Launcher launcher = new Launcher(dir);
+            int actual = launcher.launch();
+            assertThat(actual).isEqualTo(-1);
         }
     }
 }

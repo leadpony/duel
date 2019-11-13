@@ -1,7 +1,0 @@
-{
-    "path": "json/greeting",
-
-    "response": {
-        "required": ["Location"]
-    }
-}

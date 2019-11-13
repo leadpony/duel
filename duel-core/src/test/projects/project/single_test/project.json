@@ -1,0 +1,7 @@
+{
+    "version": 1,
+    "scheme": "http",
+    "host": "localhost",
+    "port": 8080,
+    "basePath": "bookstore"
+}
