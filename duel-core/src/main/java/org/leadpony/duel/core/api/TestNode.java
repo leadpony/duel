@@ -24,7 +24,14 @@ import java.util.Optional;
 /**
  * @author leadpony
  */
-public interface TestNode extends PropertyFinder, Comparable<TestNode> {
+public interface TestNode extends PropertyFinder {
+
+    /**
+     * Returns the name of this node for display.
+     *
+     * @return the name of this node, never be {@code null}.
+     */
+    String getName();
 
     /**
      * Returns the identifier of this node.
@@ -39,13 +46,6 @@ public interface TestNode extends PropertyFinder, Comparable<TestNode> {
      * @return the path to this node.
      */
     Path getPath();
-
-    /**
-     * Returns the name of this node for display.
-     *
-     * @return the name of this node, never be {@code null}.
-     */
-    String getName();
 
     /**
      * Returns the parent of this node.
@@ -68,12 +68,7 @@ public interface TestNode extends PropertyFinder, Comparable<TestNode> {
     /**
      * Returns all the properties defined in this node.
      *
-     * @return all the properties as an immutable map.
+     * @return the immutable map containing all of the properties.
      */
     Map<String, String> getProperties();
-
-    @Override
-    default int compareTo(TestNode other) {
-        return getId().compareTo(other.getId());
-    }
 }

@@ -51,15 +51,15 @@ import org.opentest4j.IncompleteExecutionException;
 /**
  * @author leadpony
  */
-class TestCaseImpl extends AbstractTestNode implements TestCase {
+class RegularTestCase extends AbstractRegularTestNode implements TestCase {
 
-    static final String FILE_PATTERN = "*.test.json";
+    static final String FILE_PATTERN = "*" + FILE_SUFFIX;
 
     private final TestCaseConfig config;
     private final TestGroup parent;
     private final Assertion assertion;
 
-    TestCaseImpl(Path path, TestCaseConfig config, TestContext context, TestGroup parent) {
+    RegularTestCase(Path path, TestCaseConfig config, TestContext context, TestGroup parent) {
         super(path, context);
         this.config = config;
         this.parent = parent;
@@ -75,7 +75,7 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
         if (name != null) {
             return name;
         }
-        return getPath().getFileName().toString();
+        return TestCase.super.getName();
     }
 
     @Override
@@ -126,7 +126,7 @@ class TestCaseImpl extends AbstractTestNode implements TestCase {
             return client.send(request, this::createBodySubscriber);
         } catch (IOException e) {
             throw new IncompleteExecutionException(
-                    Message.NETWORK_FAILURE.asString(), e);
+                    Message.NETWORK_FAILURE.format(request.uri()), e);
         } catch (InterruptedException e) {
             throw new IncompleteExecutionException(
                     Message.NETWORK_OPERATION_INTERRUPTED.asString(), e);

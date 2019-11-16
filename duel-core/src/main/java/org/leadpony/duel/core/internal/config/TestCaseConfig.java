@@ -30,7 +30,7 @@ public final class TestCaseConfig extends Config {
 
     private static final Request DEFAULT_REQUEST = new Request();
 
-    private String path;
+    private String path = "";
     private Request request = DEFAULT_REQUEST;
     private Map<String, JsonValue> response = Collections.emptyMap();
 

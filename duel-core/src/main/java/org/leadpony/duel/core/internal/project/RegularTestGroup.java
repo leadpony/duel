@@ -41,13 +41,13 @@ import org.opentest4j.IncompleteExecutionException;
 /**
  * @author leadpony
  */
-class TestGroupImpl extends AbstractTestNode implements TestGroup {
+class RegularTestGroup extends AbstractRegularTestNode implements TestGroup {
 
     static final String FILE_NAME = "group.json";
 
     private final Config config;
 
-    TestGroupImpl(Path dir, Config config, TestContext context) {
+    RegularTestGroup(Path dir, Config config, TestContext context) {
         super(dir, context);
         this.config = config;
     }
@@ -67,19 +67,19 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
         if (name != null) {
             return name;
         }
-        return getPath().getFileName().toString();
+        return TestGroup.super.getName();
     }
 
     /* As a TestGroup */
 
     @Override
     public Stream<TestCase> testCases() {
-        return findTestCases(getPath()).stream();
+        return findTestCases(getPath()).stream().map(this::createTestCase);
     }
 
     @Override
     public Stream<TestGroup> subgroups() {
-        return findSubgroups(getPath()).stream();
+        return findSubgroups(getPath()).stream().map(this::createSubgroup);
     }
 
     /* As a AbstractTestNode */
@@ -89,50 +89,63 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
         return config;
     }
 
-    private List<TestCase> findTestCases(Path dir) {
-        List<TestCase> children = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, TestCaseImpl.FILE_PATTERN)) {
+    private List<Path> findTestCases(Path dir) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, RegularTestCase.FILE_PATTERN)) {
+            List<Path> children = new ArrayList<>();
             for (Path path : stream) {
                 if (Files.isRegularFile(path)) {
-                    children.add(createTestCase(path));
+                    children.add(path);
                 }
             }
+            Collections.sort(children);
+            return children;
         } catch (IOException e) {
             throw new IncompleteExecutionException(
                     Message.DIRECTORY_READ_FAILURE.format(dir),
                     e);
         }
-        Collections.sort(children);
-        return children;
     }
 
-    private List<TestGroup> findSubgroups(Path dir) {
-        List<TestGroup> children = new ArrayList<>();
+    private List<Path> findSubgroups(Path dir) {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            List<Path> children = new ArrayList<>();
             for (Path path : stream) {
                 if (isSubgroup(path)) {
-                    children.add(createSubgroup(path));
+                    children.add(path);
                 }
             }
+            Collections.sort(children);
+            return children;
         } catch (IOException e) {
             throw new IncompleteExecutionException(
                     Message.DIRECTORY_READ_FAILURE.format(dir),
                     e);
         }
-        Collections.sort(children);
-        return children;
     }
 
     private TestCase createTestCase(Path path) {
-        TestCaseConfig config = loadCaseConfig(path);
-        return new TestCaseImpl(path, config, getContext(), this);
+        try {
+            ConfigLoader loader = new ConfigLoader(this);
+            TestCaseConfig config = loader.load(path, TestCaseConfig.class);
+            return new RegularTestCase(path, config, getContext(), this);
+        } catch (JsonbException e) {
+            return createIrregularTestCase(path,
+                    Message.BAD_TEST_CASE.format(path), e);
+        } catch (IOException e) {
+            return createIrregularTestCase(path,
+                    Message.FILE_READ_FAILURE.format(path), e);
+        }
+    }
+
+    private TestCase createIrregularTestCase(Path path, String message, Throwable cause) {
+        return new BadTestCase(path, this, message, cause);
     }
 
     private TestGroup createSubgroup(Path dir) {
         TestGroup parent = this;
         Path path = dir.resolve(FILE_NAME);
         Config config = loadGroupConfig(path);
-        return new TestGroupImpl(path, config, getContext()) {
+        return new RegularTestGroup(path, config, getContext()) {
             @Override
             public Optional<TestNode> getParent() {
                 return Optional.of(parent);
@@ -146,21 +159,6 @@ class TestGroupImpl extends AbstractTestNode implements TestGroup {
         }
         Path path = dir.resolve(FILE_NAME);
         return Files.exists(path) && Files.isRegularFile(path);
-    }
-
-    private TestCaseConfig loadCaseConfig(Path path) {
-        try {
-            ConfigLoader loader = new ConfigLoader(this);
-            return loader.load(path, TestCaseConfig.class);
-        } catch (JsonbException e) {
-            throw new IncompleteExecutionException(
-                    Message.BAD_TEST_CASE.format(path),
-                    e);
-        } catch (IOException e) {
-            throw new IncompleteExecutionException(
-                    Message.FILE_READ_FAILURE.format(path),
-                    e);
-        }
     }
 
     private Config loadGroupConfig(Path path) {

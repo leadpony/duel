@@ -1,17 +1,21 @@
 {
-    "path": "",
+    "path": "/books/${id}",
     "method": "GET",
+
+    "properties": {
+        "id": "12345"
+    },
 
     "request": {
         "header": {
             "User-Agent": "test"
         }
     },
-    
+
     "response": {
         "body": {
             "data": {
-                "path": "/report",
+                "path": "/report/books/12345",
                 "method": "GET",
                 "header": {
                     "Host": "localhost:8080",

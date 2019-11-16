@@ -1,17 +1,22 @@
 {
-    "path": "",
+    "path": "/${country}/${state}",
     "method": "GET",
+
+    "properties": {
+        "country": "US",
+        "state": "NY"
+    },
 
     "request": {
         "header": {
             "User-Agent": "test"
         }
     },
-    
+
     "response": {
         "body": {
             "data": {
-                "path": "/report",
+                "path": "/report/US/NY",
                 "method": "GET",
                 "header": {
                     "Host": "localhost:8080",

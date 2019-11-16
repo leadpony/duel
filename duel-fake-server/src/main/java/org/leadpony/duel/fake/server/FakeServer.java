@@ -18,6 +18,7 @@ package org.leadpony.duel.fake.server;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -35,7 +36,7 @@ public class FakeServer extends Server {
     private static final String SHUTDOWN_TOKEN = "secret";
 
     public FakeServer(int port) {
-        super(port);
+        super(new InetSocketAddress("localhost", port));
         HandlerList handlers = new HandlerList();
         handlers.addHandler(new ShutdownHandler(SHUTDOWN_TOKEN));
         ServletHandler handler = new ServletHandler();
@@ -45,9 +46,10 @@ public class FakeServer extends Server {
     }
 
     private static void addServlets(ServletHandler handler) {
-        handler.addServletWithMapping(JsonResourceServlet.class, "/json/*");
-        handler.addServletWithMapping(DiagnosticServlet.class, "/diagnostic/*");
-        handler.addServletWithMapping(EchoServlet.class, "/echo/*");
+        handler.addServletWithMapping(ReportServlet.class, "/report/*");
+        handler.addServletWithMapping(EchoServlet.class, "/echo");
+        handler.addServletWithMapping(StatusServlet.class, "/status");
+        handler.addServletWithMapping(StaticResourceServlet.class, "/*");
     }
 
     public static void main(String[] args) throws Exception {

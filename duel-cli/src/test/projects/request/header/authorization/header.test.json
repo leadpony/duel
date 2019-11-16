@@ -1,5 +1,5 @@
 {
-    "path": "/header",
+    "path": "",
     "method": "GET",
     
     "request": {
@@ -12,6 +12,8 @@
     "response": {
         "body": {
             "data": {
+                "path": "/report",
+                "method": "GET",
                 "header": {
                     "Authorization": "Bearer mF_9.B5f-4.1JqM",
                     "User-Agent": "test",

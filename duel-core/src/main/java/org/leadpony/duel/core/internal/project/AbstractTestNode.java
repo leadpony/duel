@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import org.leadpony.duel.core.api.Parameter;
 import org.leadpony.duel.core.api.TestNode;
-import org.leadpony.duel.core.internal.config.Config;
 
 /**
  * A skeletal implementation of {@link TestNode}.
@@ -36,11 +35,9 @@ import org.leadpony.duel.core.internal.config.Config;
 abstract class AbstractTestNode implements TestNode {
 
     private final Path path;
-    private final TestContext context;
 
-    protected AbstractTestNode(Path path, TestContext context) {
+    protected AbstractTestNode(Path path) {
         this.path = path;
-        this.context = context;
     }
 
     @Override
@@ -54,24 +51,13 @@ abstract class AbstractTestNode implements TestNode {
     }
 
     @Override
-    public String getName() {
-        return getConfig().getName();
-    }
-
-    @Override
     public Optional<TestNode> getParent() {
         return Optional.empty();
     }
 
     @Override
     public Object get(Parameter parameter) {
-        requireNonNull(parameter, "parameter must not be null.");
-        Object value = getConfig().getParameter(parameter);
-        if (value != null) {
-            return value;
-        }
-        return getParent().map(parent -> parent.get(parameter))
-                          .orElse(parameter.defaultValue());
+        return getParentParameter(parameter);
     }
 
     @Override
@@ -81,9 +67,8 @@ abstract class AbstractTestNode implements TestNode {
 
     @Override
     public Map<String, String> getProperties() {
-        return Collections.unmodifiableMap(getConfig().getProperties());
+        return Collections.emptyMap();
     }
-
 
     @Override
     public String toString() {
@@ -93,7 +78,7 @@ abstract class AbstractTestNode implements TestNode {
     @Override
     public Optional<String> findProperty(String name) {
         requireNonNull(name, "name must not be null.");
-        var properties = getConfig().getProperties();
+        var properties = getProperties();
         if (properties.containsKey(name)) {
             return Optional.of(properties.get(name));
         }
@@ -105,9 +90,8 @@ abstract class AbstractTestNode implements TestNode {
         }
     }
 
-    final TestContext getContext() {
-        return context;
+    protected Object getParentParameter(Parameter parameter) {
+        return getParent().map(parent -> parent.get(parameter))
+                .orElse(parameter.defaultValue());
     }
-
-    abstract Config getConfig();
 }

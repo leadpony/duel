@@ -14,6 +14,7 @@
 
     <modules>
         <module>duel-core</module>
+        <module>duel-assertion</module>
         <module>duel-assertion/duel-assertion-basic</module>
         <module>duel-fake-server</module>
         <module>duel-cli</module>

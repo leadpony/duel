@@ -1,20 +1,30 @@
 {
-    "path": "/parameters",
+    "path": "",
     "method": "GET",
     
     "request": {
         "query": {
             "name": "ferret",
             "color": "purple"
+        },
+        "header": {
+            "User-Agent": "test"
         }
     },
 
     "response": {
         "body": {
             "data": {
+                "path": "/report",
+                "method": "GET",
                 "parameters": {
                     "name": "ferret",
                     "color": "purple"
+                },
+                "header": {
+                    "Host": "localhost:8080",
+                    "Content-Length": "0",
+                    "User-Agent": "test"
                 }
             }
         }

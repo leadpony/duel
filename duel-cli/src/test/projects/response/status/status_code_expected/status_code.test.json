@@ -1,7 +1,7 @@
 {
-    "path": "/nonexistent",
+    "path": "/status?code=201",
 
     "response": {
-        "status": 404
+        "status": 201
     }
 }

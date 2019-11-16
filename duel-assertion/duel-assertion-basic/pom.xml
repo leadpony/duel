@@ -7,19 +7,14 @@
 
     <parent>
         <groupId>org.leadpony.duel</groupId>
-        <artifactId>duel</artifactId>
+        <artifactId>duel-assertion</artifactId>
         <version>0.1.0-SNAPSHOT</version>
-        <relativePath>../..</relativePath>
     </parent>
 
     <artifactId>duel-assertion-basic</artifactId>
     <packaging>jar</packaging>
     <name>org.leadpony.duel.assertion.basic</name>
     
-    <properties>
-        <checkstyle.config.location>../../checkstyle.xml</checkstyle.config.location>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>jakarta.json</groupId>

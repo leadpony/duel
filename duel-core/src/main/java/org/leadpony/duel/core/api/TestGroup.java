@@ -25,6 +25,13 @@ import java.util.stream.Stream;
  */
 public interface TestGroup extends TestNode, Iterable<TestNode> {
 
+    String FILE_NAME = "group.json";
+
+    @Override
+    default String getName() {
+        return getPath().getFileName().toString();
+    }
+
     /**
      * Returns the test cases in this group as a stream.
      *

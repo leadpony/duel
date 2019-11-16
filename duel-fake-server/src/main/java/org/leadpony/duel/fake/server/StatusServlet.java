@@ -17,8 +17,8 @@
 package org.leadpony.duel.fake.server;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,22 +27,19 @@ import javax.servlet.http.HttpServletResponse;
  * @author leadpony
  */
 @SuppressWarnings("serial")
-public class JsonResourceServlet extends HttpServlet {
+public class StatusServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        InputStream in = findResource(request.getPathInfo());
-        if (in != null) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
-            in.transferTo(response.getOutputStream());
-        } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String value = request.getParameter("code");
+        int code = HttpServletResponse.SC_BAD_REQUEST;
+        if (value != null) {
+            try {
+                code = Integer.valueOf(value);
+            } catch (NumberFormatException e) {
+            }
         }
-    }
-
-    private InputStream findResource(String path) {
-        return getClass().getResourceAsStream("json" + path + ".json");
+        response.setStatus(code);
     }
 }

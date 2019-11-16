@@ -1,5 +1,5 @@
 {
-    "path": "/status?code=201",
+    "path": "/json/greeting.json",
 
     "response": {
         "status": 200

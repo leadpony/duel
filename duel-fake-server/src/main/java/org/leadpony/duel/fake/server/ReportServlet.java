@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author leadpony
  */
 @SuppressWarnings("serial")
-public class DiagnosticServlet extends HttpServlet {
+public class ReportServlet extends HttpServlet {
 
     private JsonBuilderFactory builderFactory;
     private JsonWriterFactory writerFactory;
@@ -76,30 +76,13 @@ public class DiagnosticServlet extends HttpServlet {
     }
 
     private JsonObject buildJson(HttpServletRequest request) {
-        String path = request.getPathInfo();
-        if (path == null) {
-            path = "/";
-        }
-
-        final boolean full = path.equals("/");
-
         JsonObjectBuilder builder = builderFactory.createObjectBuilder();
-        if (full || path.startsWith("/url")) {
-            builder.add("url", request.getRequestURI());
-        }
-
-        if (full || path.startsWith("/method")) {
-            builder.add("method", request.getMethod());
-        }
-
-        if (full || path.startsWith("/header")) {
-            builder.add("header", buildHeaderObject(request));
-        }
-
-        if (full || path.startsWith("/parameters")) {
+        builder.add("path", request.getRequestURI());
+        builder.add("method", request.getMethod());
+        builder.add("header", buildHeaderObject(request));
+        if (!request.getParameterMap().isEmpty()) {
             builder.add("parameters", buildParametersObject(request));
         }
-
         return builder.build();
     }
 

@@ -20,7 +20,7 @@ package org.leadpony.duel.core.api;
  * @author leadpony
  */
 public enum Parameter {
-    SCHEME(""),
+    SCHEME("http"),
     HOST("localhost"),
     PORT(null),
     BASE_PATH(""),

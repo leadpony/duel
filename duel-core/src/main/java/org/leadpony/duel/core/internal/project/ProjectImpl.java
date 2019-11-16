@@ -67,7 +67,7 @@ class ProjectImpl implements Project {
     @Override
     public TestGroup createRootGroup() {
         TestContext context = new ProjectTestContext();
-        return new TestGroupImpl(projectDir, config, context);
+        return new RegularTestGroup(projectDir, config, context);
     }
 
     /**

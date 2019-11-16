@@ -70,7 +70,7 @@ class JsonBodyAssertion extends AbstractAssertion {
 
     private void testValue(JsonStructure actual) {
         JsonStructure expected = (JsonStructure) this.expected;
-        JsonPatch diff = jsonProvider.createDiff(actual, expected);
+        JsonPatch diff = jsonProvider.createDiff(expected, actual);
         JsonArray array = diff.toJsonArray();
         if (!array.isEmpty()) {
             fail(buildMessage(array), expected, actual);
