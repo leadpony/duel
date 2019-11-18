@@ -16,10 +16,11 @@
 
 package org.leadpony.duel.cli;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.logging.LogManager;
 import java.util.spi.ToolProvider;
 
 import org.leadpony.duel.core.api.Project;
@@ -32,6 +33,8 @@ public class Launcher {
 
     private static final int FAILED = -1;
 
+    private static final String LOG_CONFIG_FILE = "/logging.properties";
+
     private final Path dir;
 
     private PrintStream out = System.out;
@@ -42,8 +45,12 @@ public class Launcher {
             "-c=" + ProjectTest.class.getName()
     };
 
+    static {
+        configureLogging();
+    }
+
     public Launcher() {
-        this.dir = Paths.get(System.getProperty("user.dir"));
+        this(Path.of(System.getProperty("user.dir")));
     }
 
     Launcher(Path dir) {
@@ -57,8 +64,7 @@ public class Launcher {
             int exitCode = runConsole(ARGS);
             return exitCode;
         } catch (Exception e) {
-            err.println(e.getMessage());
-            return FAILED;
+            return fail(e);
         }
     }
 
@@ -67,12 +73,33 @@ public class Launcher {
         if (tool.isPresent()) {
             return tool.get().run(out, err, args);
         }
-        err.println("No ToolProvider found.");
-        return FAILED;
+        return fail("No ToolProvider found.");
     }
 
     private static Project loadProject(Path path) {
         return ProjectLoader.loadFrom(path);
+    }
+
+    private int fail(String message) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[ERROR] ")
+               .append(message);
+        err.println(builder.toString());
+        return FAILED;
+    }
+
+    private int fail(Exception e) {
+        fail(e.getMessage());
+        e.printStackTrace(err);
+        return FAILED;
+    }
+
+    private static void configureLogging() {
+        LogManager logManager = LogManager.getLogManager();
+        try (InputStream in = Launcher.class.getResourceAsStream(LOG_CONFIG_FILE)) {
+            logManager.readConfiguration(in);
+        } catch (Exception e) {
+        }
     }
 
     /**

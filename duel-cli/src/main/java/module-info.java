@@ -21,6 +21,7 @@ module org.leadpony.duel.cli {
     exports org.leadpony.duel.cli;
     requires transitive org.junit.jupiter.api;
     requires transitive org.leadpony.duel.core;
+    requires java.logging;
 
     uses java.util.spi.ToolProvider;
 
