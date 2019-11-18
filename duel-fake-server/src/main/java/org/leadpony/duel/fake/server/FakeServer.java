@@ -16,10 +16,8 @@
 
 package org.leadpony.duel.fake.server;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.eclipse.jetty.server.Server;
@@ -53,25 +51,31 @@ public class FakeServer extends Server {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length > 0 && args[0].equals("stop")) {
-            shutdown(PORT);
-        } else {
-            FakeServer server = new FakeServer(PORT);
-            server.start();
-            server.join();
+        if (args.length < 1) {
+            return;
+        }
+        switch (args[0]) {
+        case "start":
+            startServer(PORT);
+            break;
+        case "stop":
+            stopServer(PORT);
+            break;
+        default:
+            break;
         }
     }
 
-    private static void shutdown(int port) {
-        try {
-           URL url = new URL("http://localhost:" + port + "/shutdown?token=" + SHUTDOWN_TOKEN);
-           HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-           connection.setRequestMethod("POST");
-           connection.getResponseCode();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private static void startServer(int port) throws Exception {
+        FakeServer server = new FakeServer(PORT);
+        server.start();
+        server.join();
+    }
+
+    private static void stopServer(int port) throws Exception {
+       URL url = new URL("http://localhost:" + port + "/shutdown?token=" + SHUTDOWN_TOKEN);
+       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+       connection.setRequestMethod("POST");
+       connection.getResponseCode();
     }
 }
