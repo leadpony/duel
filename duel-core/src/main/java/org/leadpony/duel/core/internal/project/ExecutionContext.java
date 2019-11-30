@@ -14,38 +14,22 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.api;
+package org.leadpony.duel.core.internal.project;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.Map;
+import java.net.http.HttpClient;
+
+import org.leadpony.duel.core.api.Project;
 
 /**
+ * A context of test execution.
+ *
  * @author leadpony
  */
-public interface Project {
+interface ExecutionContext {
 
-    String FILE_NAME = "project.json";
+    Project getProject();
 
-    /**
-     * Returns the version of this project.
-     *
-     * @return the version of this project.
-     */
-    int getVersion();
+    HttpClient getHttpClient();
 
-    URI getId();
-
-    /**
-     * Returns the directory containing this project.
-     *
-     * @return the directory containing this project.
-     */
-    Path getPath();
-
-    Map<String, String> getProperties();
-
-    GroupNode getRootGroup();
-
-    GroupExecution createExecution();
+    AssertionFactory getAssertionFactory();
 }

@@ -28,8 +28,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectLoader;
-import org.leadpony.duel.core.api.TestCase;
-import org.leadpony.duel.core.api.TestGroup;
+import org.leadpony.duel.core.api.CaseNode;
+import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.internal.Logging;
 
 /**
@@ -42,26 +42,29 @@ public class TestCaseTest {
 
     private static final Path BASE_PATH = Path.of("src/test/projects/case");
 
-    private static TestCase findFirstTestCase(Path path) {
+    private static CaseNode findFirstTestCase(Path path) {
         Project project = ProjectLoader.loadFrom(path);
-        TestGroup group = project.createRootGroup();
-        TestCase testCase = group.testCases().findFirst().get();
+        GroupNode group = project.getRootGroup();
+        CaseNode testCase = group.getTestCases().iterator().next();
         return testCase;
     }
 
+    private static final Path PROPERTIES_BASE_PATH = BASE_PATH.resolve("properties");
+
     public enum PropertiesTestCase {
-        PROPERTIES() {{
+        SIMPLE() {{
             expected.put("firstName", "John");
             expected.put("lastName", "Smith");
             expected.put("age", "42");
         }},
 
-        PROPERTIES_INTERPOLATE_FULL() {{
+        EXPAND_FULL() {{
             expected.put("firstName", "John");
             expected.put("greeting", "Hello John Smith");
+            expected.put("lastName", "Smith");
         }},
 
-        PROPERTIES_INTERPOLATE_PARTIAL() {{
+        EXPAND_PARTIAL() {{
             expected.put("lastName", "Smith");
             expected.put("greeting", "Hello ${firstName} Smith");
         }};
@@ -69,14 +72,14 @@ public class TestCaseTest {
         final Map<String, String> expected = new HashMap<>();
 
         Path getStartPath() {
-            return BASE_PATH.resolve(name().toLowerCase());
+            return PROPERTIES_BASE_PATH.resolve(name().toLowerCase());
         }
     }
 
     @ParameterizedTest
     @EnumSource(PropertiesTestCase.class)
     public void getPropertiesShouldReturnExpectedResult(PropertiesTestCase test) {
-        TestCase testCase = findFirstTestCase(test.getStartPath());
+        CaseNode testCase = findFirstTestCase(test.getStartPath());
         var actual = testCase.getProperties();
         assertThat(actual).isEqualTo(test.expected);
     }
@@ -104,7 +107,7 @@ public class TestCaseTest {
     @ParameterizedTest
     @EnumSource(EndpointTestCase.class)
     public void getEndpointUrlShouldReturnCorrectUrl(EndpointTestCase test) {
-        TestCase testCase = findFirstTestCase(test.getStartPath());
+        CaseNode testCase = findFirstTestCase(test.getStartPath());
         var actual = testCase.getEndpointUrl();
         LOG.info(actual.toASCIIString());
         assertThat(actual).isEqualTo(test.expected);

@@ -19,12 +19,11 @@ package org.leadpony.duel.core.api;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author leadpony
  */
-public interface TestNode extends PropertyFinder {
+public interface Node {
 
     /**
      * Returns the name of this node for display.
@@ -46,13 +45,6 @@ public interface TestNode extends PropertyFinder {
      * @return the path to this node.
      */
     Path getPath();
-
-    /**
-     * Returns the parent of this node.
-     *
-     * @return the parent of this node, may be empty.
-     */
-    Optional<TestNode> getParent();
 
     /**
      * Returns the value of the specified parameter.

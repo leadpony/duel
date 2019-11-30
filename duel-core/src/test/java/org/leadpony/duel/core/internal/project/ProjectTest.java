@@ -27,7 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectLoader;
-import org.leadpony.duel.core.api.TestGroup;
+import org.leadpony.duel.core.api.GroupNode;
 
 /**
  * @author leadpony
@@ -62,23 +62,23 @@ public class ProjectTest {
     @EnumSource(RootGroupTestCase.class)
     public void createRootGroupShouldGenerateExpectedTests(RootGroupTestCase test) {
         Project project = ProjectLoader.loadFrom(test.getStartPath());
-        TestGroup group = project.createRootGroup();
+        GroupNode group = project.getRootGroup();
 
         assertThat((Object) group).isNotNull();
         assertThat(countGroups(group)).isEqualTo(test.groups);
         assertThat(countCases(group)).isEqualTo(test.cases);
     }
 
-    private static long countGroups(TestGroup group) {
-        return group.subgroups()
+    private static long countGroups(GroupNode group) {
+        return group.getSubgroups().stream()
                 .reduce(1L,
                     (sum, node) -> sum + countGroups(node),
                     Long::sum);
     }
 
-    private static long countCases(TestGroup group) {
-        long count = group.testCases().count();
-        return group.subgroups()
+    private static long countCases(GroupNode group) {
+        long count = group.getTestCases().size();
+        return group.getSubgroups().stream()
                 .reduce(count,
                     (sum, node) -> sum + countCases(node),
                     Long::sum);

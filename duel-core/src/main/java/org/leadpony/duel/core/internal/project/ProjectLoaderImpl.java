@@ -17,15 +17,26 @@
 package org.leadpony.duel.core.internal.project;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.json.JsonException;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.json.bind.JsonbException;
 
+import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
 import org.leadpony.duel.core.internal.Message;
+import org.leadpony.duel.core.internal.common.JsonCombiner;
+import org.leadpony.duel.core.internal.common.JsonService;
 import org.leadpony.duel.core.internal.config.ConfigLoader;
 import org.leadpony.duel.core.internal.config.ProjectConfig;
 
@@ -35,6 +46,7 @@ import org.leadpony.duel.core.internal.config.ProjectConfig;
 public class ProjectLoaderImpl implements ProjectLoader {
 
     private final Path startPath;
+    private final JsonService jsonService = JsonService.SINGLETON;
 
     public ProjectLoaderImpl(Path startPath) {
         this.startPath = startPath;
@@ -56,17 +68,110 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     private ProjectImpl createProject(Path projectPath, Path startPath) {
+        ProjectConfig config = loadProjectConfig(projectPath);
+
+        JsonObject original = loadJson(projectPath);
+        JsonObject expanded = JsonExpander.SIMPLE.apply(original);
+
+        Path dir = projectPath.getParent();
+        TestGroup rootGroup = createRootGroup(dir, original, expanded);
+        return new ProjectImpl(dir, startPath, config, rootGroup);
+    }
+
+    private JsonObject loadJson(Path path) {
         try {
-            ProjectConfig config = new ConfigLoader().load(projectPath, ProjectConfig.class);
-            return new ProjectImpl(projectPath.getParent(), startPath, config);
-        } catch (JsonbException e) {
-            throw new ProjectException(
-                    Message.BAD_PROJECT.format(projectPath),
-                    e);
+            return (JsonObject) jsonService.readFrom(path);
+        } catch (ClassCastException e) {
+            // TODO:
+            throw new ProjectException(Message.BAD_PROJECT.format(path), e);
+        } catch (JsonException e) {
+            // TODO:
+            throw new ProjectException(Message.BAD_PROJECT.format(path), e);
         } catch (IOException e) {
-            throw new ProjectException(
-                    Message.FILE_READ_FAILURE.format(projectPath),
-                    e);
+            throw new ProjectException(Message.FILE_READ_FAILURE.format(path), e);
         }
+    }
+
+    private ProjectConfig loadProjectConfig(Path path) {
+        try {
+            return new ConfigLoader().load(path, ProjectConfig.class);
+        } catch (JsonbException e) {
+            throw new ProjectException(Message.BAD_PROJECT.format(path), e);
+        } catch (IOException e) {
+            throw new ProjectException(Message.FILE_READ_FAILURE.format(path), e);
+        }
+    }
+
+    private TestGroup createRootGroup(Path dir, JsonObject json, JsonObject expanded) {
+        return createTestGroup(dir, json, json, expanded);
+    }
+
+    private TestGroup createTestGroup(Path dir, JsonObject json, JsonObject merged, JsonObject expanded) {
+        List<TestCase> testCases = loadTestCases(dir, merged);
+        List<TestGroup> subgroups = loadSubgroups(dir, merged);
+        return new TestGroup(dir, json, merged, expanded, testCases, subgroups);
+    }
+
+    private List<TestCase> loadTestCases(Path dir, JsonObject base) {
+        return findTestCases(dir).stream()
+                .map(path -> createTestCase(path, base))
+                .collect(Collectors.toList());
+    }
+
+    private List<TestGroup> loadSubgroups(Path dir, JsonObject base) {
+        return findSubgroups(dir).stream()
+                .map(path -> createSubgroup(path))
+                .collect(Collectors.toList());
+    }
+
+    private List<Path> findTestCases(Path dir) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, TestCase.FILE_PATTERN)) {
+            List<Path> children = new ArrayList<>();
+            for (Path path : stream) {
+                if (Files.isRegularFile(path)) {
+                    children.add(path);
+                }
+            }
+            Collections.sort(children);
+            return children;
+        } catch (IOException e) {
+            throw new ProjectException(Message.DIRECTORY_READ_FAILURE.format(dir), e);
+        }
+    }
+
+    private List<Path> findSubgroups(Path dir) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            List<Path> children = new ArrayList<>();
+            for (Path path : stream) {
+                if (isSubgroup(path)) {
+                    children.add(path);
+                }
+            }
+            Collections.sort(children);
+            return children;
+        } catch (IOException e) {
+            throw new ProjectException(Message.DIRECTORY_READ_FAILURE.format(dir), e);
+        }
+    }
+
+    private TestCase createTestCase(Path path, JsonObject base) {
+        JsonObject json = loadJson(path);
+        JsonObject merged = JsonCombiner.MERGE.apply(base, json);
+        JsonObject expanded = JsonExpander.SIMPLE.apply(merged);
+        return new TestCase(path, json, merged, expanded);
+    }
+
+    private TestGroup createSubgroup(Path dir) {
+        Path path = dir.resolve(GroupNode.FILE_NAME);
+        JsonObject json = JsonValue.EMPTY_JSON_OBJECT;
+        return createTestGroup(path, json, json, json);
+    }
+
+    private static boolean isSubgroup(Path dir) {
+        if (!Files.isDirectory(dir)) {
+            return false;
+        }
+        Path path = dir.resolve(GroupNode.FILE_NAME);
+        return Files.exists(path) && Files.isRegularFile(path);
     }
 }

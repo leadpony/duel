@@ -23,9 +23,9 @@ import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.leadpony.duel.core.api.CaseExecution;
+import org.leadpony.duel.core.api.GroupExecution;
 import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.TestCase;
-import org.leadpony.duel.core.api.TestGroup;
 
 /**
  * @author leadpony
@@ -41,24 +41,24 @@ public class ProjectTest {
     @TestFactory
     @DisplayName("Projects")
     public Stream<DynamicNode> projects() {
-        TestGroup root = project.createRootGroup();
+        GroupExecution root = project.createExecution();
         return Stream.of(createContainer(root));
     }
 
-    private static DynamicTest createTest(TestCase testCase) {
+    private static DynamicTest createTest(CaseExecution testCase) {
         return DynamicTest.dynamicTest(
                 testCase.getName(),
                 testCase::run
                 );
     }
 
-    private static DynamicContainer createContainer(TestGroup group) {
+    private static DynamicContainer createContainer(GroupExecution group) {
         return DynamicContainer.dynamicContainer(
                 group.getName(),
                 createStream(group));
     }
 
-    private static Stream<DynamicNode> createStream(TestGroup group) {
+    private static Stream<DynamicNode> createStream(GroupExecution group) {
         Stream<DynamicNode> cases = group.testCases()
                 .map(ProjectTest::createTest);
         Stream<DynamicNode> groups = group.subgroups()

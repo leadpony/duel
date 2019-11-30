@@ -22,8 +22,9 @@ import java.net.http.HttpClient.Redirect;
 import java.nio.file.Path;
 import java.util.Map;
 
+import org.leadpony.duel.core.api.GroupExecution;
 import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.TestGroup;
+import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.internal.config.ProjectConfig;
 
 /**
@@ -35,11 +36,13 @@ class ProjectImpl implements Project {
     @SuppressWarnings("unused")
     private final Path startPath;
     private final ProjectConfig config;
+    private final TestGroup rootGroup;
 
-    ProjectImpl(Path projectDir, Path startPath, ProjectConfig config) {
+    ProjectImpl(Path projectDir, Path startPath, ProjectConfig config, TestGroup rootGroup) {
         this.projectDir = projectDir;
         this.startPath = startPath;
         this.config = config;
+        this.rootGroup = rootGroup;
     }
 
     /* As a Project */
@@ -65,15 +68,21 @@ class ProjectImpl implements Project {
     }
 
     @Override
-    public TestGroup createRootGroup() {
-        TestContext context = new ProjectTestContext();
-        return new RegularTestGroup(projectDir, config, context);
+    public GroupNode getRootGroup() {
+        return rootGroup;
+    }
+
+    @Override
+    public GroupExecution createExecution() {
+        ExecutionContext context = new ProjectTestContext();
+        TestGroup group = rootGroup;
+        return group.createExecution(context);
     }
 
     /**
      * @author leadpony
      */
-    class ProjectTestContext implements TestContext {
+    class ProjectTestContext implements ExecutionContext {
 
         private final HttpClient httpClient;
         private final AssertionFactory responseValidatorFactory;

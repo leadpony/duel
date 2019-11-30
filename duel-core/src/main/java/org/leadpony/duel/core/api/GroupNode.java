@@ -16,36 +16,33 @@
 
 package org.leadpony.duel.core.api;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.Map;
+import java.util.Collection;
 
 /**
+ * A group of test cases.
+ *
  * @author leadpony
  */
-public interface Project {
+public interface GroupNode extends Node, Iterable<Node> {
 
-    String FILE_NAME = "project.json";
+    String FILE_NAME = "group.json";
 
-    /**
-     * Returns the version of this project.
-     *
-     * @return the version of this project.
-     */
-    int getVersion();
-
-    URI getId();
+    @Override
+    default String getName() {
+        return getPath().getFileName().toString();
+    }
 
     /**
-     * Returns the directory containing this project.
+     * Returns the test cases in this group as a collection.
      *
-     * @return the directory containing this project.
+     * @return all the test cases in this group.
      */
-    Path getPath();
+    Collection<CaseNode> getTestCases();
 
-    Map<String, String> getProperties();
-
-    GroupNode getRootGroup();
-
-    GroupExecution createExecution();
+    /**
+     * Returns the subgroups of this group as a collection.
+     *
+     * @return the subgroups of this group.
+     */
+    Collection<GroupNode> getSubgroups();
 }

@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
-
-import java.net.http.HttpClient;
-
-import org.leadpony.duel.core.api.Project;
+package org.leadpony.duel.core.api;
 
 /**
  * @author leadpony
  */
-interface TestContext {
-
-    Project getProject();
-
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+public interface CaseExecution extends Execution, Runnable {
 }

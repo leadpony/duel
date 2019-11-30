@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.config;
+package org.leadpony.duel.core.internal.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.leadpony.duel.core.api.PropertyFinder;
+import org.leadpony.duel.core.internal.common.JsonService;
 
 /**
  * @author leadpony
  */
-public class PropertyExpanderTest {
+public class ValueExpanderTest {
 
-    /**
-     * @author leadpony
-     */
-    enum TestCase implements PropertyFinder {
+    enum TestCase implements Function<String, String> {
         NO_PLACEHOLDER("Hello World", "Hello World"),
 
         SINGLE("Hello ${name}", "Hello John") {{
@@ -66,16 +63,16 @@ public class PropertyExpanderTest {
         }
 
         @Override
-        public Optional<String> findProperty(String name) {
-            return Optional.ofNullable(map.get(name));
+        public String apply(String name) {
+            return map.get(name);
         }
     }
 
     @ParameterizedTest
     @EnumSource(TestCase.class)
     public void expandShouldExpandSingleValueAsExpected(TestCase test) {
-        var expander = PropertyExpander.withFinder(test);
-        var actual = expander.expand(test.original);
+        var expander = new ValueExpander(test, JsonService.SINGLETON);
+        String actual = expander.expand(test.original);
         assertThat(actual).isEqualTo(test.expected);
     }
 }

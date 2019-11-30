@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonString;
@@ -44,12 +45,15 @@ import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 
 /**
+ * A wrapper class of {@code javax.json.Json}.
+ *
  * @author leadpony
  */
 public class Json {
 
     private static JsonProvider provider;
     private static JsonReaderFactory readerFactory;
+    private static JsonBuilderFactory builderFactory;
     private static Jsonb jsonb;
 
     public static JsonValue readFrom(Path path) throws IOException {
@@ -83,6 +87,16 @@ public class Json {
         return  getBinder().fromJson(in, type);
     }
 
+    public static JsonBuilderFactory createBuilderFactory() {
+        return getBuilderFactory();
+    }
+
+    public static JsonString createValue(String value) {
+        return getProvider().createValue(value);
+    }
+
+    /* */
+
     private static JsonProvider getProvider() {
         if (provider == null) {
             provider = JsonProvider.provider();
@@ -96,6 +110,14 @@ public class Json {
                     .createReaderFactory(Collections.emptyMap());
         }
         return readerFactory;
+    }
+
+    private static JsonBuilderFactory getBuilderFactory() {
+        if (builderFactory == null) {
+            builderFactory = getProvider()
+                    .createBuilderFactory(Collections.emptyMap());
+        }
+        return builderFactory;
     }
 
     private static Jsonb getBinder() {

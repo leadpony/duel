@@ -16,33 +16,26 @@
 
 package org.leadpony.duel.core.api;
 
-import java.util.stream.Stream;
+import java.net.URI;
 
 /**
- * A group of test cases.
- *
  * @author leadpony
  */
-public interface TestGroup extends TestNode, Iterable<TestNode> {
+public interface CaseNode extends Node {
 
-    String FILE_NAME = "group.json";
+    String FILE_SUFFIX = ".test.json";
+    int FILE_SUFFIX_LENGTH = FILE_SUFFIX.length();
 
     @Override
     default String getName() {
-        return getPath().getFileName().toString();
+        String filename = getPath().getFileName().toString();
+        return filename.substring(0, filename.length() - FILE_SUFFIX_LENGTH);
     }
 
     /**
-     * Returns the test cases in this group as a stream.
+     * Returns the target URL of this test case including query strings.
      *
-     * @return the stream of the test cases.
+     * @return the target URL of this test case.
      */
-    Stream<TestCase> testCases();
-
-    /**
-     * Returns the subgroups of this group as a stream.
-     *
-     * @return the stream of the test groups.
-     */
-    Stream<TestGroup> subgroups();
+    URI getEndpointUrl();
 }
