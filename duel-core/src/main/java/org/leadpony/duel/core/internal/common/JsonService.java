@@ -16,8 +16,10 @@
 
 package org.leadpony.duel.core.internal.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -50,8 +52,19 @@ public enum JsonService {
         return readFrom(Files.newInputStream(path));
     }
 
+    public JsonValue readFrom(byte[] byteArray, Charset charset) {
+        ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
+        return readFrom(in, charset);
+    }
+
     public JsonValue readFrom(InputStream in) {
         try (JsonReader reader = readerFactory.createReader(in)) {
+            return reader.readValue();
+        }
+    }
+
+    public JsonValue readFrom(InputStream in, Charset charset) {
+        try (JsonReader reader = readerFactory.createReader(in, charset)) {
             return reader.readValue();
         }
     }

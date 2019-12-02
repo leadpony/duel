@@ -16,14 +16,10 @@
 
 package org.leadpony.duel.core.api;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.Map;
-
 /**
  * @author leadpony
  */
-public interface Project {
+public interface Project extends GroupNode {
 
     String FILE_NAME = "project.json";
 
@@ -34,18 +30,7 @@ public interface Project {
      */
     int getVersion();
 
-    URI getId();
-
-    /**
-     * Returns the directory containing this project.
-     *
-     * @return the directory containing this project.
-     */
-    Path getPath();
-
-    Map<String, String> getProperties();
-
-    GroupNode getRootGroup();
+    //GroupNode getRootGroup();
 
     GroupExecution createExecution();
 }

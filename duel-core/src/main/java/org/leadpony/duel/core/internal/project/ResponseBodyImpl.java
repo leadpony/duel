@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import javax.json.JsonValue;
 
-import org.leadpony.duel.core.internal.common.Json;
+import org.leadpony.duel.core.internal.common.JsonService;
 import org.leadpony.duel.core.spi.MediaType;
 import org.leadpony.duel.core.spi.ResponseBody;
 
@@ -67,7 +67,7 @@ class ResponseBodyImpl implements ResponseBody {
     }
 
     private JsonValue getJsonValue() {
-        return Json.readFrom(byteArray, guessEncoding());
+        return JsonService.SINGLETON.readFrom(byteArray, guessEncoding());
     }
 
     private Charset guessEncoding() {

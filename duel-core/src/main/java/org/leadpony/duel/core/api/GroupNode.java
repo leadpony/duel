@@ -27,11 +27,6 @@ public interface GroupNode extends Node, Iterable<Node> {
 
     String FILE_NAME = "group.json";
 
-    @Override
-    default String getName() {
-        return getPath().getFileName().toString();
-    }
-
     /**
      * Returns the test cases in this group as a collection.
      *

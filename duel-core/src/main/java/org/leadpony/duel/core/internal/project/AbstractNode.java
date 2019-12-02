@@ -47,14 +47,6 @@ abstract class AbstractNode implements Node {
     private final JsonObject merged;
     private final JsonObject expanded;
 
-    protected AbstractNode(Path path) {
-        this(path, JsonValue.EMPTY_JSON_OBJECT, JsonValue.EMPTY_JSON_OBJECT);
-    }
-
-    protected AbstractNode(Path path, JsonObject json, JsonObject expanded) {
-        this(path, json, json, expanded);
-    }
-
     protected AbstractNode(Path path, JsonObject json, JsonObject merged, JsonObject expanded) {
         this.path = path;
         this.json = json;
@@ -64,7 +56,7 @@ abstract class AbstractNode implements Node {
 
     @Override
     public String getName() {
-        return getParameterOrDefault("name", (String) null);
+        return getOrDefault("name", (String) null);
     }
 
     @Override
@@ -84,9 +76,9 @@ abstract class AbstractNode implements Node {
         Object defaultValue = parameter.defaultValue();
         Class<?> valueType = parameter.valueType();
         if (valueType == String.class) {
-            return getParameterOrDefault(key, (String) defaultValue);
+            return getOrDefault(key, (String) defaultValue);
         } else if (valueType == Integer.class) {
-            return getParameterOrDefault(key, (Integer) defaultValue);
+            return getOrDefault(key, (Integer) defaultValue);
         }
         throw new IllegalArgumentException(parameter.name());
     }
@@ -140,7 +132,7 @@ abstract class AbstractNode implements Node {
         }
     }
 
-    private String getParameterOrDefault(String name, String defaultValue) {
+    protected String getOrDefault(String name, String defaultValue) {
         JsonValue value = getParameter(name);
         switch (value.getValueType()) {
         case STRING:
@@ -152,7 +144,7 @@ abstract class AbstractNode implements Node {
         }
     }
 
-    private Integer getParameterOrDefault(String name, Integer defaultValue) {
+    protected Integer getOrDefault(String name, Integer defaultValue) {
         JsonValue value = getParameter(name);
         switch (value.getValueType()) {
         case NUMBER:

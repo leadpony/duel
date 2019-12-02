@@ -58,6 +58,7 @@ import org.opentest4j.IncompleteExecutionException;
 class TestCase extends AbstractNode implements CaseNode {
 
     static final String FILE_PATTERN = "*" + FILE_SUFFIX;
+    static final int FILE_SUFFIX_LENGTH = FILE_SUFFIX.length();
 
     private final JsonObject request;
     private final JsonObject response;
@@ -79,7 +80,8 @@ class TestCase extends AbstractNode implements CaseNode {
         if (name != null) {
             return name;
         }
-        return CaseNode.super.getName();
+        String filename = getPath().getFileName().toString();
+        return filename.substring(0, filename.length() - FILE_SUFFIX_LENGTH);
     }
 
     /* As a TestCase */

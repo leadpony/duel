@@ -1,0 +1,73 @@
+[
+    {
+        "name": "empty",
+        "data": {
+            "properties": {}
+        },
+        "expected": {
+            "properties": {}
+        }
+    },
+    {
+        "name": "same",
+        "data": {
+            "properties": {
+                "user": "john",
+                "password": "secret"
+            }
+        },
+        "expected": {
+            "properties": {
+                "user": "john",
+                "password": "secret"
+            }
+        }
+    },
+    {
+        "name": "undefined",
+        "data": {
+            "properties": {
+                "greeting": "Hello ${name}"
+            }
+        },
+        "expected": {
+            "properties": {
+                "greeting": "Hello ${name}"
+            }
+        }
+    },
+    {
+        "name": "expand",
+        "data": {
+            "properties": {
+                "greeting": "Hello ${name}",
+                "name": "John Smith"
+            }
+        },
+        "expected": {
+            "properties": {
+                "greeting": "Hello John Smith",
+                "name": "John Smith"
+            }
+        }
+    },
+    {
+        "name": "multiple dependent",
+        "data": {
+            "properties": {
+                "greeting": "Hello ${name}",
+                "name": "${firstName} ${lastName}",
+                "firstName": "John",
+                "lastName": "Smith"
+            }
+        },
+        "expected": {
+            "properties": {
+                "greeting": "Hello John Smith",
+                "name": "John Smith",
+                "firstName": "John",
+                "lastName": "Smith"
+            }
+        }
+    }
+]

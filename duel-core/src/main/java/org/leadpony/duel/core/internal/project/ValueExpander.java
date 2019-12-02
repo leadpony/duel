@@ -42,9 +42,9 @@ class ValueExpander {
     private final JsonService jsonService;
     private final JsonBuilderFactory builderFactory;
 
-    ValueExpander(Function<String, String> finder, JsonService jsonService) {
+    ValueExpander(Function<String, String> finder) {
         this.finder = finder;
-        this.jsonService = jsonService;
+        this.jsonService = JsonService.SINGLETON;
         this.builderFactory = jsonService.createBuilderFactory();
     }
 

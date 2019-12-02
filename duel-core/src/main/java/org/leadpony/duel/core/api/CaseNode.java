@@ -24,13 +24,6 @@ import java.net.URI;
 public interface CaseNode extends Node {
 
     String FILE_SUFFIX = ".test.json";
-    int FILE_SUFFIX_LENGTH = FILE_SUFFIX.length();
-
-    @Override
-    default String getName() {
-        String filename = getPath().getFileName().toString();
-        return filename.substring(0, filename.length() - FILE_SUFFIX_LENGTH);
-    }
 
     /**
      * Returns the target URL of this test case including query strings.

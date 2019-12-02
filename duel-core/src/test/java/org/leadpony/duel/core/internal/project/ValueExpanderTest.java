@@ -24,7 +24,6 @@ import java.util.function.Function;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.leadpony.duel.core.internal.common.JsonService;
 
 /**
  * @author leadpony
@@ -71,7 +70,7 @@ public class ValueExpanderTest {
     @ParameterizedTest
     @EnumSource(TestCase.class)
     public void expandShouldExpandSingleValueAsExpected(TestCase test) {
-        var expander = new ValueExpander(test, JsonService.SINGLETON);
+        var expander = new ValueExpander(test);
         String actual = expander.expand(test.original);
         assertThat(actual).isEqualTo(test.expected);
     }

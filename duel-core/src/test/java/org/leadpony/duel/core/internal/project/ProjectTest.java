@@ -62,11 +62,10 @@ public class ProjectTest {
     @EnumSource(RootGroupTestCase.class)
     public void createRootGroupShouldGenerateExpectedTests(RootGroupTestCase test) {
         Project project = ProjectLoader.loadFrom(test.getStartPath());
-        GroupNode group = project.getRootGroup();
 
-        assertThat((Object) group).isNotNull();
-        assertThat(countGroups(group)).isEqualTo(test.groups);
-        assertThat(countCases(group)).isEqualTo(test.cases);
+        assertThat((Object) project).isNotNull();
+        assertThat(countGroups(project)).isEqualTo(test.groups);
+        assertThat(countCases(project)).isEqualTo(test.cases);
     }
 
     private static long countGroups(GroupNode group) {

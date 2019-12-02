@@ -16,67 +16,48 @@
 
 package org.leadpony.duel.core.internal.project;
 
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.List;
+
+import javax.json.JsonObject;
 
 import org.leadpony.duel.core.api.GroupExecution;
 import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.GroupNode;
-import org.leadpony.duel.core.internal.config.ProjectConfig;
 
 /**
  * @author leadpony
  */
-class ProjectImpl implements Project {
+class ProjectImpl extends TestGroup implements Project {
 
-    private final Path projectDir;
+    private static final int DEFAULT_VERSION = 1;
+
     @SuppressWarnings("unused")
     private final Path startPath;
-    private final ProjectConfig config;
-    private final TestGroup rootGroup;
 
-    ProjectImpl(Path projectDir, Path startPath, ProjectConfig config, TestGroup rootGroup) {
-        this.projectDir = projectDir;
+    ProjectImpl(Path dir,
+            Path startPath,
+            JsonObject json,
+            JsonObject expanded,
+            List<TestCase> testCases,
+            List<TestGroup> subgroups
+            ) {
+        super(dir, json, json, expanded, testCases, subgroups);
         this.startPath = startPath;
-        this.config = config;
-        this.rootGroup = rootGroup;
     }
 
     /* As a Project */
 
     @Override
     public int getVersion() {
-        return config.getVersion();
-    }
-
-    @Override
-    public URI getId() {
-        return getPath().toUri();
-    }
-
-    @Override
-    public Path getPath() {
-        return projectDir;
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return config.getProperties();
-    }
-
-    @Override
-    public GroupNode getRootGroup() {
-        return rootGroup;
+        return getOrDefault("version", DEFAULT_VERSION);
     }
 
     @Override
     public GroupExecution createExecution() {
         ExecutionContext context = new ProjectTestContext();
-        TestGroup group = rootGroup;
-        return group.createExecution(context);
+        return createExecution(context);
     }
 
     /**

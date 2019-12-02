@@ -29,7 +29,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectLoader;
 import org.leadpony.duel.core.api.CaseNode;
-import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.internal.Logging;
 
 /**
@@ -44,8 +43,7 @@ public class TestCaseTest {
 
     private static CaseNode findFirstTestCase(Path path) {
         Project project = ProjectLoader.loadFrom(path);
-        GroupNode group = project.getRootGroup();
-        CaseNode testCase = group.getTestCases().iterator().next();
+        CaseNode testCase = project.getTestCases().iterator().next();
         return testCase;
     }
 

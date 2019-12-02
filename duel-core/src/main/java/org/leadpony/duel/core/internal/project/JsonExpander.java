@@ -60,8 +60,8 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
     }
 
     private JsonObject expandProperties(JsonObject properties) {
-        Function<String, String> finder = new ExpandingPropertyFinder(properties, this.jsonService);
-        ValueExpander expander = new ValueExpander(finder, this.jsonService);
+        Function<String, String> finder = new ExpandingPropertyFinder(properties);
+        ValueExpander expander = new ValueExpander(finder);
         JsonObjectBuilder builder = builderFactory.createObjectBuilder();
         properties.forEach((name, value) -> {
             if (value.getValueType() == ValueType.STRING) {
@@ -75,7 +75,7 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
 
     private JsonObject expandObject(JsonObject object, JsonObject properties) {
         Function<String, String> finder = new SimplePropertyFinder(properties);
-        ValueExpander expander = new ValueExpander(finder, this.jsonService);
+        ValueExpander expander = new ValueExpander(finder);
         JsonObjectBuilder builder = this.builderFactory.createObjectBuilder();
         builder.add(PROPERTIES_KEY, properties);
         object.forEach((name, value) -> {
@@ -114,9 +114,9 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
         final ValueExpander expander;
         final Set<String> nameSet = new HashSet<>();
 
-        ExpandingPropertyFinder(JsonObject properties, JsonService jsonService) {
+        ExpandingPropertyFinder(JsonObject properties) {
             super(properties);
-            this.expander = new ValueExpander(this, jsonService);
+            this.expander = new ValueExpander(this);
         }
 
         @Override

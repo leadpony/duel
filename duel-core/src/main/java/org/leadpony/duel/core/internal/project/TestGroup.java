@@ -69,7 +69,7 @@ class TestGroup extends AbstractNode implements GroupNode {
         if (name != null) {
             return name;
         }
-        return GroupNode.super.getName();
+        return getPath().getFileName().toString();
     }
 
     /* As a TestGroup */

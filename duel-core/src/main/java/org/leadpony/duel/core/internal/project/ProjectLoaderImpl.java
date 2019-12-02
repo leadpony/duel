@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
-import javax.json.bind.JsonbException;
 
 import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.api.Project;
@@ -37,8 +36,6 @@ import org.leadpony.duel.core.api.ProjectLoader;
 import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.common.JsonCombiner;
 import org.leadpony.duel.core.internal.common.JsonService;
-import org.leadpony.duel.core.internal.config.ConfigLoader;
-import org.leadpony.duel.core.internal.config.ProjectConfig;
 
 /**
  * @author leadpony
@@ -68,14 +65,15 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     private ProjectImpl createProject(Path projectPath, Path startPath) {
-        ProjectConfig config = loadProjectConfig(projectPath);
-
-        JsonObject original = loadJson(projectPath);
-        JsonObject expanded = JsonExpander.SIMPLE.apply(original);
+        JsonObject config = loadJson(projectPath);
+        JsonObject expanded = JsonExpander.SIMPLE.apply(config);
 
         Path dir = projectPath.getParent();
-        TestGroup rootGroup = createRootGroup(dir, original, expanded);
-        return new ProjectImpl(dir, startPath, config, rootGroup);
+
+        List<TestCase> testCases = loadTestCases(dir, config);
+        List<TestGroup> subgroups = loadSubgroups(dir, config);
+
+        return new ProjectImpl(dir, startPath, config, expanded, testCases, subgroups);
     }
 
     private JsonObject loadJson(Path path) {
@@ -90,20 +88,6 @@ public class ProjectLoaderImpl implements ProjectLoader {
         } catch (IOException e) {
             throw new ProjectException(Message.FILE_READ_FAILURE.format(path), e);
         }
-    }
-
-    private ProjectConfig loadProjectConfig(Path path) {
-        try {
-            return new ConfigLoader().load(path, ProjectConfig.class);
-        } catch (JsonbException e) {
-            throw new ProjectException(Message.BAD_PROJECT.format(path), e);
-        } catch (IOException e) {
-            throw new ProjectException(Message.FILE_READ_FAILURE.format(path), e);
-        }
-    }
-
-    private TestGroup createRootGroup(Path dir, JsonObject json, JsonObject expanded) {
-        return createTestGroup(dir, json, json, expanded);
     }
 
     private TestGroup createTestGroup(Path dir, JsonObject json, JsonObject merged, JsonObject expanded) {

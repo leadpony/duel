@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.internal;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
 /**
- * Provides configuration classes.
- *
  * @author leadpony
  */
-package org.leadpony.duel.core.internal.config;
+@Retention(RUNTIME)
+@Target(METHOD)
+@ArgumentsSource(JsonObjectArgumentsProvider.class)
+public @interface JsonObjectSource {
+}
