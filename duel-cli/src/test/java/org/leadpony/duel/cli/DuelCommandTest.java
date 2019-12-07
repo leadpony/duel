@@ -14,20 +14,31 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.cli;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * @author leadpony
  */
-module org.leadpony.duel.cli {
-    exports org.leadpony.duel.cli;
-    requires transitive org.junit.jupiter.api;
-    requires transitive org.leadpony.duel.core;
-    requires java.logging;
-    requires info.picocli;
+public class DuelCommandTest extends AbstractCommandTest {
 
-    uses java.util.spi.ToolProvider;
+    @Test
+    public void runShouldShowHelpIfNoArgumentsProvided() {
+        execute();
+    }
 
-    opens org.leadpony.duel.cli to info.picocli, org.junit.platform.commons;
+    @Test
+    public void runShouldShowHelp() {
+        int actual = execute("--help");
+        assertThat(actual).isEqualTo(0);
+    }
 
-    provides java.util.spi.ToolProvider
-        with org.leadpony.duel.cli.DuelCommand;
+    @Test
+    public void runShouldShowVersion() {
+        int actual = execute("--version");
+        assertThat(actual).isEqualTo(0);
+    }
 }

@@ -16,11 +16,10 @@
 
 package org.leadpony.duel.cli;
 
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.logging.LogManager;
+import java.util.concurrent.Callable;
 import java.util.spi.ToolProvider;
 
 import org.leadpony.duel.core.api.Problem;
@@ -28,40 +27,42 @@ import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
 /**
+ * A subcommand "test"
+ *
  * @author leadpony
  */
-public class Launcher {
-
-    private static final int FAILED = 2;
-
-    private static final String LOG_CONFIG_FILE = "/logging.properties";
-
-    private final Path dir;
-
-    private PrintStream out = System.out;
-    private PrintStream err = System.err;
+@Command(name = "test",
+    description = "Executes the tests")
+class TestCommand extends AbstractCommand implements Callable<Integer> {
 
     private static final String[] ARGS = {
             "--disable-banner",
             "-c=" + ProjectTest.class.getName()
     };
 
-    static {
-        configureLogging();
+    private final Console console;
+    private Path path;
+
+    TestCommand(Console console) {
+        this.console = console;
+        this.path = Path.of(System.getProperty("user.dir"));
     }
 
-    public Launcher() {
-        this(Path.of(System.getProperty("user.dir")));
+    @Option(names = {"-p", "--path"},
+            paramLabel = "DIRECTORY",
+            description = "Path to the directory containing the tests to run")
+    public void setPath(Path path) {
+        this.path = path;
     }
 
-    Launcher(Path dir) {
-        this.dir = dir;
-    }
-
-    int launch(String... args) {
+    @Override
+    public Integer call() throws Exception {
         try {
-            Project project = loadProject(dir);
+            Project project = loadProject(this.path);
             ProjectTest.setProject(project);
             return runConsole(ARGS);
         } catch (ProjectException e) {
@@ -71,10 +72,18 @@ public class Launcher {
         }
     }
 
+    private PrintWriter getOutputWriter() {
+        return console.getOutputWriter();
+    }
+
+    private PrintWriter getErrorWriter() {
+        return console.getErrorWriter();
+    }
+
     private int runConsole(String... args) {
         Optional<ToolProvider> tool = ToolProvider.findFirst("junit");
         if (tool.isPresent()) {
-            return tool.get().run(out, err, args);
+            return tool.get().run(getOutputWriter(), getErrorWriter(), args);
         }
         return fail("No ToolProvider found.");
     }
@@ -87,11 +96,13 @@ public class Launcher {
         StringBuilder builder = new StringBuilder();
         builder.append("[ERROR] ")
                .append(message);
-        err.println(builder.toString());
+        getErrorWriter().println(builder.toString());
         return FAILED;
     }
 
     private int fail(ProjectException e) {
+        PrintWriter err = getErrorWriter();
+        err.println(e.getMessage());
         StringBuilder builder = new StringBuilder();
         for (Problem problem : e.getProblems()) {
             builder.setLength(0);
@@ -106,22 +117,7 @@ public class Launcher {
 
     private int fail(Exception e) {
         fail(e.getMessage());
-        e.printStackTrace(err);
+        e.printStackTrace(getErrorWriter());
         return FAILED;
-    }
-
-    private static void configureLogging() {
-        LogManager logManager = LogManager.getLogManager();
-        try (InputStream in = Launcher.class.getResourceAsStream(LOG_CONFIG_FILE)) {
-            logManager.readConfiguration(in);
-        } catch (Exception e) {
-        }
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        System.exit(new Launcher().launch(args));
     }
 }

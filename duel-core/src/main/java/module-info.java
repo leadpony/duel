@@ -24,7 +24,7 @@ module org.leadpony.duel.core {
     opens org.leadpony.duel.core.internal;
 
     requires transitive java.json;
-    requires java.logging;
+    requires static java.logging;
     requires java.net.http;
     requires org.opentest4j;
 

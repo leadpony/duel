@@ -59,7 +59,9 @@ public class ProjectLoaderImpl implements ProjectLoader {
             Path path = findProject(this.startPath);
             return loadProject(path, this.startPath);
         } catch (LoadingException e) {
-            throw new ProjectException(Collections.unmodifiableList(problems));
+            throw new ProjectException(
+                    Message.PROJECT_LOADING_FAILED.format(problems.size()),
+                    Collections.unmodifiableList(problems));
         }
     }
 
@@ -110,9 +112,9 @@ public class ProjectLoaderImpl implements ProjectLoader {
         try {
             return JsonExpander.SIMPLE.apply(json);
         } catch (PropertyException e) {
-            addProblem(path, Message.ILLEGAL_PROPERTY_EXPANSION, e.getMessage());
+            addProblem(path, Message.PROPERTY_ILLEGAL, e.getMessage());
+            throw fail();
         }
-        throw fail();
     }
 
     private TestGroup createTestGroup(Path dir, JsonObject json, JsonObject merged, JsonObject expanded) {
@@ -186,8 +188,10 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     private TestGroup createSubgroup(Path dir, JsonObject base) {
         Path path = dir.resolve(GroupNode.FILE_NAME);
-        JsonObject json = JsonValue.EMPTY_JSON_OBJECT;
-        return createTestGroup(path, json, json, json);
+        JsonObject json = loadJson(path);
+        JsonObject merged = JsonCombiner.MERGE.apply(base, json);
+        JsonObject expanded = expandJson(path, merged);
+        return createTestGroup(path, json, merged, expanded);
     }
 
     private static boolean isSubgroup(Path dir) {

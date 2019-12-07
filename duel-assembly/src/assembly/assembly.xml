@@ -18,7 +18,36 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
+            <includes>
+                <include>info.picocli:*</include>
+                <include>jakarta.json:*</include>
+                <include>org.apiguardian:*</include>
+                <include>org.junit.*:*</include>
+                <include>org.leadpony.duel:duel-cli</include>
+                <include>org.leadpony.duel:duel-core</include>
+                <include>org.leadpony.joy:joy</include>
+                <include>org.opentest4j:*</include>
+            </includes>
             <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.leadpony.duel:duel-assertion-basic</include>
+            </includes>
+            <outputDirectory>plugin</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>jakarta.json:*</include>
+                <include>jakarta.servlet:*</include>
+                <include>org.eclipse.jetty:*</include>
+                <include>org.leadpony.duel:duel-fake-server</include>
+                <include>org.leadpony.joy:joy</include>
+            </includes>
+            <outputDirectory>server</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>

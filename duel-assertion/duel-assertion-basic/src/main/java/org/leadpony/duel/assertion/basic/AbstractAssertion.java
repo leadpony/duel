@@ -24,11 +24,7 @@ import org.opentest4j.AssertionFailedError;
  */
 abstract class AbstractAssertion implements Assertion {
 
-    private static final StackTraceElement[] STACK_TRACE = new StackTraceElement[0];
-
     protected static void fail(String message, Object expected, Object actual) {
-        AssertionFailedError error = new AssertionFailedError(message, expected, actual);
-        error.setStackTrace(STACK_TRACE);
-        throw error;
+        throw new AssertionFailedError(message, expected, actual);
     }
 }

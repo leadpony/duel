@@ -23,14 +23,18 @@ import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.function.Executable;
 import org.leadpony.duel.core.api.CaseExecution;
 import org.leadpony.duel.core.api.GroupExecution;
 import org.leadpony.duel.core.api.Project;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * @author leadpony
  */
 public class ProjectTest {
+
+    private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 
     private static Project project;
 
@@ -47,9 +51,7 @@ public class ProjectTest {
 
     private static DynamicTest createTest(CaseExecution testCase) {
         return DynamicTest.dynamicTest(
-                testCase.getName(),
-                testCase::run
-                );
+                testCase.getName(), executable(testCase));
     }
 
     private static DynamicContainer createContainer(GroupExecution group) {
@@ -64,5 +66,16 @@ public class ProjectTest {
         Stream<DynamicNode> groups = group.subgroups()
                 .map(ProjectTest::createContainer);
         return Stream.concat(cases, groups);
+    }
+
+    private static Executable executable(CaseExecution execution) {
+        return () -> {
+            try {
+                execution.run();
+            } catch (AssertionFailedError e) {
+                e.setStackTrace(EMPTY_STACK_TRACE);
+                throw e;
+            }
+        };
     }
 }

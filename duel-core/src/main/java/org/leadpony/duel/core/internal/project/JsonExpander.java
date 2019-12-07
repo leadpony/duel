@@ -43,6 +43,12 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
     private final JsonService jsonService = JsonService.SINGLETON;
     private final JsonBuilderFactory builderFactory = jsonService.createBuilderFactory();
 
+    /**
+     * Expands all the properties in the specified JSON object.
+     *
+     * @return the JSON with the properties expanded.
+     * @throws PropertyException if an illegal property was detected.
+     */
     @Override
     public JsonObject apply(JsonObject object) {
         JsonObject properties = extractProperties(object);
@@ -72,7 +78,7 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
                 try {
                     builder.add(name, finder.apply(name));
                 } catch (ExpansionException e) {
-                    String m = Message.INFINTE_PROPERTY_EXPANSION.format(
+                    String m = Message.PROPERTY_INFINTE_EXPANSION.format(
                             name,
                             e.getMessage());
                     errors.add(m);
@@ -138,7 +144,9 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
         @Override
         public String apply(String name) {
             if (nameSet.contains(name)) {
-                String m = nameSet.stream().collect(Collectors.joining(", "));
+                var names = new ArrayList<String>(nameSet);
+                names.add(name);
+                String m = names.stream().collect(Collectors.joining(" > "));
                 throw new ExpansionException(m);
             }
 

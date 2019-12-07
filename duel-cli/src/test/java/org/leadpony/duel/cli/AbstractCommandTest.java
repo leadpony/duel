@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.cli;
+
+import org.junit.jupiter.api.BeforeEach;
+
 /**
  * @author leadpony
  */
-module org.leadpony.duel.cli {
-    exports org.leadpony.duel.cli;
-    requires transitive org.junit.jupiter.api;
-    requires transitive org.leadpony.duel.core;
-    requires java.logging;
-    requires info.picocli;
+class AbstractCommandTest {
 
-    uses java.util.spi.ToolProvider;
+    private DuelCommand command;
 
-    opens org.leadpony.duel.cli to info.picocli, org.junit.platform.commons;
+    @BeforeEach
+    public void setUp() {
+        this.command = new DuelCommand();
+    }
 
-    provides java.util.spi.ToolProvider
-        with org.leadpony.duel.cli.DuelCommand;
+    int execute(String... args) {
+        return command.run(System.out, System.err, args);
+    }
 }

@@ -35,7 +35,6 @@
         <dependency>
             <groupId>org.leadpony.joy</groupId>
             <artifactId>joy</artifactId>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

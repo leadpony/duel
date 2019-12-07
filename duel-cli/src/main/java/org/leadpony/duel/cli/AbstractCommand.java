@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.cli;
+
 /**
  * @author leadpony
  */
-module org.leadpony.duel.cli {
-    exports org.leadpony.duel.cli;
-    requires transitive org.junit.jupiter.api;
-    requires transitive org.leadpony.duel.core;
-    requires java.logging;
-    requires info.picocli;
+abstract class AbstractCommand {
 
-    uses java.util.spi.ToolProvider;
-
-    opens org.leadpony.duel.cli to info.picocli, org.junit.platform.commons;
-
-    provides java.util.spi.ToolProvider
-        with org.leadpony.duel.cli.DuelCommand;
+    static final int FAILED = 2;
 }

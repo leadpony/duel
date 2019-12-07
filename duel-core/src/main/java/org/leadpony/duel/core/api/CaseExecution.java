@@ -20,4 +20,14 @@ package org.leadpony.duel.core.api;
  * @author leadpony
  */
 public interface CaseExecution extends Execution, Runnable {
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws AssertionFailedError         if an assertion failed.
+     * @throws IncompleteExecutionException if the the execution of the test was
+     *                                      incomplete.
+     */
+    @Override
+    void run();
 }

@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.cli;
+
+import java.io.PrintWriter;
+
 /**
  * @author leadpony
+ *
  */
-module org.leadpony.duel.cli {
-    exports org.leadpony.duel.cli;
-    requires transitive org.junit.jupiter.api;
-    requires transitive org.leadpony.duel.core;
-    requires java.logging;
-    requires info.picocli;
+class Console {
 
-    uses java.util.spi.ToolProvider;
+    private final PrintWriter out;
+    private final PrintWriter err;
 
-    opens org.leadpony.duel.cli to info.picocli, org.junit.platform.commons;
+    Console(PrintWriter out, PrintWriter err) {
+        this.out = out;
+        this.err = err;
+    }
 
-    provides java.util.spi.ToolProvider
-        with org.leadpony.duel.cli.DuelCommand;
+    PrintWriter getOutputWriter() {
+        return out;
+    }
+
+    PrintWriter getErrorWriter() {
+        return err;
+    }
 }

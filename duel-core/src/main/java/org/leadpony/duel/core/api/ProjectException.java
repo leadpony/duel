@@ -29,7 +29,8 @@ public class ProjectException extends RuntimeException {
 
     private final Collection<Problem> problems;
 
-    public ProjectException(Collection<Problem> problems) {
+    public ProjectException(String message, Collection<Problem> problems) {
+        super(message);
         this.problems = problems;
     }
 

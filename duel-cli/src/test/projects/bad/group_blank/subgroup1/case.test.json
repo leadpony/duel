@@ -1,0 +1,7 @@
+{
+    "path": "/json/greeting.json",
+
+    "response": {
+        "status": 200
+    }
+}
