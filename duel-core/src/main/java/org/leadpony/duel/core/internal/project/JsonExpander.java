@@ -16,9 +16,11 @@
 
 package org.leadpony.duel.core.internal.project;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
@@ -27,6 +29,7 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
+import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.common.JsonService;
 
 /**
@@ -60,17 +63,30 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
     }
 
     private JsonObject expandProperties(JsonObject properties) {
-        Function<String, String> finder = new ExpandingPropertyFinder(properties);
-        ValueExpander expander = new ValueExpander(finder);
-        JsonObjectBuilder builder = builderFactory.createObjectBuilder();
+        var finder = new ExpandingPropertyFinder(properties);
+        var builder = builderFactory.createObjectBuilder();
+        var errors = new ArrayList<String>();
+
         properties.forEach((name, value) -> {
             if (value.getValueType() == ValueType.STRING) {
-                builder.add(name, expander.expand((JsonString) value));
+                try {
+                    builder.add(name, finder.apply(name));
+                } catch (ExpansionException e) {
+                    String m = Message.INFINTE_PROPERTY_EXPANSION.format(
+                            name,
+                            e.getMessage());
+                    errors.add(m);
+                }
             } else {
                 builder.add(name, value);
             }
         });
-        return builder.build();
+
+        if (errors.isEmpty()) {
+            return builder.build();
+        } else {
+            throw new PropertyException(errors);
+        }
     }
 
     private JsonObject expandObject(JsonObject object, JsonObject properties) {
@@ -112,7 +128,7 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
     private static class ExpandingPropertyFinder extends SimplePropertyFinder {
 
         final ValueExpander expander;
-        final Set<String> nameSet = new HashSet<>();
+        final Set<String> nameSet = new LinkedHashSet<>();
 
         ExpandingPropertyFinder(JsonObject properties) {
             super(properties);
@@ -122,15 +138,28 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
         @Override
         public String apply(String name) {
             if (nameSet.contains(name)) {
-                throw new IllegalArgumentException(name);
+                String m = nameSet.stream().collect(Collectors.joining(", "));
+                throw new ExpansionException(m);
             }
-            nameSet.add(name);
-            String value = super.apply(name);
-            if (value != null) {
-                value = expander.expand(value);
+
+            try {
+                nameSet.add(name);
+                String value = super.apply(name);
+                if (value != null) {
+                    value = expander.expand(value);
+                }
+                return value;
+            } finally {
+                nameSet.remove(name);
             }
-            nameSet.remove(name);
-            return value;
+        }
+    }
+
+    @SuppressWarnings("serial")
+    private static class ExpansionException extends RuntimeException {
+
+        ExpansionException(String message) {
+            super(message);
         }
     }
 }

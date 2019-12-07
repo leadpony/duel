@@ -8,6 +8,15 @@
         }
     },
     {
+        "name": "mutual",
+        "data": {
+            "properties": {
+                "foo": "${bar}",
+                "bar": "${foo}"
+            }
+        }
+    },
+    {
         "name": "cyclic",
         "data": {
             "properties": {

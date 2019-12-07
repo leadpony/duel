@@ -16,24 +16,17 @@
 
 package org.leadpony.duel.core.api;
 
-import java.util.Collection;
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
- * An exception thrown while loading a project.
+ * A problem of a probject.
  *
  * @author leadpony
  */
-public class ProjectException extends RuntimeException {
+public interface Problem {
 
-    private static final long serialVersionUID = 1L;
+    Optional<Path> getPath();
 
-    private final Collection<Problem> problems;
-
-    public ProjectException(Collection<Problem> problems) {
-        this.problems = problems;
-    }
-
-    public Collection<Problem> getProblems() {
-        return problems;
-    }
+    String getDescription();
 }

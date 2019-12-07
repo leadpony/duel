@@ -23,13 +23,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
 import org.leadpony.duel.core.api.GroupNode;
+import org.leadpony.duel.core.api.Problem;
 import org.leadpony.duel.core.api.Project;
 import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
@@ -45,49 +47,72 @@ public class ProjectLoaderImpl implements ProjectLoader {
     private final Path startPath;
     private final JsonService jsonService = JsonService.SINGLETON;
 
+    private final List<Problem> problems = new ArrayList<>();
+
     public ProjectLoaderImpl(Path startPath) {
         this.startPath = startPath;
     }
 
     @Override
     public Project load() {
-        return loadProject(this.startPath);
+        try {
+            Path path = findProject(this.startPath);
+            return loadProject(path, this.startPath);
+        } catch (LoadingException e) {
+            throw new ProjectException(Collections.unmodifiableList(problems));
+        }
     }
 
-    private Project loadProject(Path startPath) {
-        for (Path dir = startPath; dir != null; dir = dir.getParent()) {
-            Path projectPath = dir.resolve(Project.FILE_NAME);
-            if (Files.exists(projectPath) && Files.isRegularFile(projectPath)) {
-                return createProject(projectPath, startPath);
+    private Path findProject(Path startDir) {
+        for (Path dir = startDir; dir != null; dir = dir.getParent()) {
+            Path path = dir.resolve(Project.FILE_NAME);
+            if (Files.exists(path) && Files.isRegularFile(path)) {
+                return path;
             }
         }
-        throw new ProjectException(Message.PROJECT_NOT_FOUND.asString());
+        addProblem(Message.PROJECT_NOT_FOUND, startDir);
+        throw fail();
     }
 
-    private ProjectImpl createProject(Path projectPath, Path startPath) {
+    private Project loadProject(Path projectPath, Path startPath) {
         JsonObject config = loadJson(projectPath);
-        JsonObject expanded = JsonExpander.SIMPLE.apply(config);
+        JsonObject expanded = expandJson(projectPath, config);
 
         Path dir = projectPath.getParent();
 
         List<TestCase> testCases = loadTestCases(dir, config);
         List<TestGroup> subgroups = loadSubgroups(dir, config);
 
-        return new ProjectImpl(dir, startPath, config, expanded, testCases, subgroups);
+        if (problems.isEmpty()) {
+            return new ProjectImpl(dir, startPath, config, expanded, testCases, subgroups);
+        } else {
+            throw new LoadingException();
+        }
     }
 
     private JsonObject loadJson(Path path) {
         try {
-            return (JsonObject) jsonService.readFrom(path);
-        } catch (ClassCastException e) {
-            // TODO:
-            throw new ProjectException(Message.BAD_PROJECT.format(path), e);
+            JsonValue value = jsonService.readFrom(path);
+            if (value.getValueType() == ValueType.OBJECT) {
+                return value.asJsonObject();
+            }
+            addProblem(path, Message.JSON_UNEXPECTED_VALUE_TYPE,
+                    value.getValueType());
         } catch (JsonException e) {
-            // TODO:
-            throw new ProjectException(Message.BAD_PROJECT.format(path), e);
+            addProblem(path, Message.JSON_ILL_FORMED, e.getMessage());
         } catch (IOException e) {
-            throw new ProjectException(Message.FILE_READ_FAILURE.format(path), e);
+            addProblem(path, Message.IO_ERROR_FILE);
         }
+        throw fail();
+    }
+
+    private JsonObject expandJson(Path path, JsonObject json) {
+        try {
+            return JsonExpander.SIMPLE.apply(json);
+        } catch (PropertyException e) {
+            addProblem(path, Message.ILLEGAL_PROPERTY_EXPANSION, e.getMessage());
+        }
+        throw fail();
     }
 
     private TestGroup createTestGroup(Path dir, JsonObject json, JsonObject merged, JsonObject expanded) {
@@ -97,15 +122,27 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     private List<TestCase> loadTestCases(Path dir, JsonObject base) {
-        return findTestCases(dir).stream()
-                .map(path -> createTestCase(path, base))
-                .collect(Collectors.toList());
+        List<TestCase> cases = new ArrayList<>();
+        for (Path path : findTestCases(dir)) {
+            try {
+                cases.add(createTestCase(path, base));
+            } catch (LoadingException e) {
+                // Continues
+            }
+        }
+        return cases;
     }
 
     private List<TestGroup> loadSubgroups(Path dir, JsonObject base) {
-        return findSubgroups(dir).stream()
-                .map(path -> createSubgroup(path))
-                .collect(Collectors.toList());
+        List<TestGroup> groups = new ArrayList<>();
+        for (Path path : findSubgroups(dir)) {
+            try {
+                groups.add(createSubgroup(path, base));
+            } catch (LoadingException e) {
+                // Continues
+            }
+        }
+        return groups;
     }
 
     private List<Path> findTestCases(Path dir) {
@@ -119,7 +156,8 @@ public class ProjectLoaderImpl implements ProjectLoader {
             Collections.sort(children);
             return children;
         } catch (IOException e) {
-            throw new ProjectException(Message.DIRECTORY_READ_FAILURE.format(dir), e);
+            addProblem(dir, Message.IO_ERROR_DIRECTORY);
+            return Collections.emptyList();
         }
     }
 
@@ -134,18 +172,19 @@ public class ProjectLoaderImpl implements ProjectLoader {
             Collections.sort(children);
             return children;
         } catch (IOException e) {
-            throw new ProjectException(Message.DIRECTORY_READ_FAILURE.format(dir), e);
+            addProblem(dir, Message.IO_ERROR_DIRECTORY, dir);
+            return Collections.emptyList();
         }
     }
 
     private TestCase createTestCase(Path path, JsonObject base) {
         JsonObject json = loadJson(path);
         JsonObject merged = JsonCombiner.MERGE.apply(base, json);
-        JsonObject expanded = JsonExpander.SIMPLE.apply(merged);
+        JsonObject expanded = expandJson(path, merged);
         return new TestCase(path, json, merged, expanded);
     }
 
-    private TestGroup createSubgroup(Path dir) {
+    private TestGroup createSubgroup(Path dir, JsonObject base) {
         Path path = dir.resolve(GroupNode.FILE_NAME);
         JsonObject json = JsonValue.EMPTY_JSON_OBJECT;
         return createTestGroup(path, json, json, json);
@@ -157,5 +196,51 @@ public class ProjectLoaderImpl implements ProjectLoader {
         }
         Path path = dir.resolve(GroupNode.FILE_NAME);
         return Files.exists(path) && Files.isRegularFile(path);
+    }
+
+    private LoadingException fail() {
+        return new LoadingException();
+    }
+
+    private void addProblem(Message message, Object... arguments) {
+        addProblem(new ProjectProblem(message, arguments));
+    }
+
+    private void addProblem(Path path, Message message, Object... arguments) {
+        addProblem(new ProjectProblem(path, message, arguments));
+    }
+
+    private void addProblem(Problem problem) {
+        this.problems.add(problem);
+    }
+
+    @SuppressWarnings("serial")
+    private static class LoadingException extends RuntimeException {
+    }
+
+    private static class ProjectProblem implements Problem {
+
+        private final Optional<Path> path;
+        private final String description;
+
+        ProjectProblem(Message message, Object... arguments) {
+            this.path = Optional.empty();
+            this.description = message.format(arguments);
+        }
+
+        ProjectProblem(Path path, Message message, Object... arguments) {
+            this.path = Optional.of(path);
+            this.description = message.format(arguments);
+        }
+
+        @Override
+        public Optional<Path> getPath() {
+            return path;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
+        }
     }
 }

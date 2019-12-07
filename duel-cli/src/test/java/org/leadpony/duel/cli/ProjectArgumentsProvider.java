@@ -37,6 +37,7 @@ import org.junit.jupiter.params.support.AnnotationConsumer;
  */
 class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationConsumer<ProjectSource> {
 
+    private static final String PROJECT_FILENAME = "project.json";
     private String[] dirs;
 
     @Override
@@ -46,21 +47,18 @@ class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationConsumer<
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-        return Stream.of(dirs)
-                .map(Path::of)
-                .flatMap(this::findProjects)
-                .map(Arguments::of);
+        return Stream.of(dirs).map(Path::of).flatMap(this::findProjects);
     }
 
-    private Stream<Path> findProjects(Path baseDir) {
+    private Stream<Arguments> findProjects(Path baseDir) {
         List<Path> found = new ArrayList<>();
         try {
             Files.walkFileTree(baseDir, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    Path path = dir.resolve("project.json");
+                    Path path = dir.resolve(PROJECT_FILENAME);
                     if (Files.exists(path) && Files.isRegularFile(path)) {
-                        found.add(baseDir.relativize(dir));
+                        found.add(dir);
                         return FileVisitResult.SKIP_SUBTREE;
                     }
                     return FileVisitResult.CONTINUE;
@@ -69,6 +67,6 @@ class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationConsumer<
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return found.stream();
+        return found.stream().map(path -> Arguments.of(baseDir.relativize(path).toString(), path));
     }
 }

@@ -23,7 +23,9 @@ import java.util.Optional;
 import java.util.logging.LogManager;
 import java.util.spi.ToolProvider;
 
+import org.leadpony.duel.core.api.Problem;
 import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
 
 /**
@@ -31,7 +33,7 @@ import org.leadpony.duel.core.api.ProjectLoader;
  */
 public class Launcher {
 
-    private static final int FAILED = -1;
+    private static final int FAILED = 2;
 
     private static final String LOG_CONFIG_FILE = "/logging.properties";
 
@@ -61,8 +63,9 @@ public class Launcher {
         try {
             Project project = loadProject(dir);
             ProjectTest.setProject(project);
-            int exitCode = runConsole(ARGS);
-            return exitCode;
+            return runConsole(ARGS);
+        } catch (ProjectException e) {
+            return fail(e);
         } catch (Exception e) {
             return fail(e);
         }
@@ -85,6 +88,19 @@ public class Launcher {
         builder.append("[ERROR] ")
                .append(message);
         err.println(builder.toString());
+        return FAILED;
+    }
+
+    private int fail(ProjectException e) {
+        StringBuilder builder = new StringBuilder();
+        for (Problem problem : e.getProblems()) {
+            builder.setLength(0);
+            problem.getPath().ifPresent(path -> {
+                builder.append(path.toString()).append(": ");
+            });
+            builder.append(problem.getDescription());
+            err.println(builder.toString());
+        }
         return FAILED;
     }
 

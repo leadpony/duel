@@ -51,13 +51,12 @@ public class LauncherTest {
             server = null;
         }
 
-        @ParameterizedTest
-        @ProjectSource("src/test/projects")
-        public void launchShouldReturnExpectedCode(Path dir) throws IOException {
-            Path projectDir = Path.of("src/test/projects").resolve(dir);
-            Launcher launcher = new Launcher(projectDir);
+        @ParameterizedTest(name = "[{index}] {0}")
+        @ProjectSource("src/test/projects/good")
+        public void launchShouldReturnExpectedCode(String name, Path dir) throws IOException {
+            Launcher launcher = new Launcher(dir);
             int actual = launcher.launch();
-            int expected = getExpectetExitCode(projectDir);
+            int expected = getExpectetExitCode(dir);
             assertThat(actual).isEqualTo(expected);
         }
 
@@ -70,12 +69,20 @@ public class LauncherTest {
             return Integer.valueOf(properties.getProperty("exit"));
         }
 
+        @ParameterizedTest(name = "[{index}] {0}")
+        @ProjectSource("src/test/projects/bad")
+        public void launchShouldReturn2IfProjectIsBad(String name, Path dir) throws IOException {
+            Launcher launcher = new Launcher(dir);
+            int actual = launcher.launch();
+            assertThat(actual).isEqualTo(2);
+        }
+
         @Test
         public void launchShoudReturn2IfNoProjectFound() {
             Path dir = Path.of("src/test/projects/nonexistent");
             Launcher launcher = new Launcher(dir);
             int actual = launcher.launch();
-            assertThat(actual).isEqualTo(-1);
+            assertThat(actual).isEqualTo(2);
         }
     }
 }

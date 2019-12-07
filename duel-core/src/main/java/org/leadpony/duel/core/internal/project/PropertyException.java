@@ -16,27 +16,17 @@
 
 package org.leadpony.duel.core.internal.project;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.json.JsonObject;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.leadpony.duel.core.internal.JsonObjectSource;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * @author leadpony
  */
-public class ValueExpanderTest {
+class PropertyException extends RuntimeException {
 
-    @ParameterizedTest(name = "[{index}] {0}")
-    @JsonObjectSource
-    public void expandShouldExpandString(String name, JsonObject object) {
-        JsonObject properties = object.getJsonObject("properties");
-        var expander = new ValueExpander(
-                p -> properties.getString(p, null));
+    private static final long serialVersionUID = 1L;
 
-        String actual = expander.expand(object.getString("data"));
-
-        assertThat(actual).isEqualTo(object.getString("expected"));
+    PropertyException(Collection<String> errors) {
+        super(errors.stream().collect(Collectors.joining("\n")));
     }
 }

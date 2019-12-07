@@ -1,0 +1,49 @@
+[
+    {
+        "name": "no placeholder",
+        "properties": {
+        },
+        "data": "Hello World",
+        "expected": "Hello World"
+    },
+    {
+        "name": "single property",
+        "properties": {
+            "name": "John"
+        },
+        "data": "Hello ${name}",
+        "expected": "Hello John"
+    },
+    {
+        "name": "multiple properties",
+        "properties": {
+            "firstName": "John",
+            "lastName": "Smith"
+        },
+        "data": "Hello ${firstName} ${lastName}",
+        "expected": "Hello John Smith"
+    },
+    {
+        "name": "multiple occurrences",
+        "properties": {
+            "name": "John"
+        },
+        "data": "Hello ${name}, bye ${name}",
+        "expected": "Hello John, bye John"
+    },
+    {
+        "name": "undefined",
+        "properties": {
+        },
+        "data": "Hello ${name}",
+        "expected": "Hello ${name}"
+    },
+    {
+        "name": "partial expansion",
+        "properties": {
+            "lastName": "Smith"
+        },
+        "data": "Hello ${firstName} ${lastName}",
+        "expected": "Hello ${firstName} Smith"
+    }
+]

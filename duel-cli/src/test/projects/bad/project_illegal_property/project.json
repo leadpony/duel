@@ -1,0 +1,6 @@
+{
+    "properties": {
+        "first": "${second}",
+        "second": "${first}"
+    }
+}

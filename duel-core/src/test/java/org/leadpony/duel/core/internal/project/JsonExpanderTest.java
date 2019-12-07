@@ -19,15 +19,21 @@ package org.leadpony.duel.core.internal.project;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import java.util.logging.Logger;
+
 import javax.json.JsonObject;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.leadpony.duel.core.internal.JsonObjectSource;
+import org.leadpony.duel.core.internal.Logging;
 
 /**
  * @author leadpony
  */
+@Logging
 public class JsonExpanderTest {
+
+    private static final Logger LOG = Logger.getLogger(JsonExpanderTest.class.getName());
 
     @ParameterizedTest(name = "[{index}] {0}")
     @JsonObjectSource
@@ -47,6 +53,8 @@ public class JsonExpanderTest {
         Throwable thrown = catchThrowable(() -> {
             JsonExpander.SIMPLE.apply(data);
          });
-         assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(thrown).isInstanceOf(PropertyException.class);
+        LOG.info(thrown.getMessage());
     }
 }
