@@ -14,23 +14,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PRG="$0"
-if [ -h "$PRG" ]; then
-    PRG=`readlink -f "$PRG"`
-fi
-PRGDIR=`dirname "$PRG"`
+program=$0
+[ -h "$program" ] && PRG=$(readlink -f "$program")
+program_dir=$(dirname "$program")
 
-if [ -z "$DUEL_HOME" ]; then
-    DUEL_HOME=`cd "$PRGDIR/.." > /dev/null; pwd`
-fi
+[ -z "$DUEL_HOME" ] && DUEL_HOME=$(cd "$program_dir/.." > /dev/null; pwd)
 
-if [ -z "$JAVA_HOME" ]; then
-    JAVA_CMD=java
+if [ -z "$JAVA_HOME" ]
+then
+    java_cmd=$(which java)
 else
-    JAVA_CMD="$JAVA_HOME/bin/java"
+    java_cmd="$JAVA_HOME/bin/java"
 fi
 
-exec "$JAVA_CMD" \
-    -p "${DUEL_HOME}/server" \
-    -m org.leadpony.duel.fake.server/org.leadpony.duel.fake.server.FakeServer \
-    "$@"
+module=org.leadpony.duel.fake.server/org.leadpony.duel.fake.server.ServerCommand
+
+if [ "$1" = "start" ]
+then
+    log_file="$DUEL_HOME/log/server-$(date +%F).log"
+    nohup "$java_cmd" \
+        "-Dduel.home=$DUEL_HOME" \
+        -p "$DUEL_HOME/server" \
+        -m $module \
+        "$@" \
+        >> "$log_file" 2>&1 \
+        &
+else
+    exec "$java_cmd" \
+        "-Dduel.home=$DUEL_HOME" \
+        -p "$DUEL_HOME/server" \
+        -m $module \
+        "$@"
+fi

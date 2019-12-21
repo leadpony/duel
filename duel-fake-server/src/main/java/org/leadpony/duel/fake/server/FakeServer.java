@@ -16,66 +16,45 @@
 
 package org.leadpony.duel.fake.server;
 
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.URL;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ShutdownHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
+import org.leadpony.duel.fake.server.servlets.EchoServlet;
+import org.leadpony.duel.fake.server.servlets.ReportServlet;
+import org.leadpony.duel.fake.server.servlets.StaticResourceServlet;
+import org.leadpony.duel.fake.server.servlets.StatusServlet;
 
 /**
+ * A fake web server.
+ *
  * @author leadpony
  */
 public class FakeServer extends Server {
 
-    private static final int PORT = 8080;
-    private static final String SHUTDOWN_TOKEN = "secret";
+    public static final String SHUTDOWN_TOKEN = "secret";
 
     public FakeServer(int port) {
         super(new InetSocketAddress("localhost", port));
         HandlerList handlers = new HandlerList();
-        handlers.addHandler(new ShutdownHandler(SHUTDOWN_TOKEN));
-        ServletHandler handler = new ServletHandler();
-        addServlets(handler);
-        handlers.addHandler(handler);
+        handlers.addHandler(createShutdownHandler());
+        handlers.addHandler(createServletHandler());
         setHandler(handlers);
     }
 
-    private static void addServlets(ServletHandler handler) {
+    private static Handler createShutdownHandler() {
+        return new ShutdownHandler(SHUTDOWN_TOKEN);
+    }
+
+    private static Handler createServletHandler() {
+        ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(ReportServlet.class, "/report/*");
         handler.addServletWithMapping(EchoServlet.class, "/echo");
         handler.addServletWithMapping(StatusServlet.class, "/status");
         handler.addServletWithMapping(StaticResourceServlet.class, "/*");
-    }
-
-    public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            return;
-        }
-        switch (args[0]) {
-        case "start":
-            startServer(PORT);
-            break;
-        case "stop":
-            stopServer(PORT);
-            break;
-        default:
-            break;
-        }
-    }
-
-    private static void startServer(int port) throws Exception {
-        FakeServer server = new FakeServer(PORT);
-        server.start();
-        server.join();
-    }
-
-    private static void stopServer(int port) throws Exception {
-       URL url = new URL("http://localhost:" + port + "/shutdown?token=" + SHUTDOWN_TOKEN);
-       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-       connection.setRequestMethod("POST");
-       connection.getResponseCode();
+        return handler;
     }
 }

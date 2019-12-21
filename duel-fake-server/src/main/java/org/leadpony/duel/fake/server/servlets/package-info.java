@@ -17,15 +17,4 @@
 /**
  * @author leadpony
  */
-module org.leadpony.duel.fake.server {
-    exports org.leadpony.duel.fake.server;
-
-    requires info.picocli;
-    requires java.json;
-    requires transitive java.servlet;
-    requires org.eclipse.jetty.server;
-    requires org.eclipse.jetty.util;
-    requires org.eclipse.jetty.servlet;
-
-    opens org.leadpony.duel.fake.server to info.picocli;
-}
+package org.leadpony.duel.fake.server.servlets;

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.fake.server;
+package org.leadpony.duel.fake.server.servlets;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author leadpony
  */
+@WebServlet("/json/*")
 @SuppressWarnings("serial")
 public class StaticResourceServlet extends HttpServlet {
 

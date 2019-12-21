@@ -15,21 +15,25 @@
             <fileMode>755</fileMode>
             <filtered>true</filtered>
         </fileSet>
+        <fileSet>
+            <directory>src/assembly</directory>
+            <outputDirectory>log</outputDirectory>
+            <excludes>
+                <exclude>*</exclude>
+            </excludes>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>info.picocli:*</include>
-                <include>jakarta.json:*</include>
-                <include>org.apiguardian:*</include>
-                <include>org.junit.*:*</include>
+                <include>jakarta.json:jakarta.json-api</include>
                 <include>org.leadpony.duel:duel-cli</include>
                 <include>org.leadpony.duel:duel-core</include>
-                <include>org.leadpony.joy:joy</include>
-                <include>org.opentest4j:*</include>
+                <include>org.opentest4j:opentest4j</include>
             </includes>
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
         </dependencySet>
         <dependencySet>
             <includes>
@@ -41,14 +45,14 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>jakarta.json:*</include>
-                <include>jakarta.servlet:*</include>
-                <include>org.eclipse.jetty:*</include>
+                <include>info.picocli:picocli</include>
+                <include>jakarta.json:jakarta.json-api</include>
                 <include>org.leadpony.duel:duel-fake-server</include>
                 <include>org.leadpony.joy:joy</include>
             </includes>
             <outputDirectory>server</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
         </dependencySet>
     </dependencySets>
 </assembly>
