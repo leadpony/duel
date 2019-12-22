@@ -36,15 +36,20 @@ public class ProjectTest {
 
     private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 
-    private static Project project;
+    private static final ThreadLocal<Project> PROJECTS = new ThreadLocal<>();
+
+    static Project getProject() {
+        return PROJECTS.get();
+    }
 
     static void setProject(Project project) {
-        ProjectTest.project = project;
+        PROJECTS.set(project);
     }
 
     @TestFactory
     @DisplayName("Projects")
     public Stream<DynamicNode> projects() {
+        Project project = getProject();
         GroupExecution root = project.createExecution();
         return Stream.of(createContainer(root));
     }

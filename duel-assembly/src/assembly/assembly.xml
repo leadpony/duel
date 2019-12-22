@@ -10,6 +10,13 @@
     <baseDirectory>duel</baseDirectory>
     <fileSets>
         <fileSet>
+            <directory>src/main</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>src/main/scripts</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>755</fileMode>

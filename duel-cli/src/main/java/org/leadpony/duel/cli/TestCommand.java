@@ -69,6 +69,8 @@ class TestCommand extends AbstractCommand implements Callable<Integer> {
             return fail(e);
         } catch (Exception e) {
             return fail(e);
+        } finally {
+            ProjectTest.setProject(null);
         }
     }
 

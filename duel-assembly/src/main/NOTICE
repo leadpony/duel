@@ -1,0 +1,98 @@
+# Duel
+Copyright 2019 the original author or authors. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this product except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+## Third-Party Products
+This product includes the following third-party products.
+Your use of these products is subject to the terms and conditions of the
+product's license.
+
+### API Guardian
+Copyright 2002-2017 the original author or authors.
+Licensed under the Apache License, Version 2.0.
+
+### Jakarta Servlet
+Copyright (c) 1997, 2018 Oracle and/or its affiliates. All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v. 2.0, which is available at
+http://www.eclipse.org/legal/epl-2.0.
+
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the
+Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+version 2 with the GNU Classpath Exception, which is available at
+https://www.gnu.org/software/classpath/license.html.
+
+SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+### Jakarta JSON Processing (JSON-P)
+
+Copyright (c) 2011, 2018 Oracle and/or its affiliates. All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v. 2.0, which is available at
+http://www.eclipse.org/legal/epl-2.0.
+
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the
+Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+version 2 with the GNU Classpath Exception, which is available at
+https://www.gnu.org/software/classpath/license.html.
+
+SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+### Jetty Web Container
+Copyright 1995-2018 Mort Bay Consulting Pty Ltd.
+The Jetty Web Container is Copyright Mort Bay Consulting Pty Ltd
+unless otherwise noted.
+Jetty is dual licensed under both
+  * The Apache 2.0 License
+    http://www.apache.org/licenses/LICENSE-2.0.html
+  * The Eclipse Public 1.0 License
+    http://www.eclipse.org/legal/epl-v10.html
+
+Jetty may be distributed under either license.
+
+### Joy
+Copyright 2019 the Joy Authors. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this product except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+### JUnit 5
+Copyright 2015-2019 the original author or authors. All rights reserved.
+This program and the accompanying materials are
+made available under the terms of the Eclipse Public License v2.0 which
+accompanies this distribution and is available at
+https://www.eclipse.org/legal/epl-v20.html
+
+### opentest4j
+Copyright 2015-2018 the original author or authors.
+Licensed under the Apache License, Version 2.0.
+
+### Picocli
+Picocli is licensed under the Apache License 2.0.
+
+### RFC 7159
+
+Copyright (c) 2014 IETF Trust and the persons identified as the document
+authors.  All rights reserved.
