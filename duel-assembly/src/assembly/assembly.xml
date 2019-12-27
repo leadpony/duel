@@ -13,8 +13,13 @@
             <directory>src/main</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>*</include>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
             </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/example</directory>
+            <outputDirectory>example</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>src/main/scripts</directory>

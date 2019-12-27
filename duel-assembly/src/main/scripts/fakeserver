@@ -31,14 +31,15 @@ module=org.leadpony.duel.fake.server/org.leadpony.duel.fake.server.ServerCommand
 
 if [ "$1" = "start" ]
 then
-    log_file="$DUEL_HOME/log/server-$(date +%F).log"
+    log_file="$DUEL_HOME/log/server-$(date +%Y%m%d-%H%M%S-%N).log"
     nohup "$java_cmd" \
         "-Dduel.home=$DUEL_HOME" \
         -p "$DUEL_HOME/server" \
         -m $module \
         "$@" \
-        >> "$log_file" 2>&1 \
+        > "$log_file" 2>&1 \
         &
+    timeout 5 tail -f "$log_file"
 else
     exec "$java_cmd" \
         "-Dduel.home=$DUEL_HOME" \

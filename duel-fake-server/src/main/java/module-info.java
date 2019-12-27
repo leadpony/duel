@@ -28,4 +28,5 @@ module org.leadpony.duel.fake.server {
     requires org.eclipse.jetty.servlet;
 
     opens org.leadpony.duel.fake.server to info.picocli;
+    opens org.leadpony.duel.fake.server.servlets to org.eclipse.jetty.server;
 }
