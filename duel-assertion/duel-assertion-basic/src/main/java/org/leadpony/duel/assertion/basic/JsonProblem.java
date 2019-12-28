@@ -16,30 +16,29 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import java.net.http.HttpResponse;
-
-import org.leadpony.duel.core.spi.ResponseBody;
-
 /**
+ * A problem found in a JSON value.
+ *
  * @author leadpony
  */
-class SimpleStatusAssertion extends AbstractAssertion {
+interface JsonProblem {
 
-    private final int expected;
-
-    SimpleStatusAssertion(int expected) {
-        this.expected = expected;
+    /**
+     * A type of problem.
+     *
+     * @author leadpony
+     */
+    enum ProblemType {
+        TYPE_MISMATCH,
+        REPLACED,
+        PROPERTY_ADDED,
+        PROPERTY_REMOVED,
+        ARRAY_SIZE_UNMATCH
     }
 
-    @Override
-    public void assertOn(HttpResponse<ResponseBody> response) {
-        int actual = response.statusCode();
-        if (this.expected != actual) {
-            fail(buildMessage(actual), this.expected, actual);
-        }
-    }
+    ProblemType getProblemType();
 
-    private String buildMessage(int actual) {
-        return Message.thatStatusCodeDoesNotMuch(this.expected, actual);
-    }
+    String getPointer();
+
+    String getDescription();
 }

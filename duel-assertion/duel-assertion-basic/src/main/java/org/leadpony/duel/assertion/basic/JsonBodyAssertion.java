@@ -16,17 +16,11 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import java.io.StringWriter;
 import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.json.JsonArray;
-import javax.json.JsonPatch;
-import javax.json.JsonStructure;
 import javax.json.JsonValue;
-import javax.json.JsonValue.ValueType;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
-import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.spi.ResponseBody;
 
@@ -36,57 +30,34 @@ import org.leadpony.duel.core.spi.ResponseBody;
 class JsonBodyAssertion extends AbstractAssertion {
 
     private final JsonValue expected;
-    private final JsonProvider jsonProvider;
-    private final JsonWriterFactory writerFactory;
 
-    JsonBodyAssertion(JsonValue expected, JsonProvider jsonProvider, JsonWriterFactory writerFactory) {
+    JsonBodyAssertion(JsonValue expected) {
         this.expected = expected;
-        this.jsonProvider = jsonProvider;
-        this.writerFactory = writerFactory;
     }
 
     @Override
     public void assertOn(HttpResponse<ResponseBody> response) {
         JsonValue actual = response.body().asJson();
-        testValueType(actual.getValueType());
-        testValue(actual);
-    }
-
-    private void testValueType(ValueType actual) {
-        ValueType expected = this.expected.getValueType();
-        if (expected != actual) {
-            String message = Message.JSON_BODY_TYPE_MISMATCH.format(expected, actual);
-            fail(message, expected, actual);
+        JsonValidator validator = new ExactJsonValidator(this.expected);
+        if (!validator.validate(actual)) {
+            fail(buildErrorMessage(validator.getProblems()), expected, actual);
         }
     }
 
-    private void testValue(JsonValue actual) {
-        ValueType type = actual.getValueType();
-        if (type == ValueType.ARRAY || type == ValueType.OBJECT) {
-            testValue((JsonStructure) actual);
-            return;
-        }
+    private static String buildErrorMessage(List<JsonProblem> problems) {
+        String detail = problems.stream()
+                .map(JsonBodyAssertion::stringifyProblem)
+                .collect(Collectors.joining("\n"));
+        return Message.thatJsonBodyDoesNotMatch(detail);
     }
 
-    private void testValue(JsonStructure actual) {
-        JsonStructure expected = (JsonStructure) this.expected;
-        JsonPatch diff = jsonProvider.createDiff(expected, actual);
-        JsonArray array = diff.toJsonArray();
-        if (!array.isEmpty()) {
-            fail(buildMessage(array), expected, actual);
-        }
-    }
-
-    private String buildMessage(JsonArray diff) {
-        return Message.JSON_BODY_STRUCTURE_NOT_EQUAL
-                .format(stringifyDiff(diff));
-    }
-
-    private String stringifyDiff(JsonArray diff) {
-        StringWriter stringWriter = new StringWriter();
-        try (JsonWriter writer = writerFactory.createWriter(stringWriter)) {
-            writer.writeArray(diff);
-        }
-        return stringWriter.toString();
+    private static String stringifyProblem(JsonProblem problem) {
+        return new StringBuilder()
+                .append('[')
+                .append(problem.getPointer())
+                .append(']')
+                .append(' ')
+                .append(problem.getDescription())
+                .toString();
     }
 }

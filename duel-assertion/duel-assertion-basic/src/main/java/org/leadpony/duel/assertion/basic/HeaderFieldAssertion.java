@@ -47,7 +47,7 @@ class HeaderFieldAssertion extends AbstractAssertion {
     }
 
     private String buildMessage(String actual) {
-        return Message.HEADER_FIELD_NOT_EQUAL
-                .format(this.name, this.expected, actual);
+        return Message.thatHeaderFieldDoesNotMatch(
+                this.name, this.expected, actual);
     }
 }

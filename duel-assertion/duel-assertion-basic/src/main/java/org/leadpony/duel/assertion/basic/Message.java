@@ -19,30 +19,75 @@ package org.leadpony.duel.assertion.basic;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
+
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
 /**
+ * Predefined messages.
+ *
  * @author leadpony
  */
-enum Message {
-    STATUS_CODE_NOT_EQUAL,
-    HEADER_FIELD_NOT_EQUAL,
-    HEADER_FIELD_MISSING,
-    JSON_BODY_TYPE_MISMATCH,
-    JSON_BODY_STRUCTURE_NOT_EQUAL;
+final class Message {
 
-    private static final String BASE_NAME =
+    private static final String BUNDLE_BASE_NAME =
             Message.class.getPackage().getName() + ".messages";
 
-    public String format(Object... arguments) {
-        return MessageFormat.format(asString(), arguments);
+    private Message() {
     }
 
-    public String asString() {
-        return getBundle().getString(name());
+    public static String thatStatusCodeDoesNotMuch(int expected, int actual) {
+        return format("StatusCodeDoesNotMuch", expected, actual);
     }
 
-    private ResourceBundle getBundle() {
-        return ResourceBundle.getBundle(BASE_NAME,
-                Locale.getDefault(), getClass().getClassLoader());
+    public static String thatHeaderFieldDoesNotMatch(String name, String expected, String actual) {
+        return format("HeaderFieldDoesNotMatch", name, expected, actual);
+    }
+
+    public static String thatHeaderFieldsAreMissing(Set<String> name) {
+        return format("HeaderFieldsAreMissing", name);
+    }
+
+    public static String thatJsonBodyDoesNotMatch(String detail) {
+        return format("JsonBodyDoesNotMatch", detail);
+    }
+
+    /* Messages for JSON problem */
+
+    public static String thatJsonValueTypeDoesNotMatch(ValueType expected, ValueType actual) {
+        return format("JsonValueTypeDoesNotMatch", nameOf(expected), nameOf(actual));
+    }
+
+    public static String thatJsonValueIsReplaced(JsonValue expected, JsonValue actual) {
+        assert expected.getValueType() == actual.getValueType();
+        return format("JsonValueIsReplaced", expected, actual);
+    }
+
+    public static String thatRedundantPropertyExists(String propertyName) {
+        return format("RedundantPropertyExists", propertyName);
+    }
+
+    public static String thatRequiredPropertyIsMissing(String propertyName) {
+        return format("RequiredPropertyIsMissing", propertyName);
+    }
+
+    public static String thatArraySizeDoesNotMatch(int expectedSize, int actualSize) {
+        return format("ArraySizeDoesNotMatch", expectedSize, actualSize);
+    }
+
+    private static String nameOf(Enum<?> enumerator) {
+        return enumerator.name().toLowerCase();
+    }
+
+    private static String format(String key, Object... arguments) {
+        String pattern = getBundle().getString(key);
+        return MessageFormat.format(pattern, arguments);
+    }
+
+    private static ResourceBundle getBundle() {
+        return ResourceBundle.getBundle(BUNDLE_BASE_NAME,
+                Locale.getDefault(),
+                Message.class.getClassLoader());
     }
 }

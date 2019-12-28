@@ -48,6 +48,6 @@ class RequiredHeaderAssertion extends AbstractAssertion {
     private String buildMessage(Set<String> actual) {
         Set<String> missing = new HashSet<>(this.expected);
         missing.removeAll(actual);
-        return Message.HEADER_FIELD_MISSING.format(missing);
+        return Message.thatHeaderFieldsAreMissing(missing);
     }
 }

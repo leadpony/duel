@@ -16,30 +16,16 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import java.net.http.HttpResponse;
+import java.util.List;
 
-import org.leadpony.duel.core.spi.ResponseBody;
+import javax.json.JsonValue;
 
 /**
  * @author leadpony
  */
-class SimpleStatusAssertion extends AbstractAssertion {
+interface JsonValidator {
 
-    private final int expected;
+    boolean validate(JsonValue actual);
 
-    SimpleStatusAssertion(int expected) {
-        this.expected = expected;
-    }
-
-    @Override
-    public void assertOn(HttpResponse<ResponseBody> response) {
-        int actual = response.statusCode();
-        if (this.expected != actual) {
-            fail(buildMessage(actual), this.expected, actual);
-        }
-    }
-
-    private String buildMessage(int actual) {
-        return Message.thatStatusCodeDoesNotMuch(this.expected, actual);
-    }
+    List<JsonProblem> getProblems();
 }

@@ -17,8 +17,6 @@
 package org.leadpony.duel.assertion.basic;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -28,9 +26,6 @@ import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
-import javax.json.JsonWriterFactory;
-import javax.json.spi.JsonProvider;
-import javax.json.stream.JsonGenerator;
 
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
@@ -40,20 +35,7 @@ import org.leadpony.duel.core.spi.AssertionProvider;
  */
 public class BasicAssertionProvider implements AssertionProvider {
 
-    private final JsonProvider jsonProvider;
-    private final JsonWriterFactory jsonWriterFactory;
-
-    private static final Map<String, ?> WRITER_CONFIG;
-
-    static {
-        Map<String, Object> map = new HashMap<>();
-        map.put(JsonGenerator.PRETTY_PRINTING, true);
-        WRITER_CONFIG = Collections.unmodifiableMap(map);
-    }
-
     public BasicAssertionProvider() {
-        this.jsonProvider = JsonProvider.provider();
-        this.jsonWriterFactory = this.jsonProvider.createWriterFactory(WRITER_CONFIG);
     }
 
     @Override
@@ -124,6 +106,6 @@ public class BasicAssertionProvider implements AssertionProvider {
     }
 
     private void addJsonBodyAssertion(JsonValue config, Collection<Assertion> assertions) {
-        assertions.add(new JsonBodyAssertion(config, jsonProvider, jsonWriterFactory));
+        assertions.add(new JsonBodyAssertion(config));
     }
 }
