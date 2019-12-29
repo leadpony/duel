@@ -37,21 +37,21 @@ class JsonBodyAssertion extends AbstractAssertion {
 
     @Override
     public void assertOn(HttpResponse<ResponseBody> response) {
+        ReportingJsonMatcher validator = new ReportingJsonMatcher();
         JsonValue actual = response.body().asJson();
-        JsonValidator validator = new ExactJsonValidator(this.expected);
-        if (!validator.validate(actual)) {
+        if (!validator.match(this.expected, actual)) {
             fail(buildErrorMessage(validator.getProblems()), expected, actual);
         }
     }
 
     private static String buildErrorMessage(List<JsonProblem> problems) {
         String detail = problems.stream()
-                .map(JsonBodyAssertion::stringifyProblem)
+                .map(JsonBodyAssertion::renderProblem)
                 .collect(Collectors.joining("\n"));
         return Message.thatJsonBodyDoesNotMatch(detail);
     }
 
-    private static String stringifyProblem(JsonProblem problem) {
+    private static String renderProblem(JsonProblem problem) {
         return new StringBuilder()
                 .append('[')
                 .append(problem.getPointer())

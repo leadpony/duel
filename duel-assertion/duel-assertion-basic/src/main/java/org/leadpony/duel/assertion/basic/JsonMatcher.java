@@ -16,16 +16,12 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import java.util.List;
-
 import javax.json.JsonValue;
 
 /**
  * @author leadpony
  */
-interface JsonValidator {
+interface JsonMatcher {
 
-    boolean validate(JsonValue actual);
-
-    List<JsonProblem> getProblems();
+    boolean match(JsonValue source, JsonValue target);
 }

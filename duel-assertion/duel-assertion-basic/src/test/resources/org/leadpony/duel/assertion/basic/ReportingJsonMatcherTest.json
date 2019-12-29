@@ -1,0 +1,246 @@
+[
+    {
+        "title": "simple string",
+        "expected": "hello",
+        "tests": [
+            {
+                "title": "same string",
+                "actual": "hello",
+                "problems": []
+            },
+            {
+                "title": "replaced string",
+                "actual": "bye",
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": "hello",
+                        "actual": "bye"
+                    }
+                ]
+            },
+            {
+                "title": "type mismatch",
+                "actual": 42,
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": "string",
+                        "actual": "number"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "simple number",
+        "expected": 42,
+        "tests": [
+            {
+                "title": "same number",
+                "actual": 42,
+                "problems": []
+            },
+            {
+                "title": "replaced number",
+                "actual": 46,
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": 42,
+                        "actual": 46
+                    }
+                ]
+            },
+            {
+                "title": "type mismatch",
+                "actual": "hello",
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": "number",
+                        "actual": "string"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "expected": ["spring", "summer", "autumn", "winter"],
+        "tests": [
+            {
+                "title": "same array",
+                "actual": ["spring", "summer", "autumn", "winter"],
+                "problems": []
+            },
+            {
+                "title": "array too long",
+                "actual": ["spring", "summer",  "August", "autumn", "winter"],
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": 4,
+                        "actual": 5
+                    }
+                ]
+            },
+            {
+                "title": "array too short",
+                "actual": ["spring", "autumn", "winter"],
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": 4,
+                        "actual": 3
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "object",
+        "expected": {
+            "a": "hello",
+            "b": 42,
+            "c": true,
+            "d": null
+        },
+        "tests": [
+            {
+                "title": "same object",
+                "actual": {
+                    "a": "hello",
+                    "b": 42,
+                    "c": true,
+                    "d": null
+                },
+                "problems": []
+            },
+            {
+                "title": "not object",
+                "actual": [],
+                "problems": [
+                    {
+                        "path": "",
+                        "expected": "object",
+                        "actual": "array"
+                    }
+                ]
+            },
+            {
+                "title": "additional property",
+                "actual": {
+                    "a": "hello",
+                    "b": 42,
+                    "c": true,
+                    "d": null,
+                    "x": "unknown"
+                },
+                "problems": [
+                    {
+                        "path": "/x",
+                        "propertyName": "x"
+                    }
+                ]
+            },
+            {
+                "title": "missing property",
+                "actual": {
+                    "a": "hello",
+                    "c": true
+                },
+                "problems": [
+                    {
+                        "path": "",
+                        "propertyName": "b"
+                    },
+                    {
+                        "path": "",
+                        "propertyName": "d"
+                    }
+                ]
+            },
+            {
+                "title": "replaced",
+                "actual": {
+                    "a": "bye",
+                    "b": 3.14,
+                    "c": true,
+                    "d": null
+                },
+                "problems": [
+                    {
+                        "path": "/a",
+                        "expected": "hello",
+                        "actual": "bye"
+                    },
+                    {
+                        "path": "/b",
+                        "expected": 42,
+                        "actual": 3.14
+                    }
+                ]
+            },
+            {
+                "title": "type mismatch",
+                "actual": {
+                    "a": 42,
+                    "b": "hello",
+                    "c": [],
+                    "d": {}
+                },
+                "problems": [
+                    {
+                        "path": "/a",
+                        "expected": "string",
+                        "actual": "number"
+                    },
+                    {
+                        "path": "/b",
+                        "expected": "number",
+                        "actual": "string"
+                    },
+                    {
+                        "path": "/c",
+                        "expected": "true",
+                        "actual": "array"
+                    },
+                    {
+                        "path": "/d",
+                        "expected": "null",
+                        "actual": "object"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "expected": "@*",
+        "tests": [
+            {
+                "title": "wildcard matches string",
+                "actual": "hello"
+            },
+            {
+                "title": "wildcard matches number",
+                "actual": 42
+            },
+            {
+                "title": "wildcard matches boolean",
+                "actual": true
+            },
+            {
+                "title": "wildcard matches null",
+                "actual": null
+            },
+            {
+                "title": "wildcard matches array",
+                "actual": []
+            },
+            {
+                "title": "wildcard matches object",
+                "actual": {}
+            }
+        ]
+    }
+]

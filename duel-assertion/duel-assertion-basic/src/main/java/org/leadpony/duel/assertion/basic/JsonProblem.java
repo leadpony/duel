@@ -16,6 +16,8 @@
 
 package org.leadpony.duel.assertion.basic;
 
+import javax.json.JsonObject;
+
 /**
  * A problem found in a JSON value.
  *
@@ -41,4 +43,6 @@ interface JsonProblem {
     String getPointer();
 
     String getDescription();
+
+    JsonObject toJson();
 }

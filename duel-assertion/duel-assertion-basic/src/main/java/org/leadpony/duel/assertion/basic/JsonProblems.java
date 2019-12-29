@@ -16,6 +16,10 @@
 
 package org.leadpony.duel.assertion.basic;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
@@ -34,6 +38,12 @@ class JsonProblems {
             public String getDescription() {
                 return Message.thatJsonValueTypeDoesNotMatch(expected, actual);
             }
+
+            @Override
+            protected void populateJson(JsonObjectBuilder builder) {
+                builder.add("expected", expected.name().toLowerCase());
+                builder.add("actual", actual.name().toLowerCase());
+            }
         };
     }
 
@@ -43,11 +53,17 @@ class JsonProblems {
             public String getDescription() {
                 return Message.thatJsonValueIsReplaced(expected, actual);
             }
+
+            @Override
+            protected void populateJson(JsonObjectBuilder builder) {
+                builder.add("expected", expected);
+                builder.add("actual", actual);
+            }
         };
     }
 
     static JsonProblem propertyAdded(String pointer, String propertyName) {
-        return new AbstractJsonProblem(ProblemType.PROPERTY_ADDED, pointer) {
+        return new PropertyJsonProblem(ProblemType.PROPERTY_ADDED, pointer, propertyName) {
             @Override
             public String getDescription() {
                 return Message.thatRedundantPropertyExists(propertyName);
@@ -56,7 +72,7 @@ class JsonProblems {
     }
 
     static JsonProblem propertyRemoved(String pointer, String propertyName) {
-        return new AbstractJsonProblem(ProblemType.PROPERTY_REMOVED, pointer) {
+        return new PropertyJsonProblem(ProblemType.PROPERTY_REMOVED, pointer, propertyName) {
             @Override
             public String getDescription() {
                 return Message.thatRequiredPropertyIsMissing(propertyName);
@@ -70,8 +86,16 @@ class JsonProblems {
             public String getDescription() {
                 return Message.thatArraySizeDoesNotMatch(expectedSize, actualSize);
             }
+
+            @Override
+            protected void populateJson(JsonObjectBuilder builder) {
+                builder.add("expected", expectedSize);
+                builder.add("actual", actualSize);
+            }
         };
     }
+
+    private static final JsonBuilderFactory JSON_BUILDER_FACTORY = Json.createBuilderFactory(null);
 
     private abstract static class AbstractJsonProblem implements JsonProblem {
 
@@ -91,6 +115,32 @@ class JsonProblems {
         @Override
         public String getPointer() {
             return pointer;
+        }
+
+        @Override
+        public JsonObject toJson() {
+            JsonObjectBuilder builder = JSON_BUILDER_FACTORY.createObjectBuilder();
+            builder.add("path", getPointer());
+            populateJson(builder);
+            return builder.build();
+        }
+
+        protected void populateJson(JsonObjectBuilder builder) {
+        }
+    }
+
+    private abstract static class PropertyJsonProblem extends AbstractJsonProblem {
+
+        private final String propertyName;
+
+        protected PropertyJsonProblem(ProblemType type, String pointer, String propertyName) {
+            super(type, pointer);
+            this.propertyName = propertyName;
+        }
+
+        @Override
+        protected void populateJson(JsonObjectBuilder builder) {
+            builder.add("propertyName", propertyName);
         }
     }
 }
