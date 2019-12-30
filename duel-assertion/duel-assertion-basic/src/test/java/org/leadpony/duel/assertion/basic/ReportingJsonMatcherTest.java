@@ -45,6 +45,14 @@ public class ReportingJsonMatcherTest {
                     .map(JsonProblem::toJson)
                     .collect(Collectors.toList());
             assertThat(actualProblems).isEqualTo(problems);
+
+            printProblems(matcher.getProblems());
+        }
+    }
+
+    private static void printProblems(List<JsonProblem> problems) {
+        for (JsonProblem problem : problems) {
+            System.out.println(problem.toString());
         }
     }
 }

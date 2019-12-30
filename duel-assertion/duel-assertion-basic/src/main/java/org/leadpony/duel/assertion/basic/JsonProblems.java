@@ -62,6 +62,39 @@ class JsonProblems {
         };
     }
 
+    static JsonProblem arraySizeUnmatch(String pointer, int expectedSize, int actualSize) {
+        return new AbstractJsonProblem(ProblemType.ARRAY_SIZE_UNMATCH, pointer) {
+            @Override
+            public String getDescription() {
+                return Message.thatArraySizeDoesNotMatch(expectedSize, actualSize);
+            }
+
+            @Override
+            protected void populateJson(JsonObjectBuilder builder) {
+                builder.add("expected", expectedSize);
+                builder.add("actual", actualSize);
+            }
+        };
+    }
+
+    static JsonProblem itemAdded(String pointer, int index, JsonValue value) {
+        return new ItemJsonProblem(ProblemType.ITEM_ADDED, pointer, value) {
+            @Override
+            public String getDescription() {
+                return Message.thatRedundantItemExists(index);
+            }
+        };
+    }
+
+    static JsonProblem itemRemoved(String pointer, int index, JsonValue value) {
+        return new ItemJsonProblem(ProblemType.ITEM_REMOVED, pointer, value) {
+            @Override
+            public String getDescription() {
+                return Message.thatRequiredItemIsMissing(index);
+            }
+        };
+    }
+
     static JsonProblem propertyAdded(String pointer, String propertyName) {
         return new PropertyJsonProblem(ProblemType.PROPERTY_ADDED, pointer, propertyName) {
             @Override
@@ -76,21 +109,6 @@ class JsonProblems {
             @Override
             public String getDescription() {
                 return Message.thatRequiredPropertyIsMissing(propertyName);
-            }
-        };
-    }
-
-    static JsonProblem arraySizeUnmatch(String pointer, int expectedSize, int actualSize) {
-        return new AbstractJsonProblem(ProblemType.ARRAY_SIZE_UNMATCH, pointer) {
-            @Override
-            public String getDescription() {
-                return Message.thatArraySizeDoesNotMatch(expectedSize, actualSize);
-            }
-
-            @Override
-            protected void populateJson(JsonObjectBuilder builder) {
-                builder.add("expected", expectedSize);
-                builder.add("actual", actualSize);
             }
         };
     }
@@ -120,12 +138,39 @@ class JsonProblems {
         @Override
         public JsonObject toJson() {
             JsonObjectBuilder builder = JSON_BUILDER_FACTORY.createObjectBuilder();
+            builder.add("type", type.name());
             builder.add("path", getPointer());
             populateJson(builder);
             return builder.build();
         }
 
+        @Override
+        public String toString() {
+            return new StringBuilder()
+                    .append('[')
+                    .append(getPointer())
+                    .append(']')
+                    .append(' ')
+                    .append(getDescription())
+                    .toString();
+        }
+
         protected void populateJson(JsonObjectBuilder builder) {
+        }
+    }
+
+    private abstract static class ItemJsonProblem extends AbstractJsonProblem {
+
+        private final JsonValue value;
+
+        protected ItemJsonProblem(ProblemType type, String pointer, JsonValue value) {
+            super(type, pointer);
+            this.value = value;
+        }
+
+        @Override
+        protected void populateJson(JsonObjectBuilder builder) {
+            builder.add("value", value);
         }
     }
 

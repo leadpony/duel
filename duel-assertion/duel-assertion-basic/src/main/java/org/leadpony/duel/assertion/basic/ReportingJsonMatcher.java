@@ -17,6 +17,7 @@
 package org.leadpony.duel.assertion.basic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.json.JsonArray;
@@ -29,6 +30,7 @@ import javax.json.JsonValue;
 class ReportingJsonMatcher extends AbstractJsonMatcher {
 
     private final JsonPointerBuilder pointerBuilder = new JsonPointerBuilder();
+    private final SimpleJsonMatcher simpleMatcher = new SimpleJsonMatcher();
     private List<JsonProblem> problems;
 
     public List<JsonProblem> getProblems() {
@@ -60,24 +62,7 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
 
     @Override
     protected boolean matchArrays(JsonArray source, JsonArray target) {
-        final int sourceSize = source.size();
-        final int targetSize = target.size();
-
-        if (sourceSize != targetSize) {
-            addProblem(JsonProblems.arraySizeUnmatch(currentPointer(), sourceSize, targetSize));
-            return false;
-        }
-
-        boolean result = true;
-        for (int i = 0; i < targetSize; i++) {
-            pointerBuilder.append(i);
-            if (!match(source.get(i), target.get(i))) {
-                result = false;
-            }
-            pointerBuilder.remove();
-        }
-
-        return result;
+        return matchArraysWithLcs(source, target);
     }
 
     @Override
@@ -107,6 +92,61 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
         }
 
         return result;
+    }
+
+    private boolean matchArraysWithLcs(JsonArray source, JsonArray target) {
+        if (source.isEmpty() && target.isEmpty()) {
+            return true;
+        }
+
+        int i = source.size();
+        int j = target.size();
+
+        while (i > 0 && j > 0) {
+            if (!simpleMatcher.match(source.get(i - 1), target.get(j - 1))) {
+                break;
+            }
+            i--;
+            j--;
+        }
+
+        if (i == 0 && j == 0) {
+            return true;
+        }
+
+        LcsTable table = LcsTable.build(source, target, i, j, simpleMatcher);
+
+        List<Runnable> dispatchers = new ArrayList<>();
+        while (i > 0 || j > 0) {
+
+            if (table.getMatchResult(i, j)) {
+                i--;
+                j--;
+            } else if (i > 0 && (j == 0 || table.getLength(i - 1, j) > table.getLength(i, j - 1))) {
+                pointerBuilder.append(j);
+                JsonProblem problem = JsonProblems.itemRemoved(currentPointer(), j, source.get(--i));
+                pointerBuilder.remove();
+                dispatchers.add(() -> addProblem(problem));
+            } else if (j > 0 && (i == 0 || table.getLength(i - 1, j) < table.getLength(i, j - 1))) {
+                pointerBuilder.append(--j);
+                JsonProblem problem = JsonProblems.itemAdded(currentPointer(), j, target.get(j));
+                pointerBuilder.remove();
+                dispatchers.add(() -> addProblem(problem));
+            } else { // i > 0 && j > 0
+                final int i0 = --i;
+                final int j0 = --j;
+                dispatchers.add(() -> {
+                    pointerBuilder.append(j0);
+                    match(source.get(i0), target.get(j0));
+                    pointerBuilder.remove();
+                });
+            }
+        }
+
+        Collections.reverse(dispatchers);
+        dispatchers.forEach(Runnable::run);
+
+        return false;
     }
 
     protected final void addProblem(JsonProblem problem) {

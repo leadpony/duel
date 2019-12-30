@@ -64,16 +64,24 @@ final class Message {
         return format("JsonValueIsReplaced", expected, actual);
     }
 
+    public static String thatArraySizeDoesNotMatch(int expectedSize, int actualSize) {
+        return format("ArraySizeDoesNotMatch", expectedSize, actualSize);
+    }
+
+    public static String thatRedundantItemExists(int index) {
+        return format("RedundantItemExists", index);
+    }
+
+    public static String thatRequiredItemIsMissing(int index) {
+        return format("RequiredItemIsMissing", index);
+    }
+
     public static String thatRedundantPropertyExists(String propertyName) {
         return format("RedundantPropertyExists", propertyName);
     }
 
     public static String thatRequiredPropertyIsMissing(String propertyName) {
         return format("RequiredPropertyIsMissing", propertyName);
-    }
-
-    public static String thatArraySizeDoesNotMatch(int expectedSize, int actualSize) {
-        return format("ArraySizeDoesNotMatch", expectedSize, actualSize);
     }
 
     private static String nameOf(Enum<?> enumerator) {

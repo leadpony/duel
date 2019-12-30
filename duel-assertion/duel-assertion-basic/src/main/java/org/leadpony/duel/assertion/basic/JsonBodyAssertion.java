@@ -46,18 +46,8 @@ class JsonBodyAssertion extends AbstractAssertion {
 
     private static String buildErrorMessage(List<JsonProblem> problems) {
         String detail = problems.stream()
-                .map(JsonBodyAssertion::renderProblem)
+                .map(JsonProblem::toString)
                 .collect(Collectors.joining("\n"));
         return Message.thatJsonBodyDoesNotMatch(detail);
-    }
-
-    private static String renderProblem(JsonProblem problem) {
-        return new StringBuilder()
-                .append('[')
-                .append(problem.getPointer())
-                .append(']')
-                .append(' ')
-                .append(problem.getDescription())
-                .toString();
     }
 }

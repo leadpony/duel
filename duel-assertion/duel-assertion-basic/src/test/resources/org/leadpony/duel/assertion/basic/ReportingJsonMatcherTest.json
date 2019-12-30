@@ -13,6 +13,7 @@
                 "actual": "bye",
                 "problems": [
                     {
+                        "type": "REPLACED",
                         "path": "",
                         "expected": "hello",
                         "actual": "bye"
@@ -24,6 +25,7 @@
                 "actual": 42,
                 "problems": [
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "",
                         "expected": "string",
                         "actual": "number"
@@ -46,6 +48,7 @@
                 "actual": 46,
                 "problems": [
                     {
+                        "type": "REPLACED",
                         "path": "",
                         "expected": 42,
                         "actual": 46
@@ -57,6 +60,7 @@
                 "actual": "hello",
                 "problems": [
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "",
                         "expected": "number",
                         "actual": "string"
@@ -66,32 +70,75 @@
         ]
     },
     {
-        "expected": ["spring", "summer", "autumn", "winter"],
+        "expected": [1, 2, 3, 4, 5],
         "tests": [
             {
                 "title": "same array",
-                "actual": ["spring", "summer", "autumn", "winter"],
-                "problems": []
+                "actual": [1, 2, 3, 4, 5]
             },
             {
-                "title": "array too long",
-                "actual": ["spring", "summer",  "August", "autumn", "winter"],
+                "title": "item added",
+                "actual": ["a", 1, 2, "b", 3, 4, 5, "c"],
                 "problems": [
                     {
-                        "path": "",
-                        "expected": 4,
-                        "actual": 5
+                        "type": "ITEM_ADDED",
+                        "path": "/0",
+                        "value": "a"
+                    },
+                    {
+                        "type": "ITEM_ADDED",
+                        "path": "/3",
+                        "value": "b"
+                    },
+                    {
+                        "type": "ITEM_ADDED",
+                        "path": "/7",
+                        "value": "c"
                     }
                 ]
             },
             {
-                "title": "array too short",
-                "actual": ["spring", "autumn", "winter"],
+                "title": "item removed",
+                "actual": [2, 4],
                 "problems": [
                     {
-                        "path": "",
-                        "expected": 4,
-                        "actual": 3
+                        "type": "ITEM_REMOVED",
+                        "path": "/0",
+                        "value": 1
+                    },
+                    {
+                        "type": "ITEM_REMOVED",
+                        "path": "/1",
+                        "value": 3
+                    },
+                    {
+                        "type": "ITEM_REMOVED",
+                        "path": "/2",
+                        "value": 5
+                    }
+                ]
+            },
+            {
+                "title": "item replaced",
+                "actual": [101, 2, 103, 4, 105],
+                "problems": [
+                    {
+                        "type": "REPLACED",
+                        "path": "/0",
+                        "expected": 1,
+                        "actual": 101
+                    },
+                    {
+                        "type": "REPLACED",
+                        "path": "/2",
+                        "expected": 3,
+                        "actual": 103
+                    },
+                    {
+                        "type": "REPLACED",
+                        "path": "/4",
+                        "expected": 5,
+                        "actual": 105
                     }
                 ]
             }
@@ -121,6 +168,7 @@
                 "actual": [],
                 "problems": [
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "",
                         "expected": "object",
                         "actual": "array"
@@ -138,6 +186,7 @@
                 },
                 "problems": [
                     {
+                        "type": "PROPERTY_ADDED",
                         "path": "/x",
                         "propertyName": "x"
                     }
@@ -151,10 +200,12 @@
                 },
                 "problems": [
                     {
+                        "type": "PROPERTY_REMOVED",
                         "path": "",
                         "propertyName": "b"
                     },
                     {
+                        "type": "PROPERTY_REMOVED",
                         "path": "",
                         "propertyName": "d"
                     }
@@ -170,11 +221,13 @@
                 },
                 "problems": [
                     {
+                        "type": "REPLACED",
                         "path": "/a",
                         "expected": "hello",
                         "actual": "bye"
                     },
                     {
+                        "type": "REPLACED",
                         "path": "/b",
                         "expected": 42,
                         "actual": 3.14
@@ -191,21 +244,25 @@
                 },
                 "problems": [
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "/a",
                         "expected": "string",
                         "actual": "number"
                     },
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "/b",
                         "expected": "number",
                         "actual": "string"
                     },
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "/c",
                         "expected": "true",
                         "actual": "array"
                     },
                     {
+                        "type": "TYPE_MISMATCH",
                         "path": "/d",
                         "expected": "null",
                         "actual": "object"

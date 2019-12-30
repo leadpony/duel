@@ -33,9 +33,11 @@ interface JsonProblem {
     enum ProblemType {
         TYPE_MISMATCH,
         REPLACED,
+        ARRAY_SIZE_UNMATCH,
+        ITEM_ADDED,
+        ITEM_REMOVED,
         PROPERTY_ADDED,
         PROPERTY_REMOVED,
-        ARRAY_SIZE_UNMATCH
     }
 
     ProblemType getProblemType();
