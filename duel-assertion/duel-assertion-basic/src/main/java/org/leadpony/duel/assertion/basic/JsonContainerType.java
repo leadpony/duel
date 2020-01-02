@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,22 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import javax.json.JsonObject;
-
 /**
- * A problem found in a JSON value.
+ * Container types for JSON values.
  *
  * @author leadpony
  */
-interface JsonProblem {
+enum JsonContainerType {
+    LIST("@list"),
+    SET("@set");
 
-    /**
-     * A type of problem.
-     *
-     * @author leadpony
-     */
-    enum ProblemType {
-        TYPE_MISMATCH,
-        REPLACED,
-        ARRAY_TOO_LONG,
-        ARRAY_TOO_SHORT,
-        LIST_ITEM_ADDED,
-        LIST_ITEM_REMOVED,
-        SET_ITEM_ADDED,
-        SET_ITEM_REMOVED,
-        PROPERTY_ADDED,
-        PROPERTY_REMOVED,
+    private final String keyword;
+
+    JsonContainerType(String keyword) {
+        this.keyword = keyword;
     }
 
-    ProblemType getProblemType();
-
-    String getPointer();
-
-    String getDescription();
-
-    JsonObject toJson();
+    String asKeyword() {
+        return keyword;
+    }
 }

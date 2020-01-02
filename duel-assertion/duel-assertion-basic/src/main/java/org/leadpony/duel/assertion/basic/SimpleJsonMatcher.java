@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package org.leadpony.duel.assertion.basic;
 
+import java.util.LinkedList;
+
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 /**
  * @author leadpony
@@ -25,16 +28,20 @@ import javax.json.JsonObject;
 final class SimpleJsonMatcher extends AbstractJsonMatcher {
 
     @Override
-    protected boolean matchArrays(JsonArray source, JsonArray target) {
+    protected boolean matchArrays(JsonArray source, JsonArray target, JsonContainerType containerType) {
+        assert containerType != null;
         if (source.size() != target.size()) {
             return false;
         }
-        for (int i = 0; i < source.size(); i++) {
-            if (!match(source.get(i), target.get(i))) {
-                return false;
-            }
+        switch (containerType) {
+        case LIST:
+            return matchOrderedArrays(source, target);
+        case SET:
+            return matchUnorderedArrays(source, target);
+        default:
+            assert false;
+            return false;
         }
-        return true;
     }
 
     @Override
@@ -56,5 +63,32 @@ final class SimpleJsonMatcher extends AbstractJsonMatcher {
         }
 
         return true;
+    }
+
+    private boolean matchOrderedArrays(JsonArray source, JsonArray target) {
+        for (int i = 0; i < source.size(); i++) {
+            if (!match(source.get(i), target.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean matchUnorderedArrays(JsonArray source, JsonArray target) {
+        LinkedList<JsonValue> remains = new LinkedList<>(target);
+        for (JsonValue sourceValue : source) {
+            JsonValue matched = null;
+            for (JsonValue targetValue : remains) {
+                if (match(sourceValue, targetValue)) {
+                    matched = targetValue;
+                    break;
+                }
+            }
+            if (matched == null) {
+                return false;
+            }
+            remains.remove(matched);
+        }
+        return remains.isEmpty();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.leadpony.duel.assertion.basic;
 
+import java.util.Optional;
+
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonString;
@@ -31,17 +33,22 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
 
     @Override
     public boolean match(JsonValue source, JsonValue target) {
+        Optional<JsonContainerType> containerType = getContainerTypeOf(source);
+        if (containerType.isPresent()) {
+            source = unwrapValue(source, containerType.get());
+        }
+
         if (source.getValueType() == target.getValueType()) {
-            return matchValuesOfSameType(source, target);
+            return matchValuesOfSameType(source, target, containerType);
         } else {
             return matchValuesOfDifferentType(source, target);
         }
     }
 
-    protected boolean matchValuesOfSameType(JsonValue source, JsonValue target) {
+    protected boolean matchValuesOfSameType(JsonValue source, JsonValue target, Optional<JsonContainerType> containerType) {
         switch (source.getValueType()) {
         case ARRAY:
-            return matchArrays(source.asJsonArray(), target.asJsonArray());
+            return matchArrays(source.asJsonArray(), target.asJsonArray(), containerType.get());
         case OBJECT:
             return matchObjects(source.asJsonObject(), target.asJsonObject());
         default:
@@ -57,7 +64,7 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
         return isWildcard(source) || source.equals(target);
     }
 
-    protected abstract boolean matchArrays(JsonArray source, JsonArray target);
+    protected abstract boolean matchArrays(JsonArray source, JsonArray target, JsonContainerType containerType);
 
     protected abstract boolean matchObjects(JsonObject source, JsonObject target);
 
@@ -67,5 +74,31 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
         }
         JsonString string = (JsonString) value;
         return string.getString().equals(wildcard);
+    }
+
+    private static Optional<JsonContainerType> getContainerTypeOf(JsonValue value) {
+        switch (value.getValueType()) {
+        case ARRAY:
+            return Optional.of(JsonContainerType.LIST);
+        case OBJECT:
+            JsonObject object = (JsonObject) value;
+            for (JsonContainerType containerType : JsonContainerType.values()) {
+                if (object.containsKey(containerType.asKeyword())) {
+                    return Optional.of(containerType);
+                }
+            }
+            break;
+        default:
+            break;
+        }
+        return Optional.empty();
+    }
+
+    private static JsonValue unwrapValue(JsonValue value, JsonContainerType containerType) {
+        if (value.getValueType() == ValueType.OBJECT) {
+            JsonObject object = (JsonObject) value;
+            value = object.get(containerType.asKeyword());
+        }
+        return value;
     }
 }

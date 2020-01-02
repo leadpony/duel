@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,24 +64,36 @@ final class Message {
         return format("JsonValueIsReplaced", expected, actual);
     }
 
-    public static String thatArraySizeDoesNotMatch(int expectedSize, int actualSize) {
-        return format("ArraySizeDoesNotMatch", expectedSize, actualSize);
+    public static String thatArrayIsLongerThanExpected(int expectedSize, int actualSize) {
+        return format("ArrayIsLongerThanExpected", expectedSize, actualSize);
     }
 
-    public static String thatRedundantItemExists(int index) {
-        return format("RedundantItemExists", index);
+    public static String thatArrayIsShorterThanExpected(int expectedSize, int actualSize) {
+        return format("ArrayIsShorterThanExpected", expectedSize, actualSize);
     }
 
-    public static String thatRequiredItemIsMissing(int index) {
-        return format("RequiredItemIsMissing", index);
+    public static String thatExpectedListItemIsMissing(JsonValue value, int index) {
+        return format("ExpectedListItemIsMissing", index);
     }
 
-    public static String thatRedundantPropertyExists(String propertyName) {
-        return format("RedundantPropertyExists", propertyName);
+    public static String thatUnexpectedListItemIsFound(JsonValue value, int index) {
+        return format("UnexpectedListItemIsFound", index);
     }
 
-    public static String thatRequiredPropertyIsMissing(String propertyName) {
-        return format("RequiredPropertyIsMissing", propertyName);
+    public static String thatExpectedSetItemIsMissing(JsonValue value) {
+        return format("ExpectedSetItemIsMissing", value);
+    }
+
+    public static String thatUnexpectedSetItemIsFound(JsonValue value) {
+        return format("UnexpectedSetItemIsFound", value);
+    }
+
+    public static String thatExpectedPropertyIsMissing(String propertyName) {
+        return format("ExpectedPropertyIsMissing", propertyName);
+    }
+
+    public static String thatUnexpectedPropertyIsFound(String propertyName) {
+        return format("UnexpectedPropertyIsFound", propertyName);
     }
 
     private static String nameOf(Enum<?> enumerator) {

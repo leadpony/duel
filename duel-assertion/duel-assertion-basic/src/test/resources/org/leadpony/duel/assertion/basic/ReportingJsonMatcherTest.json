@@ -70,6 +70,7 @@
         ]
     },
     {
+        "title": "simple array",
         "expected": [1, 2, 3, 4, 5],
         "tests": [
             {
@@ -81,17 +82,23 @@
                 "actual": ["a", 1, 2, "b", 3, 4, 5, "c"],
                 "problems": [
                     {
-                        "type": "ITEM_ADDED",
+                        "type": "ARRAY_TOO_LONG",
+                        "path": "",
+                        "expected": 5,
+                        "actual": 8
+                    },
+                    {
+                        "type": "LIST_ITEM_ADDED",
                         "path": "/0",
                         "value": "a"
                     },
                     {
-                        "type": "ITEM_ADDED",
+                        "type": "LIST_ITEM_ADDED",
                         "path": "/3",
                         "value": "b"
                     },
                     {
-                        "type": "ITEM_ADDED",
+                        "type": "LIST_ITEM_ADDED",
                         "path": "/7",
                         "value": "c"
                     }
@@ -102,17 +109,23 @@
                 "actual": [2, 4],
                 "problems": [
                     {
-                        "type": "ITEM_REMOVED",
+                        "type": "ARRAY_TOO_SHORT",
+                        "path": "",
+                        "expected": 5,
+                        "actual": 2
+                    },
+                    {
+                        "type": "LIST_ITEM_REMOVED",
                         "path": "/0",
                         "value": 1
                     },
                     {
-                        "type": "ITEM_REMOVED",
+                        "type": "LIST_ITEM_REMOVED",
                         "path": "/1",
                         "value": 3
                     },
                     {
-                        "type": "ITEM_REMOVED",
+                        "type": "LIST_ITEM_REMOVED",
                         "path": "/2",
                         "value": 5
                     }
@@ -139,6 +152,275 @@
                         "path": "/4",
                         "expected": 5,
                         "actual": 105
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "object array",
+        "expected": [
+            {
+                "id": 1,
+                "name": "Mercury"
+            },
+            {
+                "id": 2,
+                "name": "Venus"
+            },
+            {
+                "id": 3,
+                "name": "Earth"
+            },
+            {
+                "id": 4,
+                "name": "Mars"
+            },
+            {
+                "id": 5,
+                "name": "Jupiter"
+            }
+        ],
+        "tests": [
+            {
+                "title": "same object array",
+                "actual": [
+                    {
+                        "id": 1,
+                        "name": "Mercury"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Venus"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Earth"
+                    },
+                    {
+                        "id": 4,
+                        "name": "Mars"
+                    },
+                    {
+                        "id": 5,
+                        "name": "Jupiter"
+                    }
+                ]
+            },
+            {
+                "title": "object added",
+                "actual": [
+                    {
+                        "id": 1,
+                        "name": "Mercury"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Venus"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Earth"
+                    },
+                    {
+                        "id": 101,
+                        "name": "Moon"
+                    },
+                    {
+                        "id": 4,
+                        "name": "Mars"
+                    },
+                    {
+                        "id": 5,
+                        "name": "Jupiter"
+                    }
+                ],
+                "problems": [
+                    {
+                        "type": "ARRAY_TOO_LONG",
+                        "path": "",
+                        "expected": 5,
+                        "actual": 6
+                    },
+                    {
+                        "type": "LIST_ITEM_ADDED",
+                        "path": "/3",
+                        "value": {
+                            "id": 101,
+                            "name": "Moon"
+                        }
+                    }
+                ]
+            },
+            {
+                "title": "object removed",
+                "actual": [
+                    {
+                        "id": 2,
+                        "name": "Venus"
+                    },
+                    {
+                        "id": 4,
+                        "name": "Mars"
+                    }
+                ],
+                "problems": [
+                    {
+                        "type": "ARRAY_TOO_SHORT",
+                        "path": "",
+                        "expected": 5,
+                        "actual": 2
+                    },
+                    {
+                        "type": "LIST_ITEM_REMOVED",
+                        "path": "/0",
+                        "value": {
+                            "id": 1,
+                            "name": "Mercury"
+                        }
+                    },
+                    {
+                        "type": "LIST_ITEM_REMOVED",
+                        "path": "/1",
+                        "value": {
+                            "id": 3,
+                            "name": "Earth"
+                        }
+                    },
+                    {
+                        "type": "LIST_ITEM_REMOVED",
+                        "path": "/2",
+                        "value": {
+                            "id": 5,
+                            "name": "Jupiter"
+                        }
+                    }
+                ]
+            },
+            {
+                "title": "object replaced",
+                "actual": [
+                    {
+                        "id": 1,
+                        "name": "Mercury"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Venus"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Moon"
+                    },
+                    {
+                        "id": 4,
+                        "name": "Mars"
+                    },
+                    {
+                        "id": 5,
+                        "name": "Jupiter"
+                    }
+                ],
+                "problems": [
+                    {
+                        "type": "REPLACED",
+                        "path": "/2/name",
+                        "expected": "Earth",
+                        "actual": "Moon"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "list container",
+        "expected": {
+            "@list": [1, 2, 3, 4, 5]
+        },
+        "tests": [
+            {
+                "title": "ordered list",
+                "actual": [1, 2, 3, 4, 5]
+            },
+            {
+                "title": "reversed list",
+                "actual": [5, 4, 3, 2, 1],
+                "problems": [
+                    {
+                        "type": "REPLACED",
+                        "path": "/0",
+                        "expected": 1,
+                        "actual": 5
+                    },
+                    {
+                        "type": "REPLACED",
+                        "path": "/1",
+                        "expected": 2,
+                        "actual": 4
+                    },
+                    {
+                        "type": "REPLACED",
+                        "path": "/3",
+                        "expected": 4,
+                        "actual": 2
+                    },
+                    {
+                        "type": "REPLACED",
+                        "path": "/4",
+                        "expected": 5,
+                        "actual": 1
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "set container",
+        "expected": {
+            "@set": [1, 2, 3, 4, 5]
+        },
+        "tests": [
+            {
+                "title": "ordered set",
+                "actual": [1, 2, 3, 4, 5]
+            },
+            {
+                "title": "reversed set",
+                "actual": [5, 4, 3, 2, 1]
+            },
+            {
+                "title": "replaced",
+                "actual": ["a", 4, "b", 2, "c"],
+                "problems": [
+                    {
+                        "type": "SET_ITEM_ADDED",
+                        "path": "/0",
+                        "value": "a"
+                    },
+                    {
+                        "type": "SET_ITEM_ADDED",
+                        "path": "/2",
+                        "value": "b"
+                    },
+                    {
+                        "type": "SET_ITEM_ADDED",
+                        "path": "/4",
+                        "value": "c"
+                    },
+                    {
+                        "type": "SET_ITEM_REMOVED",
+                        "path": "",
+                        "value": 1
+                    },
+                    {
+                        "type": "SET_ITEM_REMOVED",
+                        "path": "",
+                        "value": 3
+                    },
+                    {
+                        "type": "SET_ITEM_REMOVED",
+                        "path": "",
+                        "value": 5
                     }
                 ]
             }
