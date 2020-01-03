@@ -16,10 +16,13 @@
 
 package org.leadpony.duel.core.internal.project;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import javax.json.JsonReader;
+import javax.json.JsonReaderFactory;
 import javax.json.JsonValue;
 
 import org.leadpony.duel.core.internal.common.JsonService;
@@ -67,7 +70,11 @@ class ResponseBodyImpl implements ResponseBody {
     }
 
     private JsonValue getJsonValue() {
-        return JsonService.SINGLETON.readFrom(byteArray, guessEncoding());
+        JsonReaderFactory readerFactory = JsonService.READER_FACTORY;
+        ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
+        try (JsonReader reader = readerFactory.createReader(in, guessEncoding())) {
+            return reader.readValue();
+        }
     }
 
     private Charset guessEncoding() {

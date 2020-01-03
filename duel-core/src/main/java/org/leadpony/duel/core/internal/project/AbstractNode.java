@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.leadpony.duel.core.api.Node;
 abstract class AbstractNode implements Node {
 
     private final Path path;
-    @SuppressWarnings("unused")
     private final JsonObject json;
     @SuppressWarnings("unused")
     private final JsonObject merged;
@@ -56,7 +55,7 @@ abstract class AbstractNode implements Node {
 
     @Override
     public String getName() {
-        return getOrDefault("name", (String) null);
+        return getValueAsString("name");
     }
 
     @Override
@@ -70,17 +69,30 @@ abstract class AbstractNode implements Node {
     }
 
     @Override
+    public String getAnnotationPrefix() {
+        return getValueAsString("annotationPrefix");
+    }
+
+    @Override
     public Object get(Parameter parameter) {
         requireNonNull(parameter, "parameter must not be null.");
-        String key = getParameterKey(parameter);
-        Object defaultValue = parameter.defaultValue();
-        Class<?> valueType = parameter.valueType();
-        if (valueType == String.class) {
-            return getOrDefault(key, (String) defaultValue);
-        } else if (valueType == Integer.class) {
-            return getOrDefault(key, (Integer) defaultValue);
+        JsonValue value = getValue(parameter.key());
+        switch (value.getValueType()) {
+        case STRING:
+            JsonString string = (JsonString) value;
+            return string.getString();
+        case NUMBER:
+            JsonNumber number = (JsonNumber) value;
+            return number.intValue();
+        case TRUE:
+            return Boolean.TRUE;
+        case FALSE:
+            return Boolean.FALSE;
+        case NULL:
+            return null;
+        default:
+            throw new IllegalArgumentException(parameter.name());
         }
-        throw new IllegalArgumentException(parameter.name());
     }
 
     @Override
@@ -109,55 +121,18 @@ abstract class AbstractNode implements Node {
     }
 
     @Override
+    public final JsonObject getOriginalConfigurationAsJson() {
+        return json;
+    }
+
+    @Override
+    public final JsonObject getEffectiveConfigurarionAsJson() {
+        return expanded;
+    }
+
+    @Override
     public String toString() {
         return getName();
-    }
-
-    private static String getParameterKey(Parameter parameter) {
-        switch (parameter) {
-        case SCHEME:
-            return "scheme";
-        case HOST:
-            return "host";
-        case PORT:
-            return "port";
-        case BASE_PATH:
-            return "basePath";
-        case METHOD:
-            return "method";
-        case PATH:
-            return "path";
-        default:
-            throw new IllegalArgumentException(parameter.name());
-        }
-    }
-
-    protected String getOrDefault(String name, String defaultValue) {
-        JsonValue value = getParameter(name);
-        switch (value.getValueType()) {
-        case STRING:
-            return ((JsonString) value).getString();
-        case NULL:
-            return defaultValue;
-        default:
-            return value.toString();
-        }
-    }
-
-    protected Integer getOrDefault(String name, Integer defaultValue) {
-        JsonValue value = getParameter(name);
-        switch (value.getValueType()) {
-        case NUMBER:
-            return ((JsonNumber) value).intValue();
-        case STRING:
-            try {
-                return Integer.parseInt(((JsonString) value).getString());
-            } catch (NumberFormatException e) {
-                return defaultValue;
-            }
-        default:
-            return defaultValue;
-        }
     }
 
     protected static String valueToString(JsonValue value) {
@@ -168,15 +143,27 @@ abstract class AbstractNode implements Node {
         }
     }
 
-    protected JsonValue getParameter(String name) {
-        return expanded.getOrDefault(name, JsonValue.NULL);
-    }
-
     protected JsonObject getParameterAsObject(String name) {
-        JsonValue value = getParameter(name);
+        JsonValue value = getValue(name);
         if (value.getValueType() == ValueType.OBJECT) {
             return value.asJsonObject();
         }
         return JsonValue.EMPTY_JSON_OBJECT;
+    }
+
+    protected JsonValue getValue(String name) {
+        return expanded.getOrDefault(name, JsonValue.NULL);
+    }
+
+    protected String getValueAsString(String name) {
+        JsonValue value = getValue(name);
+        if (value.getValueType() == ValueType.STRING) {
+            JsonString string = (JsonString) value;
+            return string.getString();
+        } else if (value == JsonValue.NULL) {
+            return null;
+        } else {
+            return value.toString();
+        }
     }
 }

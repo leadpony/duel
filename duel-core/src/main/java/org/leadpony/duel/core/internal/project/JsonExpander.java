@@ -40,8 +40,7 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
 
     static final String PROPERTIES_KEY = "properties";
 
-    private final JsonService jsonService = JsonService.SINGLETON;
-    private final JsonBuilderFactory builderFactory = jsonService.createBuilderFactory();
+    private final JsonBuilderFactory builderFactory = JsonService.BUILDER_FACTORY;
 
     /**
      * Expands all the properties in the specified JSON object.

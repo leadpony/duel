@@ -31,8 +31,13 @@ import javax.json.JsonValue;
 class ReportingJsonMatcher extends AbstractJsonMatcher {
 
     private final JsonPointerBuilder pointerBuilder = new JsonPointerBuilder();
-    private final SimpleJsonMatcher simpleMatcher = new SimpleJsonMatcher();
+    private final SimpleJsonMatcher simpleMatcher;
     private List<JsonProblem> problems;
+
+    ReportingJsonMatcher(String annotationPrefix) {
+        super(annotationPrefix);
+        this.simpleMatcher = new SimpleJsonMatcher(annotationPrefix);
+    }
 
     public List<JsonProblem> getProblems() {
         assert problems != null;

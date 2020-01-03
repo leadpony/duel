@@ -27,6 +27,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.internal.common.JsonService;
 
@@ -36,16 +37,15 @@ import org.leadpony.duel.core.internal.common.JsonService;
  */
 class ValueExpander {
 
-    static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^{}]+)\\}");
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^{}]+)\\}");
+
+    private final JsonProvider jsonProvider = JsonService.PROVIDER;
+    private final JsonBuilderFactory builderFactory = JsonService.BUILDER_FACTORY;
 
     private final Function<String, String> finder;
-    private final JsonService jsonService;
-    private final JsonBuilderFactory builderFactory;
 
     ValueExpander(Function<String, String> finder) {
         this.finder = finder;
-        this.jsonService = JsonService.SINGLETON;
-        this.builderFactory = jsonService.createBuilderFactory();
     }
 
     JsonValue expand(JsonValue value) {
@@ -98,6 +98,6 @@ class ValueExpander {
         if (newString == oldString) {
             return value;
         }
-        return jsonService.createValue(newString);
+        return jsonProvider.createValue(newString);
     }
 }

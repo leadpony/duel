@@ -25,11 +25,20 @@ import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
 /**
+ * A skeletal implementation of {@link JsonMatcher}.
+ *
  * @author leadpony
  */
 abstract class AbstractJsonMatcher implements JsonMatcher {
 
-    private final String wildcard = "@*";
+    private static final Optional<JsonContainerType> DEFAULT_ARRAY_CONTAINER_TYPE
+        = Optional.of(JsonContainerType.LIST);
+
+    private final String annotationPrefix;
+
+    protected AbstractJsonMatcher(String annotationPrefix) {
+        this.annotationPrefix = annotationPrefix;
+    }
 
     @Override
     public boolean match(JsonValue source, JsonValue target) {
@@ -68,23 +77,37 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
 
     protected abstract boolean matchObjects(JsonObject source, JsonObject target);
 
+    private boolean isAnnotation(String value) {
+        return value.startsWith(annotationPrefix);
+    }
+
+    private String extractAnnotation(String value) {
+        return value.substring(annotationPrefix.length());
+    }
+
     private boolean isWildcard(JsonValue value) {
         if (value.getValueType() != ValueType.STRING) {
             return false;
         }
-        JsonString string = (JsonString) value;
-        return string.getString().equals(wildcard);
+        String string = ((JsonString) value).getString();
+        if (!isAnnotation(string)) {
+            return false;
+        }
+        return extractAnnotation(string).equals("any");
     }
 
     private static Optional<JsonContainerType> getContainerTypeOf(JsonValue value) {
         switch (value.getValueType()) {
         case ARRAY:
-            return Optional.of(JsonContainerType.LIST);
+            return DEFAULT_ARRAY_CONTAINER_TYPE;
         case OBJECT:
             JsonObject object = (JsonObject) value;
-            for (JsonContainerType containerType : JsonContainerType.values()) {
-                if (object.containsKey(containerType.asKeyword())) {
-                    return Optional.of(containerType);
+            if (object.size() == 1) {
+                String keyword = object.keySet().iterator().next();
+                for (JsonContainerType containerType : JsonContainerType.values()) {
+                    if (keyword.equals(containerType.asKeyword())) {
+                        return Optional.of(containerType);
+                    }
                 }
             }
             break;

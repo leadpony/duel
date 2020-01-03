@@ -17,6 +17,7 @@
 package org.leadpony.duel.core.internal.project;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,8 +28,10 @@ import java.util.Optional;
 
 import javax.json.JsonException;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.api.Problem;
@@ -40,12 +43,17 @@ import org.leadpony.duel.core.internal.common.JsonCombiner;
 import org.leadpony.duel.core.internal.common.JsonService;
 
 /**
+ * An implementation of {@link ProjectLoader}.
+ *
  * @author leadpony
  */
 public class ProjectLoaderImpl implements ProjectLoader {
 
+    private static final String DEFAULT_PROJECT_NAME = "project.default.json";
+    private static final JsonObject DEFAULT_PROJECT = loadDefaultProject();
+
     private final Path startPath;
-    private final JsonService jsonService = JsonService.SINGLETON;
+    private final JsonProvider jsonProvider = JsonService.PROVIDER;
 
     private final List<Problem> problems = new ArrayList<>();
 
@@ -78,23 +86,25 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     private Project loadProject(Path projectPath, Path startPath) {
         JsonObject config = loadJson(projectPath);
-        JsonObject expanded = expandJson(projectPath, config);
+        JsonObject merged = mergeJson(DEFAULT_PROJECT, config);
+        JsonObject expanded = expandJson(projectPath, merged);
 
         Path dir = projectPath.getParent();
 
-        List<TestCase> testCases = loadTestCases(dir, config);
-        List<TestGroup> subgroups = loadSubgroups(dir, config);
+        List<TestCase> testCases = loadTestCases(dir, merged);
+        List<TestGroup> subgroups = loadSubgroups(dir, merged);
 
         if (problems.isEmpty()) {
-            return new ProjectImpl(dir, startPath, config, expanded, testCases, subgroups);
+            return new ProjectImpl(dir, startPath, config, merged, expanded, testCases, subgroups);
         } else {
             throw new LoadingException();
         }
     }
 
     private JsonObject loadJson(Path path) {
-        try {
-            JsonValue value = jsonService.readFrom(path);
+        try (InputStream in = Files.newInputStream(path);
+             JsonReader reader = jsonProvider.createReader(in)) {
+            JsonValue value = reader.readValue();
             if (value.getValueType() == ValueType.OBJECT) {
                 return value.asJsonObject();
             }
@@ -106,6 +116,10 @@ public class ProjectLoaderImpl implements ProjectLoader {
             addProblem(path, Message.IO_ERROR_FILE);
         }
         throw fail();
+    }
+
+    private JsonObject mergeJson(JsonObject base, JsonObject json) {
+        return JsonCombiner.MERGE.apply(base, json);
     }
 
     private JsonObject expandJson(Path path, JsonObject json) {
@@ -181,7 +195,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     private TestCase createTestCase(Path path, JsonObject base) {
         JsonObject json = loadJson(path);
-        JsonObject merged = JsonCombiner.MERGE.apply(base, json);
+        JsonObject merged = mergeJson(base, json);
         JsonObject expanded = expandJson(path, merged);
         return new TestCase(path, json, merged, expanded);
     }
@@ -189,7 +203,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
     private TestGroup createSubgroup(Path dir, JsonObject base) {
         Path path = dir.resolve(GroupNode.FILE_NAME);
         JsonObject json = loadJson(path);
-        JsonObject merged = JsonCombiner.MERGE.apply(base, json);
+        JsonObject merged = mergeJson(base, json);
         JsonObject expanded = expandJson(path, merged);
         return createTestGroup(path, json, merged, expanded);
     }
@@ -216,6 +230,13 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     private void addProblem(Problem problem) {
         this.problems.add(problem);
+    }
+
+    private static JsonObject loadDefaultProject() {
+        InputStream in = ProjectLoaderImpl.class.getResourceAsStream(DEFAULT_PROJECT_NAME);
+        try (JsonReader reader = JsonService.READER_FACTORY.createReader(in)) {
+            return reader.readObject();
+        }
     }
 
     @SuppressWarnings("serial")

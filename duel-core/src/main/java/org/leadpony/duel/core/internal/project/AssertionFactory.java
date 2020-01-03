@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@ package org.leadpony.duel.core.internal.project;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
 
-import javax.json.JsonValue;
-
+import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
 
 /**
+ * A factory for producing assertions on the Web responses.
+ *
  * @author leadpony
  */
 class AssertionFactory {
@@ -38,8 +38,8 @@ class AssertionFactory {
         this.providers = findProviders();
     }
 
-    Assertion createAssertion(Map<String, JsonValue> config) {
-        Collection<Assertion> assertions = findAssertions(config);
+    Assertion createAssertion(CaseNode node) {
+        Collection<Assertion> assertions = findAssertions(node);
         return response -> {
             for (Assertion assertion : assertions) {
                 assertion.assertOn(response);
@@ -54,10 +54,10 @@ class AssertionFactory {
         return providers;
     }
 
-    private Collection<Assertion> findAssertions(Map<String, JsonValue> config) {
+    private Collection<Assertion> findAssertions(CaseNode node) {
         List<Assertion> assertions = new ArrayList<>();
         for (AssertionProvider provider : this.providers) {
-            provider.provideAssertions(config, assertions);
+            provider.provideAssertions(node, assertions);
         }
         return assertions;
     }

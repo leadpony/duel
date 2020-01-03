@@ -30,14 +30,16 @@ import org.leadpony.duel.core.spi.ResponseBody;
 class JsonBodyAssertion extends AbstractAssertion {
 
     private final JsonValue expected;
+    private final String annotationPrefix;
 
-    JsonBodyAssertion(JsonValue expected) {
+    JsonBodyAssertion(JsonValue expected, String annotationPrefix) {
         this.expected = expected;
+        this.annotationPrefix = annotationPrefix;
     }
 
     @Override
     public void assertOn(HttpResponse<ResponseBody> response) {
-        ReportingJsonMatcher validator = new ReportingJsonMatcher();
+        ReportingJsonMatcher validator = new ReportingJsonMatcher(annotationPrefix);
         JsonValue actual = response.body().asJson();
         if (!validator.match(this.expected, actual)) {
             fail(buildErrorMessage(validator.getProblems()), expected, actual);

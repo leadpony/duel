@@ -35,7 +35,7 @@ public class ReportingJsonMatcherTest {
     @JsonSource("ReportingJsonMatcherTest.json")
     public void validateShouldFindProblemsAsExpected(String title,
             JsonValue expected, JsonValue actual, List<JsonObject> problems) {
-        ReportingJsonMatcher matcher = new ReportingJsonMatcher();
+        ReportingJsonMatcher matcher = new ReportingJsonMatcher("@");
         boolean result = matcher.match(expected, actual);
         if (result) {
             assertThat(problems).isEmpty();

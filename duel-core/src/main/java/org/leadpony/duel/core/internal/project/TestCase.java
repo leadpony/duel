@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@ class TestCase extends AbstractNode implements CaseNode {
     static final int FILE_SUFFIX_LENGTH = FILE_SUFFIX.length();
 
     private final JsonObject request;
-    private final JsonObject response;
 
     TestCase(Path path,
             JsonObject json,
@@ -69,7 +68,6 @@ class TestCase extends AbstractNode implements CaseNode {
             JsonObject expanded) {
         super(path, json, merged, expanded);
         this.request = getParameterAsObject("request");
-        this.response = getParameterAsObject("response");
     }
 
     /* As a TestNode */
@@ -167,8 +165,7 @@ class TestCase extends AbstractNode implements CaseNode {
 
         TestCaseExecution(ExecutionContext context) {
             this.context = context;
-            this.assertion = context.getAssertionFactory()
-                    .createAssertion(response);
+            this.assertion = context.getAssertionFactory().createAssertion(TestCase.this);
         }
 
         @Override

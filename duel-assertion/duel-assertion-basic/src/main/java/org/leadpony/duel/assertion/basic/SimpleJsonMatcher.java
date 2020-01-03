@@ -27,6 +27,10 @@ import javax.json.JsonValue;
  */
 final class SimpleJsonMatcher extends AbstractJsonMatcher {
 
+    SimpleJsonMatcher(String annotationPrefix) {
+        super(annotationPrefix);
+    }
+
     @Override
     protected boolean matchArrays(JsonArray source, JsonArray target, JsonContainerType containerType) {
         assert containerType != null;

@@ -17,12 +17,18 @@
 package org.leadpony.duel.assertion.basic;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.json.JsonStructure;
 import javax.json.JsonValue;
+import javax.json.JsonWriterFactory;
 import javax.json.JsonValue.ValueType;
+import javax.json.JsonWriter;
+import javax.json.stream.JsonGenerator;
 
 /**
  * Predefined messages.
@@ -34,7 +40,19 @@ final class Message {
     private static final String BUNDLE_BASE_NAME =
             Message.class.getPackage().getName() + ".messages";
 
+    private static final JsonWriterFactory JSON_WRITER_FACTORY = createJsonWriterFactory();
+    private static final int QUOTE_MAX_LINES = 10;
+    private static final String QUOTE_INDENT = "    ";
+
     private Message() {
+    }
+
+    public static String byKey(String key) {
+        return getBundle().getString(key);
+    }
+
+    public static String byKey(Enum<?> enumerator) {
+        return byKey(enumerator.name());
     }
 
     public static String thatStatusCodeDoesNotMuch(int expected, int actual) {
@@ -56,7 +74,7 @@ final class Message {
     /* Messages for JSON problem */
 
     public static String thatJsonValueTypeDoesNotMatch(ValueType expected, ValueType actual) {
-        return format("JsonValueTypeDoesNotMatch", nameOf(expected), nameOf(actual));
+        return format("JsonValueTypeDoesNotMatch", byKey(expected), byKey(actual));
     }
 
     public static String thatJsonValueIsReplaced(JsonValue expected, JsonValue actual) {
@@ -72,20 +90,20 @@ final class Message {
         return format("ArrayIsShorterThanExpected", expectedSize, actualSize);
     }
 
-    public static String thatExpectedListItemIsMissing(JsonValue value, int index) {
-        return format("ExpectedListItemIsMissing", index);
+    public static String thatExpectedItemIsMissingInList(JsonValue value) {
+        return format("ExpectedItemIsMissingInList", renderJson(value));
     }
 
-    public static String thatUnexpectedListItemIsFound(JsonValue value, int index) {
-        return format("UnexpectedListItemIsFound", index);
+    public static String thatUnexpectedItemIsFoundInList(JsonValue value) {
+        return format("UnexpectedItemIsFoundInList", renderJson(value));
     }
 
-    public static String thatExpectedSetItemIsMissing(JsonValue value) {
-        return format("ExpectedSetItemIsMissing", value);
+    public static String thatExpectedItemIsMissingInSet(JsonValue value) {
+        return format("ExpectedItemIsMissingInSet", renderJson(value));
     }
 
-    public static String thatUnexpectedSetItemIsFound(JsonValue value) {
-        return format("UnexpectedSetItemIsFound", value);
+    public static String thatUnexpectedItemIsFoundInSet(JsonValue value) {
+        return format("UnexpectedItemIsFoundInSet", renderJson(value));
     }
 
     public static String thatExpectedPropertyIsMissing(String propertyName) {
@@ -96,18 +114,31 @@ final class Message {
         return format("UnexpectedPropertyIsFound", propertyName);
     }
 
-    private static String nameOf(Enum<?> enumerator) {
-        return enumerator.name().toLowerCase();
-    }
-
     private static String format(String key, Object... arguments) {
-        String pattern = getBundle().getString(key);
-        return MessageFormat.format(pattern, arguments);
+        return MessageFormat.format(byKey(key), arguments);
     }
 
     private static ResourceBundle getBundle() {
         return ResourceBundle.getBundle(BUNDLE_BASE_NAME,
                 Locale.getDefault(),
                 Message.class.getClassLoader());
+    }
+
+    private static String renderJson(JsonValue value) {
+        if (value instanceof JsonStructure) {
+            LimitedStringWriter stringWriter = new LimitedStringWriter(QUOTE_MAX_LINES, QUOTE_INDENT);
+            try (JsonWriter writer = JSON_WRITER_FACTORY.createWriter(stringWriter)) {
+                writer.write((JsonStructure) value);
+            }
+            return "\n" + stringWriter.toString();
+        } else {
+            return value.toString();
+        }
+    }
+
+    private static JsonWriterFactory createJsonWriterFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(JsonGenerator.PRETTY_PRINTING, Boolean.TRUE);
+        return JsonProviderCache.get().createWriterFactory(config);
     }
 }

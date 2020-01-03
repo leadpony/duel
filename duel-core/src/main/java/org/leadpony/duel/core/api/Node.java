@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package org.leadpony.duel.core.api;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Map;
+
+import javax.json.JsonObject;
 
 /**
  * @author leadpony
@@ -47,6 +49,13 @@ public interface Node {
     Path getPath();
 
     /**
+     * Returns the prefix string for annotations.
+     *
+     * @return the prefix string.
+     */
+    String getAnnotationPrefix();
+
+    /**
      * Returns the value of the specified parameter.
      *
      * @param parameter the parameter to retrieve.
@@ -63,4 +72,18 @@ public interface Node {
      * @return the immutable map containing all of the properties.
      */
     Map<String, String> getProperties();
+
+    /**
+     * Returns the original configuration as a JSON object.
+     *
+     * @return the JSON object representing the original configuration.
+     */
+    JsonObject getOriginalConfigurationAsJson();
+
+    /**
+     * Returns the effective configuration as a JSON object.
+     *
+     * @return the JSON object representing the effective configuration.
+     */
+    JsonObject getEffectiveConfigurarionAsJson();
 }

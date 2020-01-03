@@ -24,6 +24,7 @@ import java.util.List;
 import javax.json.JsonObject;
 
 import org.leadpony.duel.core.api.GroupExecution;
+import org.leadpony.duel.core.api.Parameter;
 import org.leadpony.duel.core.api.Project;
 
 /**
@@ -31,19 +32,18 @@ import org.leadpony.duel.core.api.Project;
  */
 class ProjectImpl extends TestGroup implements Project {
 
-    private static final int DEFAULT_VERSION = 1;
-
     @SuppressWarnings("unused")
     private final Path startPath;
 
     ProjectImpl(Path dir,
             Path startPath,
             JsonObject json,
+            JsonObject merged,
             JsonObject expanded,
             List<TestCase> testCases,
             List<TestGroup> subgroups
             ) {
-        super(dir, json, json, expanded, testCases, subgroups);
+        super(dir, json, merged, expanded, testCases, subgroups);
         this.startPath = startPath;
     }
 
@@ -51,7 +51,7 @@ class ProjectImpl extends TestGroup implements Project {
 
     @Override
     public int getVersion() {
-        return getOrDefault("version", DEFAULT_VERSION);
+        return (int) get(Parameter.VERSION);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.leadpony.duel.assertion.basic;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.json.JsonArray;
@@ -27,10 +26,13 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
+import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
 
 /**
+ * A provider which provides basic assertions.
+ *
  * @author leadpony
  */
 public class BasicAssertionProvider implements AssertionProvider {
@@ -39,33 +41,40 @@ public class BasicAssertionProvider implements AssertionProvider {
     }
 
     @Override
-    public void provideAssertions(Map<String, JsonValue> config, Collection<Assertion> assertions) {
-
-        if (config.containsKey("status")) {
-            addStatusAssertion(config.get("status"), assertions);
-        }
-
-        if (config.containsKey("header")) {
-            JsonValue value = config.get("header");
-            if (value.getValueType() == ValueType.OBJECT) {
-                addHeaderFieldAssertions(value.asJsonObject(), assertions);
+    public void provideAssertions(CaseNode node, Collection<Assertion> assertions) {
+        JsonObject config = node.getEffectiveConfigurarionAsJson();
+        if (config.containsKey("response")) {
+            JsonValue response = config.get("response");
+            if (response.getValueType() == ValueType.OBJECT) {
+                addBasicAssertions(node, response.asJsonObject(), assertions);
             }
         }
+    }
 
-        if (config.containsKey("required")) {
-            JsonValue value = config.get("required");
-            if (value.getValueType() == ValueType.ARRAY) {
-                addRequiredHeaderFieldAssertion(value.asJsonArray(), assertions);
-            }
-        }
-
-        if (config.containsKey("body")) {
-            JsonValue value = config.get("body");
-            if (value.getValueType() == ValueType.OBJECT) {
-                JsonObject object = value.asJsonObject();
-                if (object.containsKey("data")) {
-                    addJsonBodyAssertion(object.get("data"), assertions);
+    private void addBasicAssertions(CaseNode node, JsonObject response, Collection<Assertion> assertions) {
+        for (String key : response.keySet()) {
+            JsonValue value = response.get(key);
+            switch (key) {
+            case "status":
+                addStatusAssertion(value, assertions);
+                break;
+            case "header":
+                if (value.getValueType() == ValueType.OBJECT) {
+                    addHeaderFieldAssertions(value.asJsonObject(), assertions);
                 }
+                break;
+            case "required":
+                if (value.getValueType() == ValueType.ARRAY) {
+                    addRequiredHeaderFieldAssertion(value.asJsonArray(), assertions);
+                }
+                break;
+            case "body":
+                if (value.getValueType() == ValueType.OBJECT) {
+                    addJsonBodyAssertions(node, value.asJsonObject(), assertions);
+                }
+                break;
+            default:
+                break;
             }
         }
     }
@@ -105,7 +114,19 @@ public class BasicAssertionProvider implements AssertionProvider {
         assertions.add(new RequiredHeaderAssertion(names));
     }
 
-    private void addJsonBodyAssertion(JsonValue config, Collection<Assertion> assertions) {
-        assertions.add(new JsonBodyAssertion(config));
+    private void addJsonBodyAssertions(CaseNode node, JsonObject body, Collection<Assertion> assertions) {
+        for (var entry : body.entrySet()) {
+            switch (entry.getKey()) {
+            case "data":
+                addJsonDataAssertion(node, entry.getValue(), assertions);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    private void addJsonDataAssertion(CaseNode node, JsonValue config, Collection<Assertion> assertions) {
+        assertions.add(new JsonBodyAssertion(config, node.getAnnotationPrefix()));
     }
 }

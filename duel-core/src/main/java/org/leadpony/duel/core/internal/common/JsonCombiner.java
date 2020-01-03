@@ -32,7 +32,7 @@ import javax.json.JsonValue.ValueType;
 public enum JsonCombiner implements BiFunction<JsonValue, JsonValue, JsonValue> {
     MERGE() {
 
-        final JsonBuilderFactory builderFactory = JsonService.SINGLETON.createBuilderFactory();
+        final JsonBuilderFactory builderFactory = JsonService.BUILDER_FACTORY;
 
         @Override
         public JsonValue apply(JsonValue base, JsonValue value) {

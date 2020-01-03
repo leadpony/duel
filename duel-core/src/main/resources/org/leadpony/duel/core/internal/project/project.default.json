@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    
+    "scheme": "http",
+    "host": "localhost",
+    "port": null,
+    "method": "GET",
+    "basePath": "",
+    "path": "",
+
+    "annotationPrefix": "@"
+}

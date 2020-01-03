@@ -16,7 +16,6 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -31,6 +30,8 @@ import org.leadpony.duel.assertion.basic.JsonProblem.ProblemType;
  * @author leadpony
  */
 class JsonProblems {
+
+    private static final JsonBuilderFactory JSON_BUILDER_FACTORY = createJsonBuilderFactory();
 
     static JsonProblem typeMismatch(String pointer, ValueType expected, ValueType actual) {
         return new AbstractJsonProblem(ProblemType.TYPE_MISMATCH, pointer) {
@@ -84,7 +85,7 @@ class JsonProblems {
         return new ArrayProblem(ProblemType.LIST_ITEM_ADDED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatUnexpectedListItemIsFound(value, index);
+                return Message.thatUnexpectedItemIsFoundInList(value);
             }
         };
     }
@@ -93,7 +94,7 @@ class JsonProblems {
         return new ArrayProblem(ProblemType.LIST_ITEM_REMOVED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatExpectedListItemIsMissing(value, index);
+                return Message.thatExpectedItemIsMissingInList(value);
             }
         };
     }
@@ -102,7 +103,7 @@ class JsonProblems {
         return new ArrayProblem(ProblemType.SET_ITEM_ADDED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatUnexpectedSetItemIsFound(value);
+                return Message.thatUnexpectedItemIsFoundInSet(value);
             }
         };
     }
@@ -111,7 +112,7 @@ class JsonProblems {
         return new ArrayProblem(ProblemType.SET_ITEM_REMOVED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatExpectedSetItemIsMissing(value);
+                return Message.thatExpectedItemIsMissingInSet(value);
             }
         };
     }
@@ -134,7 +135,9 @@ class JsonProblems {
         };
     }
 
-    private static final JsonBuilderFactory JSON_BUILDER_FACTORY = Json.createBuilderFactory(null);
+    private static JsonBuilderFactory createJsonBuilderFactory() {
+        return JsonProviderCache.get().createBuilderFactory(null);
+    }
 
     private abstract static class AbstractJsonProblem implements JsonProblem {
 

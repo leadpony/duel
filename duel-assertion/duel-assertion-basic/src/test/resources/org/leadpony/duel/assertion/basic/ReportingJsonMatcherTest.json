@@ -554,7 +554,7 @@
         ]
     },
     {
-        "expected": "@*",
+        "expected": "@any",
         "tests": [
             {
                 "title": "wildcard matches string",

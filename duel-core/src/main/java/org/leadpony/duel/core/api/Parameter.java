@@ -20,36 +20,22 @@ package org.leadpony.duel.core.api;
  * @author leadpony
  */
 public enum Parameter {
-    SCHEME("http"),
-    HOST("localhost"),
-    PORT(Integer.class),
-    BASE_PATH(""),
-    METHOD("GET"),
-    PATH("");
+    VERSION("version"),
+    NAME("name"),
+    SCHEME("scheme"),
+    HOST("host"),
+    PORT("port"),
+    BASE_PATH("basePath"),
+    METHOD("method"),
+    PATH("path");
 
-    private final Class<?> valueType;
-    private final Object defaultValue;
+    private final String key;
 
-    Parameter(Object defaultValue) {
-        this.valueType = defaultValue.getClass();
-        this.defaultValue = defaultValue;
+    Parameter(String key) {
+        this.key = key;
     }
 
-    Parameter(Class<?> valueType) {
-        this.valueType = valueType;
-        this.defaultValue = null;
-    }
-
-    public Class<?> valueType() {
-        return valueType;
-    }
-
-    /**
-     * Returns the default value of this parameter.
-     *
-     * @return the default value of this parameter.
-     */
-    public Object defaultValue() {
-        return defaultValue;
+    public String key() {
+        return key;
     }
 }

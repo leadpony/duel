@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,16 @@
 package org.leadpony.duel.core.spi;
 
 import java.util.Collection;
-import java.util.Map;
 
-import javax.json.JsonValue;
+import org.leadpony.duel.core.api.CaseNode;
 
 /**
  * A provider of {@link Assertion} instances.
+ * <p>
+ * Note that this provider is instantiated once at startup and the instance is
+ * shared between all test cases. In most cases the provider should be implemented
+ * as a stateless object.
+ * </p>
  *
  * @author leadpony
  */
@@ -31,10 +35,9 @@ public interface AssertionProvider {
     /**
      * Provides assertions configured by the specified JSON object.
      *
-     * @param config     the configuration for the assertions, never be
-     *                   {@code null}.
+     * @param node       the test node which will be tested, never be {@code null}.
      * @param assertions the collection to which the assertions will be added, never
      *                   be {@code null}.
      */
-    void provideAssertions(Map<String, JsonValue> config, Collection<Assertion> assertions);
+    void provideAssertions(CaseNode node, Collection<Assertion> assertions);
 }
