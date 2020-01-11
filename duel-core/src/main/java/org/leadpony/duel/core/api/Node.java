@@ -46,7 +46,7 @@ public interface Node {
      *
      * @return the path to this node.
      */
-    Path getPath();
+    Path getNodePath();
 
     /**
      * Returns the prefix string for annotations.

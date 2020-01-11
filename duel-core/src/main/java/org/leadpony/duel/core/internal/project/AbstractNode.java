@@ -64,7 +64,7 @@ abstract class AbstractNode implements Node {
     }
 
     @Override
-    public Path getPath() {
+    public Path getNodePath() {
         return path;
     }
 

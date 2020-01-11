@@ -78,7 +78,7 @@ class TestCase extends AbstractNode implements CaseNode {
         if (name != null) {
             return name;
         }
-        String filename = getPath().getFileName().toString();
+        String filename = getNodePath().getFileName().toString();
         return filename.substring(0, filename.length() - FILE_SUFFIX_LENGTH);
     }
 
