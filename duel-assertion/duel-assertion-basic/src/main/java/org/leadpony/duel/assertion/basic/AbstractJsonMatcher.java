@@ -16,8 +16,6 @@
 
 package org.leadpony.duel.assertion.basic;
 
-import java.util.Optional;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonString;
@@ -31,9 +29,6 @@ import javax.json.JsonValue.ValueType;
  */
 abstract class AbstractJsonMatcher implements JsonMatcher {
 
-    private static final Optional<JsonContainerType> DEFAULT_ARRAY_CONTAINER_TYPE
-        = Optional.of(JsonContainerType.LIST);
-
     private final String annotationPrefix;
 
     protected AbstractJsonMatcher(String annotationPrefix) {
@@ -42,9 +37,9 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
 
     @Override
     public boolean match(JsonValue source, JsonValue target) {
-        Optional<JsonContainerType> containerType = getContainerTypeOf(source);
-        if (containerType.isPresent()) {
-            source = unwrapValue(source, containerType.get());
+        JsonContainerType containerType = getContainerTypeOf(source);
+        if (containerType != JsonContainerType.NONE) {
+            source = unwrapValue(source, containerType);
         }
 
         if (source.getValueType() == target.getValueType()) {
@@ -54,10 +49,10 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
         }
     }
 
-    protected boolean matchValuesOfSameType(JsonValue source, JsonValue target, Optional<JsonContainerType> containerType) {
+    protected boolean matchValuesOfSameType(JsonValue source, JsonValue target, JsonContainerType containerType) {
         switch (source.getValueType()) {
         case ARRAY:
-            return matchArrays(source.asJsonArray(), target.asJsonArray(), containerType.get());
+            return matchArrays(source.asJsonArray(), target.asJsonArray(), containerType);
         case OBJECT:
             return matchObjects(source.asJsonObject(), target.asJsonObject());
         default:
@@ -81,8 +76,10 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
         return value.startsWith(annotationPrefix);
     }
 
-    private String extractAnnotation(String value) {
-        return value.substring(annotationPrefix.length());
+    private JsonAnnotation parseAnnotation(String value) {
+        assert isAnnotation(value);
+        return JsonAnnotation.valueOf(
+                value.substring(annotationPrefix.length()).toUpperCase());
     }
 
     private boolean isWildcard(JsonValue value) {
@@ -93,34 +90,44 @@ abstract class AbstractJsonMatcher implements JsonMatcher {
         if (!isAnnotation(string)) {
             return false;
         }
-        return extractAnnotation(string).equals("any");
+        try {
+            return parseAnnotation(string) == JsonAnnotation.ANY;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
-    private static Optional<JsonContainerType> getContainerTypeOf(JsonValue value) {
+    private JsonContainerType getContainerTypeOf(JsonValue value) {
         switch (value.getValueType()) {
         case ARRAY:
-            return DEFAULT_ARRAY_CONTAINER_TYPE;
+            return JsonContainerType.LIST;
         case OBJECT:
-            JsonObject object = (JsonObject) value;
+            JsonObject object = value.asJsonObject();
             if (object.size() == 1) {
                 String keyword = object.keySet().iterator().next();
-                for (JsonContainerType containerType : JsonContainerType.values()) {
-                    if (keyword.equals(containerType.asKeyword())) {
-                        return Optional.of(containerType);
-                    }
-                }
+                return getContainerTypeOf(keyword);
             }
-            break;
+            return JsonContainerType.NONE;
         default:
-            break;
+            return JsonContainerType.NONE;
         }
-        return Optional.empty();
     }
 
-    private static JsonValue unwrapValue(JsonValue value, JsonContainerType containerType) {
+    private JsonContainerType getContainerTypeOf(String keyword) {
+        if (isAnnotation(keyword)) {
+            try {
+                return JsonContainerType.of(parseAnnotation(keyword));
+            } catch (IllegalArgumentException e) {
+            }
+        }
+        return JsonContainerType.NONE;
+    }
+
+    private JsonValue unwrapValue(JsonValue value, JsonContainerType containerType) {
         if (value.getValueType() == ValueType.OBJECT) {
-            JsonObject object = (JsonObject) value;
-            value = object.get(containerType.asKeyword());
+            JsonObject object = value.asJsonObject();
+            String keyword = object.keySet().iterator().next();
+            value = object.get(keyword);
         }
         return value;
     }
