@@ -17,18 +17,12 @@
 package org.leadpony.duel.assertion.basic;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.json.JsonStructure;
 import javax.json.JsonValue;
-import javax.json.JsonWriterFactory;
 import javax.json.JsonValue.ValueType;
-import javax.json.JsonWriter;
-import javax.json.stream.JsonGenerator;
 
 /**
  * Predefined messages.
@@ -39,10 +33,6 @@ final class Message {
 
     private static final String BUNDLE_BASE_NAME =
             Message.class.getPackage().getName() + ".messages";
-
-    private static final JsonWriterFactory JSON_WRITER_FACTORY = createJsonWriterFactory();
-    private static final int QUOTE_MAX_LINES = 10;
-    private static final String QUOTE_INDENT = "    ";
 
     private Message() {
     }
@@ -90,20 +80,20 @@ final class Message {
         return format("ArrayIsShorterThanExpected", expectedSize, actualSize);
     }
 
-    public static String thatExpectedItemIsMissingInList(JsonValue value) {
-        return format("ExpectedItemIsMissingInList", renderJson(value));
+    public static String thatExpectedItemIsMissingInList(String json) {
+        return format("ExpectedItemIsMissingInList", json);
     }
 
-    public static String thatUnexpectedItemIsFoundInList(JsonValue value) {
-        return format("UnexpectedItemIsFoundInList", renderJson(value));
+    public static String thatUnexpectedItemIsFoundInList(String json) {
+        return format("UnexpectedItemIsFoundInList", json);
     }
 
-    public static String thatExpectedItemIsMissingInSet(JsonValue value) {
-        return format("ExpectedItemIsMissingInSet", renderJson(value));
+    public static String thatExpectedItemIsMissingInSet(String json) {
+        return format("ExpectedItemIsMissingInSet", json);
     }
 
-    public static String thatUnexpectedItemIsFoundInSet(JsonValue value) {
-        return format("UnexpectedItemIsFoundInSet", renderJson(value));
+    public static String thatUnexpectedItemIsFoundInSet(String json) {
+        return format("UnexpectedItemIsFoundInSet", json);
     }
 
     public static String thatExpectedPropertyIsMissing(String propertyName) {
@@ -122,23 +112,5 @@ final class Message {
         return ResourceBundle.getBundle(BUNDLE_BASE_NAME,
                 Locale.getDefault(),
                 Message.class.getClassLoader());
-    }
-
-    private static String renderJson(JsonValue value) {
-        if (value instanceof JsonStructure) {
-            LimitedStringWriter stringWriter = new LimitedStringWriter(QUOTE_MAX_LINES, QUOTE_INDENT);
-            try (JsonWriter writer = JSON_WRITER_FACTORY.createWriter(stringWriter)) {
-                writer.write((JsonStructure) value);
-            }
-            return "\n" + stringWriter.toString();
-        } else {
-            return value.toString();
-        }
-    }
-
-    private static JsonWriterFactory createJsonWriterFactory() {
-        Map<String, Object> config = new HashMap<>();
-        config.put(JsonGenerator.PRETTY_PRINTING, Boolean.TRUE);
-        return JsonProviderCache.get().createWriterFactory(config);
     }
 }

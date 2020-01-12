@@ -32,11 +32,13 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
 
     private final JsonPointerBuilder pointerBuilder = new JsonPointerBuilder();
     private final SimpleJsonMatcher simpleMatcher;
+    private final JsonProblemFactory problemFactory;
     private List<JsonProblem> problems;
 
-    ReportingJsonMatcher(String annotationPrefix) {
+    ReportingJsonMatcher(String annotationPrefix, JsonProblemFactory problemFactory) {
         super(annotationPrefix);
         this.simpleMatcher = new SimpleJsonMatcher(annotationPrefix);
+        this.problemFactory = problemFactory;
     }
 
     public List<JsonProblem> getProblems() {
@@ -49,7 +51,7 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
         if (super.matchValuesOfDifferentType(source, target)) {
             return true;
         } else {
-            addProblem(JsonProblems.typeMismatch(currentPointer(),
+            addProblem(problemFactory.typeMismatch(currentPointer(),
                     source.getValueType(),
                     target.getValueType()));
             return false;
@@ -61,7 +63,7 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
         if (super.matchSimpleValue(source, target)) {
             return true;
         } else {
-            addProblem(JsonProblems.replaced(currentPointer(), source, target));
+            addProblem(problemFactory.replaced(currentPointer(), source, target));
             return false;
         }
     }
@@ -99,7 +101,7 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
                 }
                 pointerBuilder.remove();
             } else {
-                addProblem(JsonProblems.propertyRemoved(currentPointer(), key));
+                addProblem(problemFactory.propertyRemoved(currentPointer(), key));
                 result = false;
             }
         }
@@ -107,7 +109,7 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
         for (String key : target.keySet()) {
             if (!source.containsKey(key)) {
                 pointerBuilder.append(key);
-                addProblem(JsonProblems.propertyAdded(currentPointer(), key));
+                addProblem(problemFactory.propertyAdded(currentPointer(), key));
                 pointerBuilder.remove();
                 result = false;
             }
@@ -118,10 +120,10 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
 
     private boolean matchArraySizes(int sourceSize, int targetSize) {
         if (sourceSize < targetSize) {
-            addProblem(JsonProblems.arrayTooLong(currentPointer(), sourceSize, targetSize));
+            addProblem(problemFactory.arrayTooLong(currentPointer(), sourceSize, targetSize));
             return false;
         } else if (sourceSize > targetSize) {
-            addProblem(JsonProblems.arrayTooShort(currentPointer(), sourceSize, targetSize));
+            addProblem(problemFactory.arrayTooShort(currentPointer(), sourceSize, targetSize));
             return false;
         }
         return true;
@@ -147,12 +149,12 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
                 j--;
             } else if (i > 0 && (j == 0 || table.getLength(i - 1, j) > table.getLength(i, j - 1))) {
                 pointerBuilder.append(j);
-                JsonProblem problem = JsonProblems.listItemRemoved(currentPointer(), source.get(--i), j);
+                JsonProblem problem = problemFactory.listItemRemoved(currentPointer(), source.get(--i), j);
                 pointerBuilder.remove();
                 dispatchers.add(() -> addProblem(problem));
             } else if (j > 0 && (i == 0 || table.getLength(i - 1, j) < table.getLength(i, j - 1))) {
                 pointerBuilder.append(--j);
-                JsonProblem problem = JsonProblems.listItemAdded(currentPointer(), target.get(j), j);
+                JsonProblem problem = problemFactory.listItemAdded(currentPointer(), target.get(j), j);
                 pointerBuilder.remove();
                 dispatchers.add(() -> addProblem(problem));
             } else { // i > 0 && j > 0
@@ -212,12 +214,12 @@ class ReportingJsonMatcher extends AbstractJsonMatcher {
         for (int i : targetRemains) {
             JsonValue value = target.get(i);
             pointerBuilder.append(i);
-            addProblem(JsonProblems.setItemAdded(currentPointer(), value));
+            addProblem(problemFactory.setItemAdded(currentPointer(), value));
             pointerBuilder.remove();
         }
 
         for (JsonValue value : sourceRemains) {
-            addProblem(JsonProblems.setItemRemoved(currentPointer(), value));
+            addProblem(problemFactory.setItemRemoved(currentPointer(), value));
         }
 
         return false;

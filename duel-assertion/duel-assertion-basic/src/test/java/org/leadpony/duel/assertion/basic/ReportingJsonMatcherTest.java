@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import java.util.stream.Collectors;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.json.spi.JsonProvider;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 
 /**
@@ -31,11 +33,18 @@ import org.junit.jupiter.params.ParameterizedTest;
  */
 public class ReportingJsonMatcherTest {
 
+    private static JsonProblemFactory problemFactory;
+
+    @BeforeAll
+    public static void setUpOnce() {
+        problemFactory = new JsonProblemFactory(JsonProvider.provider());
+    }
+
     @ParameterizedTest(name = "[{index}] {0}")
     @JsonSource("ReportingJsonMatcherTest.json")
     public void validateShouldFindProblemsAsExpected(String title,
             JsonValue expected, JsonValue actual, List<JsonObject> problems) {
-        ReportingJsonMatcher matcher = new ReportingJsonMatcher("@");
+        ReportingJsonMatcher matcher = new ReportingJsonMatcher("@", problemFactory);
         boolean result = matcher.match(expected, actual);
         if (result) {
             assertThat(problems).isEmpty();

@@ -25,19 +25,25 @@ import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
 
 /**
- * A provider which provides basic assertions.
+ * A provider of basic assertions.
  *
  * @author leadpony
  */
 public class BasicAssertionProvider implements AssertionProvider {
 
+    private JsonProvider jsonProvider;
+    private JsonProblemFactory jsonProblemFactory;
+
     public BasicAssertionProvider() {
+        this.jsonProvider = JsonProvider.provider();
+        this.jsonProblemFactory = new JsonProblemFactory(jsonProvider);
     }
 
     @Override
@@ -127,6 +133,6 @@ public class BasicAssertionProvider implements AssertionProvider {
     }
 
     private void addJsonDataAssertion(CaseNode node, JsonValue config, Collection<Assertion> assertions) {
-        assertions.add(new JsonBodyAssertion(config, node.getAnnotationPrefix()));
+        assertions.add(new JsonBodyAssertion(config, node.getAnnotationPrefix(), jsonProblemFactory));
     }
 }

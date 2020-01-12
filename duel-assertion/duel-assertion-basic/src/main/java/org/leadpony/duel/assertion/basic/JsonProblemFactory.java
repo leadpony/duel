@@ -21,6 +21,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.assertion.basic.JsonProblem.ProblemType;
 
@@ -29,11 +30,17 @@ import org.leadpony.duel.assertion.basic.JsonProblem.ProblemType;
  *
  * @author leadpony
  */
-class JsonProblems {
+class JsonProblemFactory {
 
-    private static final JsonBuilderFactory JSON_BUILDER_FACTORY = createJsonBuilderFactory();
+    private final JsonBuilderFactory jsonBuilderFactory;
+    private final JsonRenderer jsonRenderer;
 
-    static JsonProblem typeMismatch(String pointer, ValueType expected, ValueType actual) {
+    JsonProblemFactory(JsonProvider jsonProvider) {
+        this.jsonBuilderFactory = jsonProvider.createBuilderFactory(null);
+        this.jsonRenderer = JsonRenderer.omittingRenderer(jsonProvider);
+    }
+
+    JsonProblem typeMismatch(String pointer, ValueType expected, ValueType actual) {
         return new AbstractJsonProblem(ProblemType.TYPE_MISMATCH, pointer) {
             @Override
             public String getDescription() {
@@ -48,7 +55,7 @@ class JsonProblems {
         };
     }
 
-    static JsonProblem replaced(String pointer, JsonValue expected, JsonValue actual) {
+    JsonProblem replaced(String pointer, JsonValue expected, JsonValue actual) {
         return new AbstractJsonProblem(ProblemType.REPLACED, pointer) {
             @Override
             public String getDescription() {
@@ -63,7 +70,7 @@ class JsonProblems {
         };
     }
 
-    static JsonProblem arrayTooLong(String pointer, int expected, int actual) {
+    JsonProblem arrayTooLong(String pointer, int expected, int actual) {
         return new ArraySizeProblem(ProblemType.ARRAY_TOO_LONG, pointer, expected, actual) {
             @Override
             public String getDescription() {
@@ -72,7 +79,7 @@ class JsonProblems {
         };
     }
 
-    static JsonProblem arrayTooShort(String pointer, int expected, int actual) {
+    JsonProblem arrayTooShort(String pointer, int expected, int actual) {
         return new ArraySizeProblem(ProblemType.ARRAY_TOO_SHORT, pointer, expected, actual) {
             @Override
             public String getDescription() {
@@ -81,43 +88,43 @@ class JsonProblems {
         };
     }
 
-    static JsonProblem listItemAdded(String pointer, JsonValue value, int index) {
+    JsonProblem listItemAdded(String pointer, JsonValue value, int index) {
         return new ArrayProblem(ProblemType.LIST_ITEM_ADDED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatUnexpectedItemIsFoundInList(value);
+                return Message.thatUnexpectedItemIsFoundInList(renderJson(value));
             }
         };
     }
 
-    static JsonProblem listItemRemoved(String pointer, JsonValue value, int index) {
+    JsonProblem listItemRemoved(String pointer, JsonValue value, int index) {
         return new ArrayProblem(ProblemType.LIST_ITEM_REMOVED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatExpectedItemIsMissingInList(value);
+                return Message.thatExpectedItemIsMissingInList(renderJson(value));
             }
         };
     }
 
-    static JsonProblem setItemAdded(String pointer, JsonValue value) {
+    JsonProblem setItemAdded(String pointer, JsonValue value) {
         return new ArrayProblem(ProblemType.SET_ITEM_ADDED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatUnexpectedItemIsFoundInSet(value);
+                return Message.thatUnexpectedItemIsFoundInSet(renderJson(value));
             }
         };
     }
 
-    static JsonProblem setItemRemoved(String pointer, JsonValue value) {
+    JsonProblem setItemRemoved(String pointer, JsonValue value) {
         return new ArrayProblem(ProblemType.SET_ITEM_REMOVED, pointer, value) {
             @Override
             public String getDescription() {
-                return Message.thatExpectedItemIsMissingInSet(value);
+                return Message.thatExpectedItemIsMissingInSet(renderJson(value));
             }
         };
     }
 
-    static JsonProblem propertyAdded(String pointer, String propertyName) {
+    JsonProblem propertyAdded(String pointer, String propertyName) {
         return new PropertyJsonProblem(ProblemType.PROPERTY_ADDED, pointer, propertyName) {
             @Override
             public String getDescription() {
@@ -126,7 +133,7 @@ class JsonProblems {
         };
     }
 
-    static JsonProblem propertyRemoved(String pointer, String propertyName) {
+    JsonProblem propertyRemoved(String pointer, String propertyName) {
         return new PropertyJsonProblem(ProblemType.PROPERTY_REMOVED, pointer, propertyName) {
             @Override
             public String getDescription() {
@@ -135,11 +142,11 @@ class JsonProblems {
         };
     }
 
-    private static JsonBuilderFactory createJsonBuilderFactory() {
-        return JsonProviderCache.get().createBuilderFactory(null);
+    private String renderJson(JsonValue value) {
+        return this.jsonRenderer.renderJson(value);
     }
 
-    private abstract static class AbstractJsonProblem implements JsonProblem {
+    private abstract class AbstractJsonProblem implements JsonProblem {
 
         private final ProblemType type;
         private final String pointer;
@@ -161,7 +168,7 @@ class JsonProblems {
 
         @Override
         public JsonObject toJson() {
-            JsonObjectBuilder builder = JSON_BUILDER_FACTORY.createObjectBuilder();
+            JsonObjectBuilder builder = jsonBuilderFactory.createObjectBuilder();
             builder.add("type", type.name());
             builder.add("path", getPointer());
             populateJson(builder);
@@ -183,7 +190,7 @@ class JsonProblems {
         }
     }
 
-    private abstract static class ArraySizeProblem extends AbstractJsonProblem {
+    private abstract class ArraySizeProblem extends AbstractJsonProblem {
 
         private final int expected;
         private final int actual;
@@ -201,7 +208,7 @@ class JsonProblems {
         }
     }
 
-    private abstract static class ArrayProblem extends AbstractJsonProblem {
+    private abstract class ArrayProblem extends AbstractJsonProblem {
 
         private final JsonValue value;
 
@@ -216,7 +223,7 @@ class JsonProblems {
         }
     }
 
-    private abstract static class PropertyJsonProblem extends AbstractJsonProblem {
+    private abstract class PropertyJsonProblem extends AbstractJsonProblem {
 
         private final String propertyName;
 
