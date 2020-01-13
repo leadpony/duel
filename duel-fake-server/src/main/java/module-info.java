@@ -29,4 +29,7 @@ module org.leadpony.duel.fake.server {
 
     opens org.leadpony.duel.fake.server to info.picocli;
     opens org.leadpony.duel.fake.server.servlets to org.eclipse.jetty.server;
+
+    provides java.util.spi.ToolProvider
+        with org.leadpony.duel.fake.server.FakeServerToolProvider;
 }

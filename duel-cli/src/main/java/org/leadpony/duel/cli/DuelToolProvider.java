@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@
 
 package org.leadpony.duel.cli;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.io.PrintWriter;
+import java.util.spi.ToolProvider;
 
 /**
  * @author leadpony
  */
-class AbstractCommandTest {
+public class DuelToolProvider implements ToolProvider {
 
-    private DuelCommand command;
-
-    @BeforeEach
-    public void setUp() {
-        this.command = new DuelCommand();
+    @Override
+    public String name() {
+        return "Duel";
     }
 
-    int execute(String... args) {
-        return command.run(args);
+    @Override
+    public int run(PrintWriter out, PrintWriter err, String... args) {
+        return new DuelCommand(out, err).run(args);
     }
 }

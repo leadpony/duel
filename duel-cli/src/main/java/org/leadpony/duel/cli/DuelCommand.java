@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
 package org.leadpony.duel.cli;
 
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.logging.LogManager;
-import java.util.spi.ToolProvider;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -43,17 +43,27 @@ import picocli.CommandLine.Command;
                 "OS: ${os.name} ${os.version} ${os.arch}"
         }
 )
-public class DuelCommand implements ToolProvider, Callable<Integer> {
+public class DuelCommand implements Callable<Integer> {
 
     private static final String LOG_CONFIG_FILE = "/logging.properties";
     private static final String BUNDLE_BASE_NAME =
             DuelCommand.class.getPackageName() + ".messages";
 
+    private final PrintWriter out;
+    private final PrintWriter err;
     private Runnable defaultCommand;
 
-    @Override
-    public String name() {
-        return "Duel";
+    public DuelCommand() {
+        this(System.out, System.err);
+    }
+
+    public DuelCommand(PrintStream out, PrintStream err) {
+        this(new PrintWriter(out), new PrintWriter(err));
+    }
+
+    public DuelCommand(PrintWriter out, PrintWriter err) {
+        this.out = out;
+        this.err = err;
     }
 
     @Override
@@ -62,10 +72,9 @@ public class DuelCommand implements ToolProvider, Callable<Integer> {
         return 0;
     }
 
-    @Override
-    public int run(PrintWriter out, PrintWriter err, String... args) {
+    public int run(String... args) {
         configureLogging();
-        Console console = new Console(out, err);
+        Console console = new Console(this.out, this.err);
 
         CommandLine commandLine = new CommandLine(this)
                 .addSubcommand(new CommandLine.HelpCommand())
@@ -100,6 +109,6 @@ public class DuelCommand implements ToolProvider, Callable<Integer> {
      * @param args the arguments given to the application.
      */
     public static void main(String[] args) {
-        System.exit(new DuelCommand().run(System.out, System.err, args));
+        System.exit(new DuelCommand().run(args));
     }
 }

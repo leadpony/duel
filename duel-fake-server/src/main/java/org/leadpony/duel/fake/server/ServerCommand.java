@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package org.leadpony.duel.fake.server;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
-import java.util.spi.ToolProvider;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -42,27 +42,36 @@ import picocli.CommandLine.Option;
                 "OS: ${os.name} ${os.version} ${os.arch}"
         }
 )
-public class ServerCommand implements Runnable, ToolProvider {
+public class ServerCommand implements Runnable {
 
     private static final String BUNDLE_BASE_NAME =
             ServerCommand.class.getPackageName() + ".messages";
 
+    private final PrintWriter out;
+    private final PrintWriter err;
     private Runnable defaultCommand;
 
-    @Override
-    public String name() {
-        return "Fake Server";
+    public ServerCommand() {
+        this(System.out, System.err);
     }
 
-    @Override
-    public int run(PrintWriter out, PrintWriter err, String... args) {
+    public ServerCommand(PrintStream out, PrintStream err) {
+        this(new PrintWriter(out), new PrintWriter(err));
+    }
+
+    public ServerCommand(PrintWriter out, PrintWriter err) {
+        this.out = out;
+        this.err = err;
+    }
+
+    public int run(String... args) {
         CommandLine commandLine = new CommandLine(this)
                 .addSubcommand(new CommandLine.HelpCommand())
                 .addSubcommand(new Start())
                 .addSubcommand(new Stop())
                 .setResourceBundle(getResourceBundle())
-                .setOut(out)
-                .setErr(err);
+                .setOut(this.out)
+                .setErr(this.err);
 
         defaultCommand = () -> commandLine.usage(out);
 
@@ -82,7 +91,7 @@ public class ServerCommand implements Runnable, ToolProvider {
     }
 
     public static void main(String[] args) {
-        System.exit(new ServerCommand().run(System.out, System.err, args));
+        System.exit(new ServerCommand().run(args));
     }
 
     private abstract static class AbstractCommand implements Callable<Integer> {

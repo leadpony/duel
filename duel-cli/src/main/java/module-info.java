@@ -29,5 +29,5 @@ module org.leadpony.duel.cli {
     opens org.leadpony.duel.cli to info.picocli, org.junit.platform.commons;
 
     provides java.util.spi.ToolProvider
-        with org.leadpony.duel.cli.DuelCommand;
+        with org.leadpony.duel.cli.DuelToolProvider;
 }

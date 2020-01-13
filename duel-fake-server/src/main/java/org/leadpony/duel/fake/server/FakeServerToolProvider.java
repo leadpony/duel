@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.cli;
+package org.leadpony.duel.fake.server;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.io.PrintWriter;
+import java.util.spi.ToolProvider;
 
 /**
  * @author leadpony
  */
-class AbstractCommandTest {
+public class FakeServerToolProvider implements ToolProvider {
 
-    private DuelCommand command;
-
-    @BeforeEach
-    public void setUp() {
-        this.command = new DuelCommand();
+    @Override
+    public String name() {
+        return "Fake Server";
     }
 
-    int execute(String... args) {
-        return command.run(args);
+    @Override
+    public int run(PrintWriter out, PrintWriter err, String... args) {
+        return new ServerCommand(out, err).run(args);
     }
 }
