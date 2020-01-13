@@ -1,5 +1,5 @@
 @echo off
-rem Copyright 2019 the original author or authors.
+rem Copyright 2019-2020 the original author or authors.
 rem
 rem Licensed under the Apache License, Version 2.0 (the "License");
 rem you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@ rem limitations under the License.
 
 setlocal
 
-set programdir=%~dp0
+set program_dir=%~dp0
+
+pushd %program_dir%..
+set parent_dir=%CD%
+popd
 
 if not defined DUEL_HOME (
-    pushd %programdir%..
-    set DUEL_HOME=%CD%
-    popd
+    set DUEL_HOME=%parent_dir%
 )
 
 if defined JAVA_HOME (
