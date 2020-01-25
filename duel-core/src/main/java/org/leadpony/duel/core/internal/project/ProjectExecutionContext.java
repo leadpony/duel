@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,18 @@ package org.leadpony.duel.core.internal.project;
 
 import java.net.http.HttpClient;
 
-import org.leadpony.duel.core.api.Project;
+import javax.json.JsonReaderFactory;
+
+import org.leadpony.duel.core.api.ExecutionContext;
 
 /**
- * A context of test execution.
+ * A context of project execution.
  *
  * @author leadpony
  */
-interface ExecutionContext {
+interface ProjectExecutionContext extends ExecutionContext {
 
-    Project getProject();
+    JsonReaderFactory getJsonReaderFactory();
 
     HttpClient getHttpClient();
 

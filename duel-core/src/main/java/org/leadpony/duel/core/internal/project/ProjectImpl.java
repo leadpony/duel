@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ package org.leadpony.duel.core.internal.project;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 import javax.json.JsonObject;
+import javax.json.JsonReaderFactory;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.GroupExecution;
 import org.leadpony.duel.core.api.Parameter;
@@ -35,16 +38,20 @@ class ProjectImpl extends TestGroup implements Project {
     @SuppressWarnings("unused")
     private final Path startPath;
 
+    private final JsonProvider jsonProvider;
+
     ProjectImpl(Path dir,
             Path startPath,
             JsonObject json,
             JsonObject merged,
             JsonObject expanded,
             List<TestCase> testCases,
-            List<TestGroup> subgroups
+            List<TestGroup> subgroups,
+            JsonProvider jsonProvider
             ) {
         super(dir, json, merged, expanded, testCases, subgroups);
         this.startPath = startPath;
+        this.jsonProvider = jsonProvider;
     }
 
     /* As a Project */
@@ -56,26 +63,40 @@ class ProjectImpl extends TestGroup implements Project {
 
     @Override
     public GroupExecution createExecution() {
-        ExecutionContext context = new ProjectTestContext();
+        ProjectExecutionContext context = new ProjectExecutionContextImpl(this.jsonProvider);
         return createExecution(context);
     }
 
     /**
      * @author leadpony
      */
-    class ProjectTestContext implements ExecutionContext {
+    class ProjectExecutionContextImpl implements ProjectExecutionContext {
 
+        private final JsonProvider jsonProvider;
+        private final JsonReaderFactory jsonReaderFactory;
         private final HttpClient httpClient;
-        private final AssertionFactory responseValidatorFactory;
+        private final AssertionFactory assertionFactory;
 
-        ProjectTestContext() {
+        ProjectExecutionContextImpl(JsonProvider jsonProvider) {
+            this.jsonProvider = jsonProvider;
+            this.jsonReaderFactory = jsonProvider.createReaderFactory(Collections.emptyMap());
             this.httpClient = buildHttpClient();
-            this.responseValidatorFactory = new AssertionFactory();
+            this.assertionFactory = new AssertionFactory(this);
         }
 
         @Override
         public Project getProject() {
             return ProjectImpl.this;
+        }
+
+        @Override
+        public JsonProvider getJsonProvider() {
+            return jsonProvider;
+        }
+
+        @Override
+        public JsonReaderFactory getJsonReaderFactory() {
+            return jsonReaderFactory;
         }
 
         @Override
@@ -85,7 +106,7 @@ class ProjectImpl extends TestGroup implements Project {
 
         @Override
         public AssertionFactory getAssertionFactory() {
-            return responseValidatorFactory;
+            return assertionFactory;
         }
 
         private HttpClient buildHttpClient() {

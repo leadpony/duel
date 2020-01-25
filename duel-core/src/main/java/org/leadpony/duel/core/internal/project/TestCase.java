@@ -91,7 +91,7 @@ class TestCase extends AbstractNode implements CaseNode {
 
     /* */
 
-    CaseExecution createExecution(ExecutionContext context) {
+    CaseExecution createExecution(ProjectExecutionContext context) {
         return new TestCaseExecution(context);
     }
 
@@ -160,10 +160,10 @@ class TestCase extends AbstractNode implements CaseNode {
      */
     private class TestCaseExecution implements CaseExecution {
 
-        private final ExecutionContext context;
+        private final ProjectExecutionContext context;
         private final Assertion assertion;
 
-        TestCaseExecution(ExecutionContext context) {
+        TestCaseExecution(ProjectExecutionContext context) {
             this.context = context;
             this.assertion = context.getAssertionFactory().createAssertion(TestCase.this);
         }
@@ -218,7 +218,7 @@ class TestCase extends AbstractNode implements CaseNode {
         }
 
         private ResponseBody createResponseBody(byte[] byteArray, ResponseInfo responseInfo) {
-            return new ResponseBodyImpl(byteArray, parseMediaType(responseInfo));
+            return new ResponseBodyImpl(byteArray, parseMediaType(responseInfo), context);
         }
 
         private Optional<MediaType> parseMediaType(ResponseInfo responseInfo) {

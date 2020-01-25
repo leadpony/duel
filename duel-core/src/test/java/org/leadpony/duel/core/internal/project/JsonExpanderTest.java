@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import java.util.logging.Logger;
 
 import javax.json.JsonObject;
+import javax.json.spi.JsonProvider;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.leadpony.duel.core.internal.JsonObjectSource;
 import org.leadpony.duel.core.internal.Logging;
@@ -35,13 +38,26 @@ public class JsonExpanderTest {
 
     private static final Logger LOG = Logger.getLogger(JsonExpanderTest.class.getName());
 
+    private static JsonProvider jsonProvider;
+    private JsonExpander expander;
+
+    @BeforeAll
+    public static void setUpOnce() {
+        jsonProvider = JsonProvider.provider();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        this.expander = new JsonExpander(jsonProvider);
+    }
+
     @ParameterizedTest(name = "[{index}] {0}")
     @JsonObjectSource
     public void applyShouldExpandProperties(String name, JsonObject object) {
         JsonObject data = object.getJsonObject("data");
         JsonObject expected = object.getJsonObject("expected");
 
-        JsonObject actual = JsonExpander.SIMPLE.apply(data);
+        JsonObject actual = expander.apply(data);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -51,7 +67,7 @@ public class JsonExpanderTest {
     public void applyShouldThrowException(String name, JsonObject object) {
         JsonObject data = object.getJsonObject("data");
         Throwable thrown = catchThrowable(() -> {
-            JsonExpander.SIMPLE.apply(data);
+            expander.apply(data);
          });
 
         assertThat(thrown).isInstanceOf(PropertyException.class);

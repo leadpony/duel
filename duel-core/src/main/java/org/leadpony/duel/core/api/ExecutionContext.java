@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.common;
+package org.leadpony.duel.core.api;
 
-import java.util.Collections;
-
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonReaderFactory;
 import javax.json.spi.JsonProvider;
 
 /**
+ * A context shared between the tests of a project.
+ *
  * @author leadpony
  */
-public class JsonService {
+public interface ExecutionContext {
 
-    public static final JsonProvider PROVIDER = JsonProvider.provider();
-    public static final JsonReaderFactory READER_FACTORY = PROVIDER.createReaderFactory(Collections.emptyMap());
-    public static final JsonBuilderFactory BUILDER_FACTORY = PROVIDER.createBuilderFactory(Collections.emptyMap());
+    Project getProject();
+
+    JsonProvider getJsonProvider();
 }

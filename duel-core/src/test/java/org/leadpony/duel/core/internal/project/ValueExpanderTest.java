@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,13 @@ package org.leadpony.duel.core.internal.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.json.JsonObject;
+import java.util.Collections;
 
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.spi.JsonProvider;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.leadpony.duel.core.internal.JsonObjectSource;
 
@@ -28,12 +33,23 @@ import org.leadpony.duel.core.internal.JsonObjectSource;
  */
 public class ValueExpanderTest {
 
+    private static JsonProvider jsonProvider;
+    private static JsonBuilderFactory builderFactory;
+
+    @BeforeAll
+    public static void setUpOnce() {
+        jsonProvider = JsonProvider.provider();
+        builderFactory = jsonProvider.createBuilderFactory(Collections.emptyMap());
+    }
+
     @ParameterizedTest(name = "[{index}] {0}")
     @JsonObjectSource
     public void expandShouldExpandString(String name, JsonObject object) {
         JsonObject properties = object.getJsonObject("properties");
         var expander = new ValueExpander(
-                p -> properties.getString(p, null));
+                p -> properties.getString(p, null),
+                jsonProvider,
+                builderFactory);
 
         String actual = expander.expand(object.getString("data"));
 

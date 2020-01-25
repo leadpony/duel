@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.spi.JsonProvider;
 
-import org.leadpony.duel.core.internal.common.JsonService;
-
 /**
  * @author leadpony
  *
@@ -39,13 +37,15 @@ class ValueExpander {
 
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^{}]+)\\}");
 
-    private final JsonProvider jsonProvider = JsonService.PROVIDER;
-    private final JsonBuilderFactory builderFactory = JsonService.BUILDER_FACTORY;
+    private final JsonProvider jsonProvider;
+    private final JsonBuilderFactory builderFactory;
 
     private final Function<String, String> finder;
 
-    ValueExpander(Function<String, String> finder) {
+    ValueExpander(Function<String, String> finder, JsonProvider jsonProvider, JsonBuilderFactory builderFactory) {
         this.finder = finder;
+        this.jsonProvider = jsonProvider;
+        this.builderFactory = builderFactory;
     }
 
     JsonValue expand(JsonValue value) {

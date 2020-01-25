@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.leadpony.duel.core.internal.project;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -28,19 +29,24 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
+import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.internal.Message;
-import org.leadpony.duel.core.internal.common.JsonService;
 
 /**
  * @author leadpony
  */
-public enum JsonExpander implements Function<JsonObject, JsonObject> {
-    SIMPLE;
+public class JsonExpander implements Function<JsonObject, JsonObject> {
 
     static final String PROPERTIES_KEY = "properties";
 
-    private final JsonBuilderFactory builderFactory = JsonService.BUILDER_FACTORY;
+    private final JsonProvider jsonProvider;
+    private final JsonBuilderFactory builderFactory;
+
+    JsonExpander(JsonProvider jsonProvider) {
+        this.jsonProvider = jsonProvider;
+        this.builderFactory = jsonProvider.createBuilderFactory(Collections.emptyMap());
+    }
 
     /**
      * Expands all the properties in the specified JSON object.
@@ -68,7 +74,7 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
     }
 
     private JsonObject expandProperties(JsonObject properties) {
-        var finder = new ExpandingPropertyFinder(properties);
+        var finder = new ExpandingPropertyFinder(properties, jsonProvider, builderFactory);
         var builder = builderFactory.createObjectBuilder();
         var errors = new ArrayList<String>();
 
@@ -96,7 +102,7 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
 
     private JsonObject expandObject(JsonObject object, JsonObject properties) {
         Function<String, String> finder = new SimplePropertyFinder(properties);
-        ValueExpander expander = new ValueExpander(finder);
+        ValueExpander expander = new ValueExpander(finder, jsonProvider, builderFactory);
         JsonObjectBuilder builder = this.builderFactory.createObjectBuilder();
         builder.add(PROPERTIES_KEY, properties);
         object.forEach((name, value) -> {
@@ -135,9 +141,9 @@ public enum JsonExpander implements Function<JsonObject, JsonObject> {
         final ValueExpander expander;
         final Set<String> nameSet = new LinkedHashSet<>();
 
-        ExpandingPropertyFinder(JsonObject properties) {
+        ExpandingPropertyFinder(JsonObject properties, JsonProvider jsonProvider, JsonBuilderFactory builderFactory) {
             super(properties);
-            this.expander = new ValueExpander(this);
+            this.expander = new ValueExpander(this, jsonProvider, builderFactory);
         }
 
         @Override

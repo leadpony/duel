@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,68 +29,60 @@ import javax.json.JsonValue.ValueType;
 /**
  * @author leadpony
  */
-public enum JsonCombiner implements BiFunction<JsonValue, JsonValue, JsonValue> {
-    MERGE() {
+public class JsonCombiner implements BiFunction<JsonValue, JsonValue, JsonValue> {
 
-        final JsonBuilderFactory builderFactory = JsonService.BUILDER_FACTORY;
+    private final JsonBuilderFactory builderFactory;
 
-        @Override
-        public JsonValue apply(JsonValue base, JsonValue value) {
-            final ValueType type = value.getValueType();
-            if (type != base.getValueType()) {
-                return value;
-            }
-            switch (type) {
-            case ARRAY:
-                return apply(base.asJsonArray(), value.asJsonArray());
-            case OBJECT:
-                return apply(base.asJsonObject(), value.asJsonObject());
-            default:
-                return value;
-            }
+    public JsonCombiner(JsonBuilderFactory builderFactory) {
+        this.builderFactory = builderFactory;
+    }
+
+    @Override
+    public JsonValue apply(JsonValue base, JsonValue value) {
+        final ValueType type = value.getValueType();
+        if (type != base.getValueType()) {
+            return value;
         }
-
-        @Override
-        public JsonArray apply(JsonArray base, JsonArray array) {
-            if (base.isEmpty()) {
-                return array;
-            } else if (array.isEmpty()) {
-                return base;
-            }
-            JsonArrayBuilder builder = builderFactory.createArrayBuilder(base);
-            array.forEach(builder::add);
-            return builder.build();
+        switch (type) {
+        case ARRAY:
+            return apply(base.asJsonArray(), value.asJsonArray());
+        case OBJECT:
+            return apply(base.asJsonObject(), value.asJsonObject());
+        default:
+            return value;
         }
-
-        @Override
-        public JsonObject apply(JsonObject base, JsonObject object) {
-            if (base.isEmpty()) {
-                return object;
-            } else if (object.isEmpty()) {
-                return base;
-            }
-            JsonObjectBuilder builder = builderFactory.createObjectBuilder();
-            base.forEach((name, value) -> {
-                if (!object.containsKey(name)) {
-                    builder.add(name, value);
-                }
-            });
-            object.forEach((name, value) -> {
-                if (base.containsKey(name)) {
-                    builder.add(name, apply(base.get(name), value));
-                } else {
-                    builder.add(name, value);
-                }
-            });
-            return builder.build();
-        }
-    };
+    }
 
     public JsonArray apply(JsonArray base, JsonArray array) {
-        return apply((JsonValue) base, (JsonValue) array).asJsonArray();
+        if (base.isEmpty()) {
+            return array;
+        } else if (array.isEmpty()) {
+            return base;
+        }
+        JsonArrayBuilder builder = builderFactory.createArrayBuilder(base);
+        array.forEach(builder::add);
+        return builder.build();
     }
 
     public JsonObject apply(JsonObject base, JsonObject object) {
-        return apply((JsonValue) base, (JsonValue) object).asJsonObject();
+        if (base.isEmpty()) {
+            return object;
+        } else if (object.isEmpty()) {
+            return base;
+        }
+        JsonObjectBuilder builder = builderFactory.createObjectBuilder();
+        base.forEach((name, value) -> {
+            if (!object.containsKey(name)) {
+                builder.add(name, value);
+            }
+        });
+        object.forEach((name, value) -> {
+            if (base.containsKey(name)) {
+                builder.add(name, apply(base.get(name), value));
+            } else {
+                builder.add(name, value);
+            }
+        });
+        return builder.build();
     }
 }

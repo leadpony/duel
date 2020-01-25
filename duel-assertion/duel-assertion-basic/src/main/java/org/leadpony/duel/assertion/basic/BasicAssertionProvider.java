@@ -16,7 +16,9 @@
 
 package org.leadpony.duel.assertion.basic;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.json.JsonArray;
@@ -28,6 +30,7 @@ import javax.json.JsonValue.ValueType;
 import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.CaseNode;
+import org.leadpony.duel.core.api.ExecutionContext;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
 
@@ -41,13 +44,15 @@ public class BasicAssertionProvider implements AssertionProvider {
     private JsonProvider jsonProvider;
     private JsonProblemFactory jsonProblemFactory;
 
-    public BasicAssertionProvider() {
-        this.jsonProvider = JsonProvider.provider();
-        this.jsonProblemFactory = new JsonProblemFactory(jsonProvider);
+    @Override
+    public void initializeProvider(ExecutionContext context) {
+        this.jsonProvider = context.getJsonProvider();
+        this.jsonProblemFactory = new JsonProblemFactory(this.jsonProvider);
     }
 
     @Override
-    public void provideAssertions(CaseNode node, Collection<Assertion> assertions) {
+    public Stream<Assertion> provideAssertions(CaseNode node) {
+        List<Assertion> assertions = new ArrayList<>();
         JsonObject config = node.getEffectiveConfigurarionAsJson();
         if (config.containsKey("response")) {
             JsonValue response = config.get("response");
@@ -55,6 +60,7 @@ public class BasicAssertionProvider implements AssertionProvider {
                 addBasicAssertions(node, response.asJsonObject(), assertions);
             }
         }
+        return assertions.stream();
     }
 
     private void addBasicAssertions(CaseNode node, JsonObject response, Collection<Assertion> assertions) {

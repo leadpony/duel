@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import org.leadpony.duel.core.api.CaseNode;
+import org.leadpony.duel.core.api.ExecutionContext;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionProvider;
 
@@ -34,8 +35,8 @@ class AssertionFactory {
 
     private final Collection<AssertionProvider> providers;
 
-    AssertionFactory() {
-        this.providers = findProviders();
+    AssertionFactory(ExecutionContext context) {
+        this.providers = findProviders(context);
     }
 
     Assertion createAssertion(CaseNode node) {
@@ -47,17 +48,19 @@ class AssertionFactory {
         };
     }
 
-    private static Collection<AssertionProvider> findProviders() {
+    private static Collection<AssertionProvider> findProviders(ExecutionContext context) {
         List<AssertionProvider> providers = new ArrayList<>();
-        ServiceLoader.load(AssertionProvider.class)
-            .forEach(providers::add);
+        for (AssertionProvider provider : ServiceLoader.load(AssertionProvider.class)) {
+            provider.initializeProvider(context);
+            providers.add(provider);
+        }
         return providers;
     }
 
     private Collection<Assertion> findAssertions(CaseNode node) {
         List<Assertion> assertions = new ArrayList<>();
         for (AssertionProvider provider : this.providers) {
-            provider.provideAssertions(node, assertions);
+            provider.provideAssertions(node).forEach(assertions::add);
         }
         return assertions;
     }

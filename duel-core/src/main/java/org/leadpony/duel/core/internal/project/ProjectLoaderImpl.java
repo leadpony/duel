@@ -40,7 +40,6 @@ import org.leadpony.duel.core.api.ProjectException;
 import org.leadpony.duel.core.api.ProjectLoader;
 import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.common.JsonCombiner;
-import org.leadpony.duel.core.internal.common.JsonService;
 
 /**
  * An implementation of {@link ProjectLoader}.
@@ -50,15 +49,22 @@ import org.leadpony.duel.core.internal.common.JsonService;
 public class ProjectLoaderImpl implements ProjectLoader {
 
     private static final String DEFAULT_PROJECT_NAME = "project.default.json";
-    private static final JsonObject DEFAULT_PROJECT = loadDefaultProject();
 
     private final Path startPath;
-    private final JsonProvider jsonProvider = JsonService.PROVIDER;
+    private final JsonProvider jsonProvider;
+    private final JsonExpander jsonExpander;
+    private final JsonCombiner jsonCombiner;
+
+    private final JsonObject defaultProject;
 
     private final List<Problem> problems = new ArrayList<>();
 
     public ProjectLoaderImpl(Path startPath) {
         this.startPath = startPath;
+        this.jsonProvider = loadJsonProvider();
+        this.jsonExpander = new JsonExpander(this.jsonProvider);
+        this.jsonCombiner = new JsonCombiner(this.jsonProvider.createBuilderFactory(Collections.emptyMap()));
+        this.defaultProject = loadDefaultProject();
     }
 
     @Override
@@ -86,7 +92,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     private Project loadProject(Path projectPath, Path startPath) {
         JsonObject config = loadJson(projectPath);
-        JsonObject merged = mergeJson(DEFAULT_PROJECT, config);
+        JsonObject merged = mergeJson(defaultProject, config);
         JsonObject expanded = expandJson(projectPath, merged);
 
         Path dir = projectPath.getParent();
@@ -95,7 +101,8 @@ public class ProjectLoaderImpl implements ProjectLoader {
         List<TestGroup> subgroups = loadSubgroups(dir, merged);
 
         if (problems.isEmpty()) {
-            return new ProjectImpl(dir, startPath, config, merged, expanded, testCases, subgroups);
+            return new ProjectImpl(
+                    dir, startPath, config, merged, expanded, testCases, subgroups, this.jsonProvider);
         } else {
             throw new LoadingException();
         }
@@ -119,12 +126,12 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     private JsonObject mergeJson(JsonObject base, JsonObject json) {
-        return JsonCombiner.MERGE.apply(base, json);
+        return jsonCombiner.apply(base, json);
     }
 
     private JsonObject expandJson(Path path, JsonObject json) {
         try {
-            return JsonExpander.SIMPLE.apply(json);
+            return jsonExpander.apply(json);
         } catch (PropertyException e) {
             addProblem(path, Message.PROPERTY_ILLEGAL, e.getMessage());
             throw fail();
@@ -232,11 +239,15 @@ public class ProjectLoaderImpl implements ProjectLoader {
         this.problems.add(problem);
     }
 
-    private static JsonObject loadDefaultProject() {
+    private JsonObject loadDefaultProject() {
         InputStream in = ProjectLoaderImpl.class.getResourceAsStream(DEFAULT_PROJECT_NAME);
-        try (JsonReader reader = JsonService.READER_FACTORY.createReader(in)) {
+        try (JsonReader reader = jsonProvider.createReader(in)) {
             return reader.readObject();
         }
+    }
+
+    private static JsonProvider loadJsonProvider() {
+        return JsonProvider.provider();
     }
 
     @SuppressWarnings("serial")

@@ -16,9 +16,10 @@
 
 package org.leadpony.duel.core.spi;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import org.leadpony.duel.core.api.CaseNode;
+import org.leadpony.duel.core.api.ExecutionContext;
 
 /**
  * A provider of {@link Assertion} instances.
@@ -33,11 +34,18 @@ import org.leadpony.duel.core.api.CaseNode;
 public interface AssertionProvider {
 
     /**
+     * Initializes this provider once.
+     *
+     * @param context the test execution context.
+     */
+    default void initializeProvider(ExecutionContext context) {
+    }
+
+    /**
      * Provides assertions configured by the specified JSON object.
      *
      * @param node       the test node which will be tested, never be {@code null}.
-     * @param assertions the collection to which the assertions will be added, never
-     *                   be {@code null}.
+     * @return the stream of assertions.
      */
-    void provideAssertions(CaseNode node, Collection<Assertion> assertions);
+    Stream<Assertion> provideAssertions(CaseNode node);
 }

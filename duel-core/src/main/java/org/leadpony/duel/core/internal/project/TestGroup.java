@@ -86,15 +86,15 @@ class TestGroup extends AbstractNode implements GroupNode {
 
     /* */
 
-    GroupExecution createExecution(ExecutionContext context) {
+    GroupExecution createExecution(ProjectExecutionContext context) {
         return new TestGroupExecution(context);
     }
 
     private class TestGroupExecution implements GroupExecution {
 
-        private final ExecutionContext context;
+        private final ProjectExecutionContext context;
 
-        private TestGroupExecution(ExecutionContext context) {
+        private TestGroupExecution(ProjectExecutionContext context) {
             this.context = context;
         }
 
@@ -105,7 +105,7 @@ class TestGroup extends AbstractNode implements GroupNode {
 
         @Override
         public Stream<CaseExecution> testCases() {
-            ExecutionContext context = this.context;
+            ProjectExecutionContext context = this.context;
             return testCases.stream().map(testCase -> {
                 return testCase.createExecution(context);
             });
@@ -113,7 +113,7 @@ class TestGroup extends AbstractNode implements GroupNode {
 
         @Override
         public Stream<GroupExecution> subgroups() {
-            ExecutionContext context = this.context;
+            ProjectExecutionContext context = this.context;
             return subgroups.stream().map(testGroup -> {
                 return testGroup.createExecution(context);
             });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
 import javax.json.JsonValue;
 
-import org.leadpony.duel.core.internal.common.JsonService;
 import org.leadpony.duel.core.spi.MediaType;
 import org.leadpony.duel.core.spi.ResponseBody;
 
@@ -38,12 +37,14 @@ class ResponseBodyImpl implements ResponseBody {
 
     private final byte[] byteArray;
     private final Optional<MediaType> mediaType;
+    private final ProjectExecutionContext context;
 
     private JsonValue cachedJson;
 
-    ResponseBodyImpl(byte[] byteArray, Optional<MediaType> mediaType) {
+    ResponseBodyImpl(byte[] byteArray, Optional<MediaType> mediaType, ProjectExecutionContext context) {
         this.byteArray = byteArray;
         this.mediaType = mediaType;
+        this.context = context;
     }
 
     @Override
@@ -70,7 +71,7 @@ class ResponseBodyImpl implements ResponseBody {
     }
 
     private JsonValue getJsonValue() {
-        JsonReaderFactory readerFactory = JsonService.READER_FACTORY;
+        JsonReaderFactory readerFactory = context.getJsonReaderFactory();
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
         try (JsonReader reader = readerFactory.createReader(in, guessEncoding())) {
             return reader.readValue();
