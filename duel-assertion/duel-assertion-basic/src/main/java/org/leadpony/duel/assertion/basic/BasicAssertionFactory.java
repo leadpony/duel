@@ -32,26 +32,26 @@ import javax.json.spi.JsonProvider;
 import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.api.ExecutionContext;
 import org.leadpony.duel.core.spi.Assertion;
-import org.leadpony.duel.core.spi.AssertionProvider;
+import org.leadpony.duel.core.spi.AssertionFactory;
 
 /**
- * A provider of basic assertions.
+ * A factory of basic assertions.
  *
  * @author leadpony
  */
-public class BasicAssertionProvider implements AssertionProvider {
+public class BasicAssertionFactory implements AssertionFactory {
 
     private JsonProvider jsonProvider;
     private JsonProblemFactory jsonProblemFactory;
 
     @Override
-    public void initializeProvider(ExecutionContext context) {
+    public void initializeFactory(ExecutionContext context) {
         this.jsonProvider = context.getJsonProvider();
         this.jsonProblemFactory = new JsonProblemFactory(this.jsonProvider);
     }
 
     @Override
-    public Stream<Assertion> provideAssertions(CaseNode node) {
+    public Stream<Assertion> createAssertions(CaseNode node) {
         List<Assertion> assertions = new ArrayList<>();
         JsonObject config = node.getEffectiveConfigurarionAsJson();
         if (config.containsKey("response")) {

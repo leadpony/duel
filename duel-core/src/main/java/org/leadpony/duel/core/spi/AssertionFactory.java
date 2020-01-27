@@ -22,30 +22,30 @@ import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.api.ExecutionContext;
 
 /**
- * A provider of {@link Assertion} instances.
+ * A factory of {@link Assertion} instances.
  * <p>
- * Note that this provider is instantiated once at startup and the instance is
- * shared between all test cases. In most cases the provider should be implemented
- * as a stateless object.
+ * Note that this factory is instantiated once at startup and the single
+ * instance is shared between all test cases in a project. In most cases the
+ * factory should be implemented as a stateless object.
  * </p>
  *
  * @author leadpony
  */
-public interface AssertionProvider {
+public interface AssertionFactory {
 
     /**
-     * Initializes this provider once.
+     * Initializes this factory first.
      *
      * @param context the test execution context.
      */
-    default void initializeProvider(ExecutionContext context) {
+    default void initializeFactory(ExecutionContext context) {
     }
 
     /**
-     * Provides assertions configured by the specified JSON object.
+     * Creates a stream of assertions for the specified case node.
      *
-     * @param node       the test node which will be tested, never be {@code null}.
+     * @param node the test node which will be tested, never be {@code null}.
      * @return the stream of assertions.
      */
-    Stream<Assertion> provideAssertions(CaseNode node);
+    Stream<Assertion> createAssertions(CaseNode node);
 }

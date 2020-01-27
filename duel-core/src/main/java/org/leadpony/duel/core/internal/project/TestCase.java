@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
@@ -161,11 +162,11 @@ class TestCase extends AbstractNode implements CaseNode {
     private class TestCaseExecution implements CaseExecution {
 
         private final ProjectExecutionContext context;
-        private final Assertion assertion;
+        private final Stream<Assertion> assertions;
 
         TestCaseExecution(ProjectExecutionContext context) {
             this.context = context;
-            this.assertion = context.getAssertionFactory().createAssertion(TestCase.this);
+            this.assertions = context.getAssertionFactory().createAssertions(TestCase.this);
         }
 
         @Override
@@ -227,7 +228,7 @@ class TestCase extends AbstractNode implements CaseNode {
         }
 
         private void validateResponse(HttpResponse<ResponseBody> response) {
-            assertion.assertOn(response);
+            assertions.forEach(a -> a.assertOn(response));
         }
     }
 }

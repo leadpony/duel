@@ -21,6 +21,7 @@ import java.net.http.HttpClient;
 import javax.json.JsonReaderFactory;
 
 import org.leadpony.duel.core.api.ExecutionContext;
+import org.leadpony.duel.core.spi.AssertionFactory;
 
 /**
  * A context of project execution.

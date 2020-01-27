@@ -29,6 +29,7 @@ import javax.json.spi.JsonProvider;
 import org.leadpony.duel.core.api.GroupExecution;
 import org.leadpony.duel.core.api.Parameter;
 import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.spi.AssertionFactory;
 
 /**
  * @author leadpony
@@ -81,7 +82,8 @@ class ProjectImpl extends TestGroup implements Project {
             this.jsonProvider = jsonProvider;
             this.jsonReaderFactory = jsonProvider.createReaderFactory(Collections.emptyMap());
             this.httpClient = buildHttpClient();
-            this.assertionFactory = new AssertionFactory(this);
+            this.assertionFactory = new RootAssertionFactory();
+            this.assertionFactory.initializeFactory(this);
         }
 
         @Override

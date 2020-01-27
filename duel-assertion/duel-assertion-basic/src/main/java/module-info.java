@@ -23,6 +23,6 @@ module org.leadpony.duel.assertion.basic {
     requires java.net.http;
     requires org.opentest4j;
 
-    provides org.leadpony.duel.core.spi.AssertionProvider
-        with org.leadpony.duel.assertion.basic.BasicAssertionProvider;
+    provides org.leadpony.duel.core.spi.AssertionFactory
+        with org.leadpony.duel.assertion.basic.BasicAssertionFactory;
 }
