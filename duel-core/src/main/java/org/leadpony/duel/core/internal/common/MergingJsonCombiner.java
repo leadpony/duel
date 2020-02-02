@@ -19,7 +19,6 @@ package org.leadpony.duel.core.internal.common;
 import java.util.Collections;
 
 import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -80,14 +79,7 @@ class MergingJsonCombiner implements JsonCombiner {
     }
 
     private JsonArray merge(JsonArray base, JsonArray array) {
-        if (base.isEmpty()) {
-            return array;
-        } else if (array.isEmpty()) {
-            return base;
-        }
-        JsonArrayBuilder builder = builderFactory.createArrayBuilder(base);
-        array.forEach(builder::add);
-        return builder.build();
+        return array;
     }
 
     private JsonObject merge(JsonObject base, JsonObject object) {
