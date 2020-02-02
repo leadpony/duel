@@ -16,73 +16,23 @@
 
 package org.leadpony.duel.core.internal.common;
 
-import java.util.function.BiFunction;
-
 import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-import javax.json.JsonValue.ValueType;
+import javax.json.spi.JsonProvider;
 
 /**
  * @author leadpony
  */
-public class JsonCombiner implements BiFunction<JsonValue, JsonValue, JsonValue> {
+public interface JsonCombiner {
 
-    private final JsonBuilderFactory builderFactory;
+    JsonValue apply(JsonValue base, JsonValue value);
 
-    public JsonCombiner(JsonBuilderFactory builderFactory) {
-        this.builderFactory = builderFactory;
-    }
+    JsonArray apply(JsonArray base, JsonArray value);
 
-    @Override
-    public JsonValue apply(JsonValue base, JsonValue value) {
-        final ValueType type = value.getValueType();
-        if (type != base.getValueType()) {
-            return value;
-        }
-        switch (type) {
-        case ARRAY:
-            return apply(base.asJsonArray(), value.asJsonArray());
-        case OBJECT:
-            return apply(base.asJsonObject(), value.asJsonObject());
-        default:
-            return value;
-        }
-    }
+    JsonObject apply(JsonObject base, JsonObject value);
 
-    public JsonArray apply(JsonArray base, JsonArray array) {
-        if (base.isEmpty()) {
-            return array;
-        } else if (array.isEmpty()) {
-            return base;
-        }
-        JsonArrayBuilder builder = builderFactory.createArrayBuilder(base);
-        array.forEach(builder::add);
-        return builder.build();
-    }
-
-    public JsonObject apply(JsonObject base, JsonObject object) {
-        if (base.isEmpty()) {
-            return object;
-        } else if (object.isEmpty()) {
-            return base;
-        }
-        JsonObjectBuilder builder = builderFactory.createObjectBuilder();
-        base.forEach((name, value) -> {
-            if (!object.containsKey(name)) {
-                builder.add(name, value);
-            }
-        });
-        object.forEach((name, value) -> {
-            if (base.containsKey(name)) {
-                builder.add(name, apply(base.get(name), value));
-            } else {
-                builder.add(name, value);
-            }
-        });
-        return builder.build();
+    static JsonCombiner merging(JsonProvider jsonProvider) {
+        return new MergingJsonCombiner(jsonProvider);
     }
 }

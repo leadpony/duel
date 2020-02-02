@@ -63,7 +63,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
         this.startPath = startPath;
         this.jsonProvider = loadJsonProvider();
         this.jsonExpander = new JsonExpander(this.jsonProvider);
-        this.jsonCombiner = new JsonCombiner(this.jsonProvider.createBuilderFactory(Collections.emptyMap()));
+        this.jsonCombiner = JsonCombiner.merging(this.jsonProvider);
         this.defaultProject = loadDefaultProject();
     }
 

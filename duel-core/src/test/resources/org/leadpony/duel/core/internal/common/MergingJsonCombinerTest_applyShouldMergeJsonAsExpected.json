@@ -1,0 +1,116 @@
+[
+    {
+        "name": "both are empty objects",
+        "base": {
+        },
+        "value": {
+        },
+        "expected": {
+        }
+    },
+    {
+        "name": "value is an empty object",
+        "base": {
+            "first": 1,
+            "second": 2
+        },
+        "value": {
+        },
+        "expected": {
+            "first": 1,
+            "second": 2
+        }
+    },
+    {
+        "name": "simple merge",
+        "base": {
+            "first": 1,
+            "second": 2
+        },
+        "value": {
+            "third": 3
+        },
+        "expected": {
+            "first": 1,
+            "second": 2,
+            "third": 3
+        }
+    },
+    {
+        "name": "override",
+        "base": {
+            "first": 1,
+            "second": 0
+        },
+        "value": {
+            "second": 2,
+            "third": 3
+        },
+        "expected": {
+            "first": 1,
+            "second": 2,
+            "third": 3
+        }
+    },
+    {
+        "name": "child object",
+        "base": {
+            "parent": {
+                "first": 1
+            }
+        },
+        "value": {
+            "parent": {
+                "second": 2
+            }
+        },
+        "expected": {
+            "parent": {
+                "first": 1,
+                "second": 2
+            }
+        }
+    },
+    {
+        "name": "type mismatch",
+        "base": {
+            "first": {}
+        },
+        "value": {
+            "first": []
+        },
+        "expected": {
+            "first": []
+        }
+    },
+    {
+        "name": "hidden property in base",
+        "base": {
+            ".first": 1
+        },
+        "value": {
+            "second": 2
+        },
+        "expected": {
+            "second": 2
+        }
+    },
+    {
+        "name": "hidden object",
+        "base": {
+            ".parent": {
+                "first": 1
+            }
+        },
+        "value": {
+            ".parent": {
+                "second": 2
+            }
+        },
+        "expected": {
+            ".parent": {
+                "second": 2
+            }
+        }
+    }
+]
