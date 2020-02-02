@@ -16,16 +16,17 @@
 
 package org.leadpony.duel.core.internal.project;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.ServiceLoader;
+import java.util.ServiceLoader.Provider;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.api.ExecutionContext;
 import org.leadpony.duel.core.spi.Assertion;
 import org.leadpony.duel.core.spi.AssertionFactory;
+import org.leadpony.duel.core.spi.AssertionFactoryProvider;
 
 /**
  * A factory for producing assertions on the Web responses.
@@ -34,11 +35,10 @@ import org.leadpony.duel.core.spi.AssertionFactory;
  */
 class RootAssertionFactory implements AssertionFactory {
 
-    private Collection<AssertionFactory> factories;
+    private final Collection<AssertionFactory> factories;
 
-    @Override
-    public void initializeFactory(ExecutionContext context) {
-        this.factories = findFactories(context);
+    RootAssertionFactory(ExecutionContext context) {
+        this.factories = loadFactories(context);
     }
 
     @Override
@@ -47,12 +47,11 @@ class RootAssertionFactory implements AssertionFactory {
             .flatMap(f -> f.createAssertions(node));
     }
 
-    private static Collection<AssertionFactory> findFactories(ExecutionContext context) {
-        List<AssertionFactory> factories = new ArrayList<>();
-        for (AssertionFactory factory : ServiceLoader.load(AssertionFactory.class)) {
-            factory.initializeFactory(context);
-            factories.add(factory);
-        }
-        return factories;
+    private static Collection<AssertionFactory> loadFactories(ExecutionContext context) {
+        var loader = ServiceLoader.load(AssertionFactoryProvider.class);
+        return loader.stream()
+            .map(Provider::get)
+            .map(p -> p.provideAssertionFactory(context))
+            .collect(Collectors.toList());
     }
 }

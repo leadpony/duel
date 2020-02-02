@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
+package org.leadpony.duel.core.spi;
+
+import org.leadpony.duel.core.api.ExecutionContext;
+
 /**
  * @author leadpony
  */
-module org.leadpony.duel.core {
-    exports org.leadpony.duel.core.api;
-    exports org.leadpony.duel.core.spi;
+public interface AssertionFactoryProvider {
 
-    opens org.leadpony.duel.core.internal;
-
-    requires transitive java.json;
-    requires static java.logging;
-    requires java.net.http;
-    requires org.opentest4j;
-
-    uses org.leadpony.duel.core.spi.AssertionFactoryProvider;
+    /**
+     * Provides an instance of {@link AssertionFactory}.
+     *
+     * @param context the context shared between all tests in the project.
+     * @return the instance of {@link AssertionFactory}.
+     */
+    AssertionFactory provideAssertionFactory(ExecutionContext context);
 }

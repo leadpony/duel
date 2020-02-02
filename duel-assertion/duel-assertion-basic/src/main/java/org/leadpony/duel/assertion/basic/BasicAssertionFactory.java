@@ -39,13 +39,12 @@ import org.leadpony.duel.core.spi.AssertionFactory;
  *
  * @author leadpony
  */
-public class BasicAssertionFactory implements AssertionFactory {
+class BasicAssertionFactory implements AssertionFactory {
 
-    private JsonProvider jsonProvider;
-    private JsonProblemFactory jsonProblemFactory;
+    private final JsonProvider jsonProvider;
+    private final JsonProblemFactory jsonProblemFactory;
 
-    @Override
-    public void initializeFactory(ExecutionContext context) {
+    BasicAssertionFactory(ExecutionContext context) {
         this.jsonProvider = context.getJsonProvider();
         this.jsonProblemFactory = new JsonProblemFactory(this.jsonProvider);
     }

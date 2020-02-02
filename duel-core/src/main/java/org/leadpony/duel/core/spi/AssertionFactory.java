@@ -19,7 +19,6 @@ package org.leadpony.duel.core.spi;
 import java.util.stream.Stream;
 
 import org.leadpony.duel.core.api.CaseNode;
-import org.leadpony.duel.core.api.ExecutionContext;
 
 /**
  * A factory of {@link Assertion} instances.
@@ -32,14 +31,6 @@ import org.leadpony.duel.core.api.ExecutionContext;
  * @author leadpony
  */
 public interface AssertionFactory {
-
-    /**
-     * Initializes this factory first.
-     *
-     * @param context the test execution context.
-     */
-    default void initializeFactory(ExecutionContext context) {
-    }
 
     /**
      * Creates a stream of assertions for the specified case node.

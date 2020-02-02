@@ -82,8 +82,7 @@ class ProjectImpl extends TestGroup implements Project {
             this.jsonProvider = jsonProvider;
             this.jsonReaderFactory = jsonProvider.createReaderFactory(Collections.emptyMap());
             this.httpClient = buildHttpClient();
-            this.assertionFactory = new RootAssertionFactory();
-            this.assertionFactory.initializeFactory(this);
+            this.assertionFactory = new RootAssertionFactory(this);
         }
 
         @Override
