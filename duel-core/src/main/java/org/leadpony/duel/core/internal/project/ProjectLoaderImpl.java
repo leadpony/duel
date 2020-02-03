@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
             return loadProject(path, this.startPath);
         } catch (LoadingException e) {
             throw new ProjectException(
-                    Message.PROJECT_LOADING_FAILED.format(problems.size()),
+                    Message.thatLoadingProjectFailed(problems.size()),
                     Collections.unmodifiableList(problems));
         }
     }
@@ -86,7 +86,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
                 return path;
             }
         }
-        addProblem(Message.PROJECT_NOT_FOUND, startDir);
+        addProblem(Message.thatProjectIsNotFound(startDir));
         throw fail();
     }
 
@@ -115,12 +115,11 @@ public class ProjectLoaderImpl implements ProjectLoader {
             if (value.getValueType() == ValueType.OBJECT) {
                 return value.asJsonObject();
             }
-            addProblem(path, Message.JSON_UNEXPECTED_VALUE_TYPE,
-                    value.getValueType());
+            addProblem(path, Message.thatJsonValueTypeMismatched(value.getValueType()));
         } catch (JsonException e) {
-            addProblem(path, Message.JSON_ILL_FORMED, e.getMessage());
+            addProblem(path, Message.thatJsonIsIllFormed(e));
         } catch (IOException e) {
-            addProblem(path, Message.IO_ERROR_FILE);
+            addProblem(path, Message.thatReadingFileFailed(path));
         }
         throw fail();
     }
@@ -133,7 +132,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
         try {
             return jsonExpander.apply(json);
         } catch (PropertyException e) {
-            addProblem(path, Message.PROPERTY_ILLEGAL, e.getMessage());
+            addProblem(path, Message.thatPropertyIsIllegal(e));
             throw fail();
         }
     }
@@ -179,7 +178,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
             Collections.sort(children);
             return children;
         } catch (IOException e) {
-            addProblem(dir, Message.IO_ERROR_DIRECTORY);
+            addProblem(dir, Message.thatReadingDirectoryFailed(dir));
             return Collections.emptyList();
         }
     }
@@ -195,7 +194,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
             Collections.sort(children);
             return children;
         } catch (IOException e) {
-            addProblem(dir, Message.IO_ERROR_DIRECTORY, dir);
+            addProblem(dir, Message.thatReadingDirectoryFailed(dir));
             return Collections.emptyList();
         }
     }
@@ -227,12 +226,12 @@ public class ProjectLoaderImpl implements ProjectLoader {
         return new LoadingException();
     }
 
-    private void addProblem(Message message, Object... arguments) {
-        addProblem(new ProjectProblem(message, arguments));
+    private void addProblem(String message) {
+        addProblem(new ProjectProblem(message));
     }
 
-    private void addProblem(Path path, Message message, Object... arguments) {
-        addProblem(new ProjectProblem(path, message, arguments));
+    private void addProblem(Path path, String message) {
+        addProblem(new ProjectProblem(path, message));
     }
 
     private void addProblem(Problem problem) {
@@ -254,19 +253,24 @@ public class ProjectLoaderImpl implements ProjectLoader {
     private static class LoadingException extends RuntimeException {
     }
 
+    /**
+     * A problem detected by this loader.
+     *
+     * @author leadpony
+     */
     private static class ProjectProblem implements Problem {
 
         private final Optional<Path> path;
         private final String description;
 
-        ProjectProblem(Message message, Object... arguments) {
+        ProjectProblem(String description) {
             this.path = Optional.empty();
-            this.description = message.format(arguments);
+            this.description = description;
         }
 
-        ProjectProblem(Path path, Message message, Object... arguments) {
+        ProjectProblem(Path path, String description) {
             this.path = Optional.of(path);
-            this.description = message.format(arguments);
+            this.description = description;
         }
 
         @Override

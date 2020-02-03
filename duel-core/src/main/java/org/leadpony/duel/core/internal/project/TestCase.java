@@ -147,7 +147,7 @@ class TestCase extends AbstractNode implements CaseNode {
             return builder.build();
         } catch (URISyntaxException e) {
             throw new IncompleteExecutionException(
-                    Message.BAD_ENDPOINT_URL.asString(),
+                    Message.thatEndpointUrlIsInValid(),
                     e);
         }
     }
@@ -199,10 +199,10 @@ class TestCase extends AbstractNode implements CaseNode {
                 return client.send(request, this::createBodySubscriber);
             } catch (IOException e) {
                 throw new IncompleteExecutionException(
-                        Message.NETWORK_FAILURE.format(request.uri()), e);
+                        Message.thatNetworkConnectionFailed(request.uri()), e);
             } catch (InterruptedException e) {
                 throw new IncompleteExecutionException(
-                        Message.NETWORK_OPERATION_INTERRUPTED.asString(), e);
+                        Message.thatNetworkIsInterrupted(), e);
             }
         }
 

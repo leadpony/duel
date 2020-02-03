@@ -83,10 +83,7 @@ public class JsonExpander implements Function<JsonObject, JsonObject> {
                 try {
                     builder.add(name, finder.apply(name));
                 } catch (ExpansionException e) {
-                    String m = Message.PROPERTY_INFINTE_EXPANSION.format(
-                            name,
-                            e.getMessage());
-                    errors.add(m);
+                    errors.add(Message.thatPropertyExpansionLoopsInfinite(name, e));
                 }
             } else {
                 builder.add(name, value);
