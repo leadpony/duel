@@ -54,6 +54,11 @@ abstract class AbstractNode implements Node {
     }
 
     @Override
+    public int getVersion() {
+        return (int) get(Parameter.VERSION);
+    }
+
+    @Override
     public String getName() {
         return getValueAsString("name");
     }

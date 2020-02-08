@@ -24,11 +24,11 @@ import org.leadpony.duel.core.api.ExecutionContext;
 import org.leadpony.duel.core.spi.AssertionFactory;
 
 /**
- * A context of project execution.
+ * A context of test execution.
  *
  * @author leadpony
  */
-interface ProjectExecutionContext extends ExecutionContext {
+interface TestExecutionContext extends ExecutionContext {
 
     JsonReaderFactory getJsonReaderFactory();
 

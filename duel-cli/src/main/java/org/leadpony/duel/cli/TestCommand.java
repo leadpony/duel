@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.spi.ToolProvider;
 
+import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.api.Problem;
-import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.ProjectException;
-import org.leadpony.duel.core.api.ProjectLoader;
+import org.leadpony.duel.core.api.TestLoadingException;
+import org.leadpony.duel.core.api.TestLoader;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -62,15 +62,15 @@ class TestCommand extends AbstractCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try {
-            Project project = loadProject(this.path);
-            ProjectTest.setProject(project);
+            GroupNode root = loadTests(this.path);
+            ProjectTest.setRootGroup(root);
             return runConsole(ARGS);
-        } catch (ProjectException e) {
+        } catch (TestLoadingException e) {
             return fail(e);
         } catch (Exception e) {
             return fail(e);
         } finally {
-            ProjectTest.setProject(null);
+            ProjectTest.setRootGroup(null);
         }
     }
 
@@ -90,8 +90,8 @@ class TestCommand extends AbstractCommand implements Callable<Integer> {
         return fail("No ToolProvider found.");
     }
 
-    private static Project loadProject(Path path) {
-        return ProjectLoader.loadFrom(path);
+    private static GroupNode loadTests(Path path) {
+        return TestLoader.loadFrom(path);
     }
 
     private int fail(String message) {
@@ -102,7 +102,7 @@ class TestCommand extends AbstractCommand implements Callable<Integer> {
         return FAILED;
     }
 
-    private int fail(ProjectException e) {
+    private int fail(TestLoadingException e) {
         PrintWriter err = getErrorWriter();
         err.println(e.getMessage());
         StringBuilder builder = new StringBuilder();

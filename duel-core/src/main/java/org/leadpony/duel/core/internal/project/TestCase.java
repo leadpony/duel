@@ -92,7 +92,7 @@ class TestCase extends AbstractNode implements CaseNode {
 
     /* */
 
-    CaseExecution createExecution(ProjectExecutionContext context) {
+    CaseExecution createExecution(TestExecutionContext context) {
         return new TestCaseExecution(context);
     }
 
@@ -161,10 +161,10 @@ class TestCase extends AbstractNode implements CaseNode {
      */
     private class TestCaseExecution implements CaseExecution {
 
-        private final ProjectExecutionContext context;
+        private final TestExecutionContext context;
         private final Stream<Assertion> assertions;
 
-        TestCaseExecution(ProjectExecutionContext context) {
+        TestCaseExecution(TestExecutionContext context) {
             this.context = context;
             this.assertions = context.getAssertionFactory().createAssertions(TestCase.this);
         }

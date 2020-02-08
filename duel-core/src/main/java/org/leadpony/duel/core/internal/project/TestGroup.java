@@ -75,6 +75,11 @@ class TestGroup extends AbstractNode implements GroupNode {
     /* As a TestGroup */
 
     @Override
+    public boolean isRoot() {
+        return false;
+    }
+
+    @Override
     public Collection<CaseNode> getTestCases() {
         return Collections.unmodifiableCollection(testCases);
     }
@@ -84,17 +89,22 @@ class TestGroup extends AbstractNode implements GroupNode {
         return Collections.unmodifiableCollection(subgroups);
     }
 
+    @Override
+    public GroupExecution createExecution() {
+        throw new IllegalStateException("Group is not the root.");
+    }
+
     /* */
 
-    GroupExecution createExecution(ProjectExecutionContext context) {
+    GroupExecution createExecution(TestExecutionContext context) {
         return new TestGroupExecution(context);
     }
 
     private class TestGroupExecution implements GroupExecution {
 
-        private final ProjectExecutionContext context;
+        private final TestExecutionContext context;
 
-        private TestGroupExecution(ProjectExecutionContext context) {
+        private TestGroupExecution(TestExecutionContext context) {
             this.context = context;
         }
 
@@ -105,7 +115,7 @@ class TestGroup extends AbstractNode implements GroupNode {
 
         @Override
         public Stream<CaseExecution> testCases() {
-            ProjectExecutionContext context = this.context;
+            TestExecutionContext context = this.context;
             return testCases.stream().map(testCase -> {
                 return testCase.createExecution(context);
             });
@@ -113,7 +123,7 @@ class TestGroup extends AbstractNode implements GroupNode {
 
         @Override
         public Stream<GroupExecution> subgroups() {
-            ProjectExecutionContext context = this.context;
+            TestExecutionContext context = this.context;
             return subgroups.stream().map(testGroup -> {
                 return testGroup.createExecution(context);
             });

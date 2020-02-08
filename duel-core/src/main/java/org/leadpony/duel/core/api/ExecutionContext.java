@@ -19,13 +19,23 @@ package org.leadpony.duel.core.api;
 import javax.json.spi.JsonProvider;
 
 /**
- * A context shared between the tests of a project.
+ * A context shared between the tests.
  *
  * @author leadpony
  */
 public interface ExecutionContext {
 
-    Project getProject();
+    /**
+     * Returns the root group of the tests.
+     *
+     * @return the root group of the tests.
+     */
+    GroupNode getRootGroup();
 
+    /**
+     * Returns the JSON provider.
+     *
+     * @return the JSON provider.
+     */
     JsonProvider getJsonProvider();
 }

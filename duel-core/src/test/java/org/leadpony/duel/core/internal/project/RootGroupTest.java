@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,13 @@ import java.util.Map;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.ProjectLoader;
+import org.leadpony.duel.core.api.TestLoader;
 import org.leadpony.duel.core.api.GroupNode;
 
 /**
  * @author leadpony
- *
  */
-public class ProjectTest {
+public class RootGroupTest {
 
     private static final String BASE_PATH = "src/test/projects/project";
 
@@ -61,11 +59,11 @@ public class ProjectTest {
     @ParameterizedTest
     @EnumSource(RootGroupTestCase.class)
     public void createRootGroupShouldGenerateExpectedTests(RootGroupTestCase test) {
-        Project project = ProjectLoader.loadFrom(test.getStartPath());
+        GroupNode root = TestLoader.loadFrom(test.getStartPath());
 
-        assertThat((Object) project).isNotNull();
-        assertThat(countGroups(project)).isEqualTo(test.groups);
-        assertThat(countCases(project)).isEqualTo(test.cases);
+        assertThat((Object) root).isNotNull();
+        assertThat(countGroups(root)).isEqualTo(test.groups);
+        assertThat(countCases(root)).isEqualTo(test.cases);
     }
 
     private static long countGroups(GroupNode group) {
@@ -113,8 +111,8 @@ public class ProjectTest {
     @ParameterizedTest
     @EnumSource(PropertiesTestCase.class)
     public void getPropertiesShouldReturnPropertiesAsExpected(PropertiesTestCase test) {
-        Project project = ProjectLoader.loadFrom(test.getStartPath());
-        var actual = project.getProperties();
+        GroupNode root = TestLoader.loadFrom(test.getStartPath());
+        var actual = root.getProperties();
 
         assertThat(actual).isEqualTo(test.expected);
     }

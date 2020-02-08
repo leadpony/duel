@@ -28,6 +28,13 @@ import javax.json.JsonObject;
 public interface Node {
 
     /**
+     * Returns the version of the model.
+     *
+     * @return the version of the model.
+     */
+    int getVersion();
+
+    /**
      * Returns the name of this node for display.
      *
      * @return the name of this node, never be {@code null}.

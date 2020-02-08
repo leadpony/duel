@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ package org.leadpony.duel.core.api;
 import java.util.Collection;
 
 /**
- * An exception thrown while loading a project.
+ * An exception thrown while loading tests.
  *
  * @author leadpony
  */
-public class ProjectException extends RuntimeException {
+public class TestLoadingException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
     private final Collection<Problem> problems;
 
-    public ProjectException(String message, Collection<Problem> problems) {
+    public TestLoadingException(String message, Collection<Problem> problems) {
         super(message);
         this.problems = problems;
     }

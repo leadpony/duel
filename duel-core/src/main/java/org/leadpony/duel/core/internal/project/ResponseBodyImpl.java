@@ -37,11 +37,11 @@ class ResponseBodyImpl implements ResponseBody {
 
     private final byte[] byteArray;
     private final Optional<MediaType> mediaType;
-    private final ProjectExecutionContext context;
+    private final TestExecutionContext context;
 
     private JsonValue cachedJson;
 
-    ResponseBodyImpl(byte[] byteArray, Optional<MediaType> mediaType, ProjectExecutionContext context) {
+    ResponseBodyImpl(byte[] byteArray, Optional<MediaType> mediaType, TestExecutionContext context) {
         this.byteArray = byteArray;
         this.mediaType = mediaType;
         this.context = context;

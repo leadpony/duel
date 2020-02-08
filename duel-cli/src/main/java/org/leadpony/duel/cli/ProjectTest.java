@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.function.Executable;
 import org.leadpony.duel.core.api.CaseExecution;
 import org.leadpony.duel.core.api.GroupExecution;
-import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.GroupNode;
 import org.opentest4j.AssertionFailedError;
 
 /**
@@ -36,22 +36,22 @@ public class ProjectTest {
 
     private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 
-    private static final ThreadLocal<Project> PROJECTS = new ThreadLocal<>();
+    private static final ThreadLocal<GroupNode> ROOTS = new ThreadLocal<>();
 
-    static Project getProject() {
-        return PROJECTS.get();
+    static GroupNode getRootGroup() {
+        return ROOTS.get();
     }
 
-    static void setProject(Project project) {
-        PROJECTS.set(project);
+    static void setRootGroup(GroupNode root) {
+        ROOTS.set(root);
     }
 
     @TestFactory
-    @DisplayName("Projects")
-    public Stream<DynamicNode> projects() {
-        Project project = getProject();
-        GroupExecution root = project.createExecution();
-        return Stream.of(createContainer(root));
+    @DisplayName("root")
+    public Stream<DynamicNode> root() {
+        GroupNode root = getRootGroup();
+        GroupExecution execution = root.createExecution();
+        return Stream.of(createContainer(execution));
     }
 
     private static DynamicTest createTest(CaseExecution testCase) {

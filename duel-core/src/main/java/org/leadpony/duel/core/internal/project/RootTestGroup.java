@@ -27,21 +27,20 @@ import javax.json.JsonReaderFactory;
 import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.GroupExecution;
-import org.leadpony.duel.core.api.Parameter;
-import org.leadpony.duel.core.api.Project;
+import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.spi.AssertionFactory;
 
 /**
  * @author leadpony
  */
-class ProjectImpl extends TestGroup implements Project {
+class RootTestGroup extends TestGroup {
 
     @SuppressWarnings("unused")
     private final Path startPath;
 
     private final JsonProvider jsonProvider;
 
-    ProjectImpl(Path dir,
+    RootTestGroup(Path dir,
             Path startPath,
             JsonObject json,
             JsonObject merged,
@@ -55,30 +54,30 @@ class ProjectImpl extends TestGroup implements Project {
         this.jsonProvider = jsonProvider;
     }
 
-    /* As a Project */
+    /* As a GroupNode */
 
     @Override
-    public int getVersion() {
-        return (int) get(Parameter.VERSION);
+    public boolean isRoot() {
+        return true;
     }
 
     @Override
     public GroupExecution createExecution() {
-        ProjectExecutionContext context = new ProjectExecutionContextImpl(this.jsonProvider);
+        TestExecutionContext context = new RootExecutionContext(this.jsonProvider);
         return createExecution(context);
     }
 
     /**
      * @author leadpony
      */
-    class ProjectExecutionContextImpl implements ProjectExecutionContext {
+    class RootExecutionContext implements TestExecutionContext {
 
         private final JsonProvider jsonProvider;
         private final JsonReaderFactory jsonReaderFactory;
         private final HttpClient httpClient;
         private final AssertionFactory assertionFactory;
 
-        ProjectExecutionContextImpl(JsonProvider jsonProvider) {
+        RootExecutionContext(JsonProvider jsonProvider) {
             this.jsonProvider = jsonProvider;
             this.jsonReaderFactory = jsonProvider.createReaderFactory(Collections.emptyMap());
             this.httpClient = buildHttpClient();
@@ -86,8 +85,8 @@ class ProjectImpl extends TestGroup implements Project {
         }
 
         @Override
-        public Project getProject() {
-            return ProjectImpl.this;
+        public GroupNode getRootGroup() {
+            return RootTestGroup.this;
         }
 
         @Override

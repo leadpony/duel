@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,14 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.ProjectException;
-import org.leadpony.duel.core.api.ProjectLoader;
+import org.leadpony.duel.core.api.GroupNode;
+import org.leadpony.duel.core.api.TestLoadingException;
+import org.leadpony.duel.core.api.TestLoader;
 
 /**
  * @author leadpony
  */
-public class ProjectLoaderTest {
+public class TestLoaderTest {
 
     private static final String BASE_PATH = "src/test/projects/project";
 
@@ -42,9 +42,9 @@ public class ProjectLoaderTest {
     })
     public void loadProjectShouldLoadValidProject(String dir) {
         Path path = Paths.get(BASE_PATH, dir);
-        Project project = ProjectLoader.loadFrom(path);
+        GroupNode root = TestLoader.loadFrom(path);
 
-        assertThat((Object) project).isNotNull();
+        assertThat((Object) root).isNotNull();
     }
 
     @ParameterizedTest
@@ -54,8 +54,8 @@ public class ProjectLoaderTest {
     public void loadProjectShouldThrowExceptionIfInvalid(String dir) {
         Path path = Paths.get(BASE_PATH, dir);
         Throwable thrown = catchThrowable(() -> {
-            ProjectLoader.loadFrom(path);
+            TestLoader.loadFrom(path);
         });
-        assertThat(thrown).isInstanceOf(ProjectException.class);
+        assertThat(thrown).isInstanceOf(TestLoadingException.class);
     }
 }

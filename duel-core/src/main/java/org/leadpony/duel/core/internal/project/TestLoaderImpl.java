@@ -35,18 +35,17 @@ import javax.json.spi.JsonProvider;
 
 import org.leadpony.duel.core.api.GroupNode;
 import org.leadpony.duel.core.api.Problem;
-import org.leadpony.duel.core.api.Project;
-import org.leadpony.duel.core.api.ProjectException;
-import org.leadpony.duel.core.api.ProjectLoader;
+import org.leadpony.duel.core.api.TestLoadingException;
+import org.leadpony.duel.core.api.TestLoader;
 import org.leadpony.duel.core.internal.Message;
 import org.leadpony.duel.core.internal.common.JsonCombiner;
 
 /**
- * An implementation of {@link ProjectLoader}.
+ * An implementation of {@link TestLoader}.
  *
  * @author leadpony
  */
-public class ProjectLoaderImpl implements ProjectLoader {
+public class TestLoaderImpl implements TestLoader {
 
     private static final String DEFAULT_PROJECT_NAME = "project.default.json";
 
@@ -59,7 +58,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
 
     private final List<Problem> problems = new ArrayList<>();
 
-    public ProjectLoaderImpl(Path startPath) {
+    public TestLoaderImpl(Path startPath) {
         this.startPath = startPath;
         this.jsonProvider = loadJsonProvider();
         this.jsonExpander = new JsonExpander(this.jsonProvider);
@@ -68,20 +67,20 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     @Override
-    public Project load() {
+    public GroupNode load() {
         try {
-            Path path = findProject(this.startPath);
-            return loadProject(path, this.startPath);
-        } catch (LoadingException e) {
-            throw new ProjectException(
+            Path path = findRootGroup(this.startPath);
+            return loadRootGroup(path, this.startPath);
+        } catch (InternalException e) {
+            throw new TestLoadingException(
                     Message.thatLoadingProjectFailed(problems.size()),
                     Collections.unmodifiableList(problems));
         }
     }
 
-    private Path findProject(Path startDir) {
+    private Path findRootGroup(Path startDir) {
         for (Path dir = startDir; dir != null; dir = dir.getParent()) {
-            Path path = dir.resolve(Project.FILE_NAME);
+            Path path = dir.resolve(GroupNode.ROOT_FILE_NAME);
             if (Files.exists(path) && Files.isRegularFile(path)) {
                 return path;
             }
@@ -90,7 +89,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
         throw fail();
     }
 
-    private Project loadProject(Path projectPath, Path startPath) {
+    private GroupNode loadRootGroup(Path projectPath, Path startPath) {
         JsonObject config = loadJson(projectPath);
         JsonObject merged = mergeJson(defaultProject, config);
         JsonObject expanded = expandJson(projectPath, merged);
@@ -101,10 +100,10 @@ public class ProjectLoaderImpl implements ProjectLoader {
         List<TestGroup> subgroups = loadSubgroups(dir, merged);
 
         if (problems.isEmpty()) {
-            return new ProjectImpl(
+            return new RootTestGroup(
                     dir, startPath, config, merged, expanded, testCases, subgroups, this.jsonProvider);
         } else {
-            throw new LoadingException();
+            throw new InternalException();
         }
     }
 
@@ -148,7 +147,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
         for (Path path : findTestCases(dir)) {
             try {
                 cases.add(createTestCase(path, base));
-            } catch (LoadingException e) {
+            } catch (InternalException e) {
                 // Continues
             }
         }
@@ -160,7 +159,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
         for (Path path : findSubgroups(dir)) {
             try {
                 groups.add(createSubgroup(path, base));
-            } catch (LoadingException e) {
+            } catch (InternalException e) {
                 // Continues
             }
         }
@@ -222,8 +221,8 @@ public class ProjectLoaderImpl implements ProjectLoader {
         return Files.exists(path) && Files.isRegularFile(path);
     }
 
-    private LoadingException fail() {
-        return new LoadingException();
+    private InternalException fail() {
+        return new InternalException();
     }
 
     private void addProblem(String message) {
@@ -239,7 +238,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     private JsonObject loadDefaultProject() {
-        InputStream in = ProjectLoaderImpl.class.getResourceAsStream(DEFAULT_PROJECT_NAME);
+        InputStream in = TestLoaderImpl.class.getResourceAsStream(DEFAULT_PROJECT_NAME);
         try (JsonReader reader = jsonProvider.createReader(in)) {
             return reader.readObject();
         }
@@ -250,7 +249,7 @@ public class ProjectLoaderImpl implements ProjectLoader {
     }
 
     @SuppressWarnings("serial")
-    private static class LoadingException extends RuntimeException {
+    private static class InternalException extends RuntimeException {
     }
 
     /**

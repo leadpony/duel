@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,33 @@ package org.leadpony.duel.core.api;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import org.leadpony.duel.core.internal.project.ProjectLoaderImpl;
+import org.leadpony.duel.core.internal.project.TestLoaderImpl;
 
 /**
- * A loader of a project.
+ * A loader of tests.
  *
  * @author leadpony
  */
-public interface ProjectLoader {
+public interface TestLoader {
 
     /**
-     * Loads a project from the specified path.
+     * Loads tests from the specified path.
      *
      * @param startPath the path from which the project will be loaded.
-     * @return the loaded project.
-     * @throws ProjectException if an I/O error occurred while loading the project.
+     * @return the root group of the tests.
+     * @throws TestLoadingException if any problem was found while loading the tests.
      * @throws NullPointerException if {@code startPath} is {@code null}.
      */
-    static Project loadFrom(Path startPath) {
+    static GroupNode loadFrom(Path startPath) {
         Objects.requireNonNull(startPath, "startPath must not be null.");
-        return new ProjectLoaderImpl(startPath).load();
+        return new TestLoaderImpl(startPath).load();
     }
 
     /**
-     * Loads a project.
+     * Loads tests.
      *
-     * @return the loaded project.
-     * @throws ProjectException if an I/O error occurred while loading the project.
+     * @return the root group of the loaded tests.
+     * @throws TestLoadingException if any problem was found while loading the tests.
      */
-    Project load();
+    GroupNode load();
 }

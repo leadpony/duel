@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,17 @@ import java.util.Collection;
  */
 public interface GroupNode extends Node, Iterable<Node> {
 
+    /**
+     * The name of the group files.
+     */
     String FILE_NAME = "group.json";
+
+    /**
+     * The name of the root group file.
+     */
+    String ROOT_FILE_NAME = "project.json";
+
+    boolean isRoot();
 
     /**
      * Returns the test cases in this group as a collection.
@@ -40,4 +50,12 @@ public interface GroupNode extends Node, Iterable<Node> {
      * @return the subgroups of this group.
      */
     Collection<GroupNode> getSubgroups();
+
+    /**
+     * Creates an execution of this group.
+     *
+     * @return the newly created execution of this group.
+     * @throws IllegalStateException if this group is not the root of the groups.
+     */
+    GroupExecution createExecution();
 }
