@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.core.internal.node;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +47,7 @@ import org.leadpony.duel.core.internal.common.JsonCombiner;
  */
 public class TestLoaderImpl implements TestLoader {
 
-    private static final String DEFAULT_PROJECT_NAME = "project.default.json";
+    private static final String DEFAULT_JSON_NAME = "default.json";
 
     private final Path startPath;
     private final JsonProvider jsonProvider;
@@ -63,7 +63,7 @@ public class TestLoaderImpl implements TestLoader {
         this.jsonProvider = loadJsonProvider();
         this.jsonExpander = new JsonExpander(this.jsonProvider);
         this.jsonCombiner = JsonCombiner.merging(this.jsonProvider);
-        this.defaultProject = loadDefaultProject();
+        this.defaultProject = loadDefaultJson();
     }
 
     @Override
@@ -237,8 +237,8 @@ public class TestLoaderImpl implements TestLoader {
         this.problems.add(problem);
     }
 
-    private JsonObject loadDefaultProject() {
-        InputStream in = TestLoaderImpl.class.getResourceAsStream(DEFAULT_PROJECT_NAME);
+    private JsonObject loadDefaultJson() {
+        InputStream in = TestLoaderImpl.class.getResourceAsStream(DEFAULT_JSON_NAME);
         try (JsonReader reader = jsonProvider.createReader(in)) {
             return reader.readObject();
         }

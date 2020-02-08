@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.core.internal.node;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
+package org.leadpony.duel.core.internal.node;
 
-import java.net.http.HttpClient;
-
-import javax.json.JsonReaderFactory;
-
-import org.leadpony.duel.core.api.ExecutionContext;
-import org.leadpony.duel.core.spi.AssertionFactory;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
- * A context of test execution.
- *
  * @author leadpony
  */
-interface TestExecutionContext extends ExecutionContext {
+class PropertyException extends RuntimeException {
 
-    JsonReaderFactory getJsonReaderFactory();
+    private static final long serialVersionUID = 1L;
 
-    HttpClient getHttpClient();
-
-    AssertionFactory getAssertionFactory();
+    PropertyException(Collection<String> errors) {
+        super(errors.stream().collect(Collectors.joining("\n")));
+    }
 }

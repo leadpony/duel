@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.internal.project;
-
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 /**
+ * Provides the implementations of {@link Node} types.
+ *
  * @author leadpony
  */
-class PropertyException extends RuntimeException {
-
-    private static final long serialVersionUID = 1L;
-
-    PropertyException(Collection<String> errors) {
-        super(errors.stream().collect(Collectors.joining("\n")));
-    }
-}
+package org.leadpony.duel.core.internal.node;

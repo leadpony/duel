@@ -19,7 +19,7 @@ package org.leadpony.duel.core.api;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import org.leadpony.duel.core.internal.project.TestLoaderImpl;
+import org.leadpony.duel.core.internal.node.TestLoaderImpl;
 
 /**
  * A loader of tests.
