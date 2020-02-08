@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.junit.jupiter.params.support.AnnotationConsumer;
  */
 class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationConsumer<ProjectSource> {
 
-    private static final String PROJECT_FILENAME = "project.json";
+    private static final String ROOT_GROUP_FILENAME = "root.json";
     private String[] dirs;
 
     @Override
@@ -56,7 +56,7 @@ class ProjectArgumentsProvider implements ArgumentsProvider, AnnotationConsumer<
             Files.walkFileTree(baseDir, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    Path path = dir.resolve(PROJECT_FILENAME);
+                    Path path = dir.resolve(ROOT_GROUP_FILENAME);
                     if (Files.exists(path) && Files.isRegularFile(path)) {
                         found.add(dir);
                         return FileVisitResult.SKIP_SUBTREE;

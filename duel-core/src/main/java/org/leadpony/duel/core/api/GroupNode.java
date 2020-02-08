@@ -33,7 +33,7 @@ public interface GroupNode extends Node, Iterable<Node> {
     /**
      * The name of the root group file.
      */
-    String ROOT_FILE_NAME = "project.json";
+    String ROOT_FILE_NAME = "root.json";
 
     boolean isRoot();
 
