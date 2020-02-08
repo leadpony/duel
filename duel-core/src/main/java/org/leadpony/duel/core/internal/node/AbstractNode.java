@@ -23,14 +23,15 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
 import org.leadpony.duel.core.api.Parameter;
+import org.leadpony.duel.core.internal.common.JsonValues;
 import org.leadpony.duel.core.api.Node;
 
 /**
@@ -39,6 +40,8 @@ import org.leadpony.duel.core.api.Node;
  * @author leadpony
  */
 abstract class AbstractNode implements Node {
+
+    private static final int DEFAULT_VERSION = 1;
 
     private final Path path;
     private final JsonObject json;
@@ -55,12 +58,21 @@ abstract class AbstractNode implements Node {
 
     @Override
     public int getVersion() {
-        return (int) get(Parameter.VERSION);
+        Optional<JsonValue> optional = getValue(Parameter.VERSION);
+        if (optional.isPresent()) {
+            JsonValue value = optional.get();
+            if (value.getValueType() == ValueType.NUMBER) {
+                return ((JsonNumber) value).intValue();
+            }
+        }
+        return DEFAULT_VERSION;
     }
 
     @Override
     public String getName() {
-        return getValueAsString("name");
+        return getValue(Parameter.NAME)
+                .map(value -> JsonValues.asString(value))
+                .orElse(getDefaultName());
     }
 
     @Override
@@ -75,38 +87,26 @@ abstract class AbstractNode implements Node {
 
     @Override
     public String getAnnotationPrefix() {
-        return getValueAsString("annotationPrefix");
+        return getValueAsString("annotationPrefix", "@");
     }
 
     @Override
-    public Object get(Parameter parameter) {
-        requireNonNull(parameter, "parameter must not be null.");
-        JsonValue value = getValue(parameter.key());
-        switch (value.getValueType()) {
-        case STRING:
-            JsonString string = (JsonString) value;
-            return string.getString();
-        case NUMBER:
-            JsonNumber number = (JsonNumber) value;
-            return number.intValue();
-        case TRUE:
-            return Boolean.TRUE;
-        case FALSE:
-            return Boolean.FALSE;
-        case NULL:
-            return null;
-        default:
-            throw new IllegalArgumentException(parameter.name());
+    public Optional<JsonValue> getValue(String name) {
+        requireNonNull(name, "name must not be null.");
+        if (expanded.containsKey(name)) {
+            return Optional.of(expanded.get(name));
+        } else {
+            return Optional.empty();
         }
     }
 
     @Override
-    public String getAsString(Parameter parameter) {
-        Object value = get(parameter);
-        if (value == null) {
-            return null;
-        }
-        return value.toString();
+    public String getValueAsString(String name, String defaultValue) {
+        requireNonNull(name, "name must not be null.");
+        requireNonNull(defaultValue, "defaultValue must not be null.");
+        return getValue(name)
+                .map(value -> JsonValues.asString(value))
+                .orElse(defaultValue);
     }
 
     @Override
@@ -117,7 +117,7 @@ abstract class AbstractNode implements Node {
             if (!object.isEmpty()) {
                 Map<String, String> map = new LinkedHashMap<>();
                 object.forEach((k, v) -> {
-                    map.put(k, valueToString(v));
+                    map.put(k, JsonValues.asString(v));
                 });
                 return Collections.unmodifiableMap(map);
             }
@@ -131,7 +131,7 @@ abstract class AbstractNode implements Node {
     }
 
     @Override
-    public final JsonObject getEffectiveConfigurarionAsJson() {
+    public final JsonObject getEffectiveConfigurationAsJson() {
         return expanded;
     }
 
@@ -140,35 +140,5 @@ abstract class AbstractNode implements Node {
         return getName();
     }
 
-    protected static String valueToString(JsonValue value) {
-        if (value.getValueType() == ValueType.STRING) {
-            return ((JsonString) value).getString();
-        } else {
-            return value.toString();
-        }
-    }
-
-    protected JsonObject getParameterAsObject(String name) {
-        JsonValue value = getValue(name);
-        if (value.getValueType() == ValueType.OBJECT) {
-            return value.asJsonObject();
-        }
-        return JsonValue.EMPTY_JSON_OBJECT;
-    }
-
-    protected JsonValue getValue(String name) {
-        return expanded.getOrDefault(name, JsonValue.NULL);
-    }
-
-    protected String getValueAsString(String name) {
-        JsonValue value = getValue(name);
-        if (value.getValueType() == ValueType.STRING) {
-            JsonString string = (JsonString) value;
-            return string.getString();
-        } else if (value == JsonValue.NULL) {
-            return null;
-        } else {
-            return value.toString();
-        }
-    }
+    protected abstract String getDefaultName();
 }

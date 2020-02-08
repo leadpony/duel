@@ -19,8 +19,10 @@ package org.leadpony.duel.core.api;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 /**
  * @author leadpony
@@ -65,13 +67,21 @@ public interface Node {
     /**
      * Returns the value of the specified parameter.
      *
-     * @param parameter the parameter to retrieve.
+     * @param name the name of the parameter for which the value will be returned.
      * @return the value of the specified parameter.
-     * @throws NullPointerException if the specified {@code parameter} is {@code null}.
+     * @throws NullPointerException if the specified {@code name} is {@code null}.
      */
-    Object get(Parameter parameter);
+    Optional<JsonValue> getValue(String name);
 
-    String getAsString(Parameter parameter);
+    /**
+     * Returns the value of the specified parameter as a string.
+     *
+     * @param name the name of the parameter for which the value will be returned.
+     * @param defaultValue the default value of the parameter.
+     * @return the value of the specified parameter.
+     * @throws NullPointerException if the specified {@code name} or {@code defaultValue} is {@code null}.
+     */
+    String getValueAsString(String name, String defaultValue);
 
     /**
      * Returns all the properties defined in this node.
@@ -92,5 +102,5 @@ public interface Node {
      *
      * @return the JSON object representing the effective configuration.
      */
-    JsonObject getEffectiveConfigurarionAsJson();
+    JsonObject getEffectiveConfigurationAsJson();
 }

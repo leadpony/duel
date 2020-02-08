@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package org.leadpony.duel.core.api;
+package org.leadpony.duel.core.internal.common;
+
+import static java.util.Objects.requireNonNull;
+
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
 /**
- * Top-level parameters.
- *
  * @author leadpony
  */
-public class Parameter {
-    public static final String VERSION = "version";
-    public static final String NAME = "name";
-    public static final String SCHEME = "scheme";
-    public static final String HOST = "host";
-    public static final String PORT = "port";
-    public static final String BASE_PATH = "basePath";
-    public static final String METHOD = "method";
-    public static final String PATH = "path";
+public final class JsonValues {
+
+    private JsonValues() {
+    }
+
+    public static String asString(JsonValue value) {
+        requireNonNull(value, "value must not be null.");
+        if (value.getValueType() == ValueType.STRING) {
+            return ((JsonString) value).getString();
+        } else {
+            return value.toString();
+        }
+    }
 }

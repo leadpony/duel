@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
@@ -46,6 +47,7 @@ import org.leadpony.duel.core.api.Parameter;
 import org.leadpony.duel.core.api.CaseNode;
 import org.leadpony.duel.core.api.Node;
 import org.leadpony.duel.core.internal.Message;
+import org.leadpony.duel.core.internal.common.JsonValues;
 import org.leadpony.duel.core.internal.common.MediaTypeParser;
 import org.leadpony.duel.core.internal.common.UrlBuilder;
 import org.leadpony.duel.core.spi.Assertion;
@@ -61,6 +63,8 @@ class TestCase extends AbstractNode implements CaseNode {
     static final String FILE_PATTERN = "*" + FILE_SUFFIX;
     static final int FILE_SUFFIX_LENGTH = FILE_SUFFIX.length();
 
+    static final JsonObject DEFAULT_REQUEST = JsonValue.EMPTY_JSON_OBJECT;
+
     private final JsonObject request;
 
     TestCase(Path path,
@@ -68,17 +72,19 @@ class TestCase extends AbstractNode implements CaseNode {
             JsonObject merged,
             JsonObject expanded) {
         super(path, json, merged, expanded);
-        this.request = getParameterAsObject("request");
+        this.request = getValue("request").map(value -> {
+            if (value.getValueType() == ValueType.OBJECT) {
+                return value.asJsonObject();
+            } else {
+                return DEFAULT_REQUEST;
+            }
+        }).orElse(DEFAULT_REQUEST);
     }
 
     /* As a TestNode */
 
     @Override
-    public String getName() {
-        String name = super.getName();
-        if (name != null) {
-            return name;
-        }
+    protected String getDefaultName() {
         String filename = getNodePath().getFileName().toString();
         return filename.substring(0, filename.length() - FILE_SUFFIX_LENGTH);
     }
@@ -107,10 +113,10 @@ class TestCase extends AbstractNode implements CaseNode {
             switch (value.getValueType()) {
             case ARRAY:
                 value.asJsonArray().stream()
-                    .map(item -> valueToString(item))
+                    .map(item -> JsonValues.asString(item))
                     .forEach(values::add);
             default:
-                values.add(valueToString(value));
+                values.add(JsonValues.asString(value));
                 break;
             }
             map.put(name, values);
@@ -132,13 +138,14 @@ class TestCase extends AbstractNode implements CaseNode {
 
     private URI buildEndpointUri() {
         UrlBuilder builder = new UrlBuilder();
-        builder.withScheme(getAsString(Parameter.SCHEME))
-               .withHost(getAsString(Parameter.HOST));
+        builder.withScheme(getValueAsString(Parameter.SCHEME, "http"))
+               .withHost(getValueAsString(Parameter.HOST, "localhost"));
 
-        Object port = get(Parameter.PORT);
-        if (port != null) {
-            builder.withPort((int) port);
-        }
+        getValue(Parameter.PORT).ifPresent(value -> {
+            if (value.getValueType() == ValueType.NUMBER) {
+                builder.withPort(((JsonNumber) value).intValue());
+            }
+        });
 
         builder.withPath(getFullPath());
         builder.withQuery(getQuery());
@@ -153,7 +160,8 @@ class TestCase extends AbstractNode implements CaseNode {
     }
 
     private String getFullPath() {
-        return getAsString(Parameter.BASE_PATH) + getAsString(Parameter.PATH);
+        return getValueAsString(Parameter.BASE_PATH, "")
+                + getValueAsString(Parameter.PATH, "");
     }
 
     /**
@@ -189,7 +197,8 @@ class TestCase extends AbstractNode implements CaseNode {
                     builder.header(name, value);
                 }
             });
-            builder.method(getAsString(Parameter.METHOD), createRequestBodyPublisher(getRequestBody()));
+            builder.method(getValueAsString(Parameter.METHOD, "GET"),
+                    createRequestBodyPublisher(getRequestBody()));
             return builder.build();
         }
 

@@ -52,7 +52,7 @@ class BasicAssertionFactory implements AssertionFactory {
     @Override
     public Stream<Assertion> createAssertions(CaseNode node) {
         List<Assertion> assertions = new ArrayList<>();
-        JsonObject config = node.getEffectiveConfigurarionAsJson();
+        JsonObject config = node.getEffectiveConfigurationAsJson();
         if (config.containsKey("response")) {
             JsonValue response = config.get("response");
             if (response.getValueType() == ValueType.OBJECT) {
