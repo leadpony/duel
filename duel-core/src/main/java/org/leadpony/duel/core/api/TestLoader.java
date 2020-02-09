@@ -19,7 +19,7 @@ package org.leadpony.duel.core.api;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import org.leadpony.duel.core.internal.node.TestLoaderImpl;
+import org.leadpony.duel.core.internal.node.DefaultTestLoader;
 
 /**
  * A loader of tests.
@@ -38,7 +38,7 @@ public interface TestLoader {
      */
     static GroupNode loadFrom(Path startPath) {
         Objects.requireNonNull(startPath, "startPath must not be null.");
-        return new TestLoaderImpl(startPath).load();
+        return new DefaultTestLoader(startPath).load();
     }
 
     /**

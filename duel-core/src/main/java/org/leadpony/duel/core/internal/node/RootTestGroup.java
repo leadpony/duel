@@ -35,13 +35,9 @@ import org.leadpony.duel.core.spi.AssertionFactory;
  */
 class RootTestGroup extends TestGroup {
 
-    @SuppressWarnings("unused")
-    private final Path startPath;
-
     private final JsonProvider jsonProvider;
 
     RootTestGroup(Path dir,
-            Path startPath,
             JsonObject json,
             JsonObject merged,
             JsonObject expanded,
@@ -50,7 +46,6 @@ class RootTestGroup extends TestGroup {
             JsonProvider jsonProvider
             ) {
         super(dir, json, merged, expanded, testCases, subgroups);
-        this.startPath = startPath;
         this.jsonProvider = jsonProvider;
     }
 
