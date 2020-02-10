@@ -90,21 +90,17 @@ class MergingJsonCombiner implements JsonCombiner {
         }
         JsonObjectBuilder builder = builderFactory.createObjectBuilder();
         base.forEach((name, value) -> {
-            if (!object.containsKey(name) && !isHidden(name)) {
+            if (!object.containsKey(name)) {
                 builder.add(name, value);
             }
         });
         object.forEach((name, value) -> {
-            if (base.containsKey(name) && !isHidden(name)) {
+            if (base.containsKey(name)) {
                 builder.add(name, merge(base.get(name), value));
             } else {
                 builder.add(name, value);
             }
         });
         return builder.build();
-    }
-
-    private static boolean isHidden(String name) {
-        return name.startsWith(".");
     }
 }

@@ -84,7 +84,7 @@
         }
     },
     {
-        "name": "hidden property in base",
+        "name": "dot property in base",
         "base": {
             ".first": 1
         },
@@ -92,11 +92,12 @@
             "second": 2
         },
         "expected": {
+            ".first": 1,
             "second": 2
         }
     },
     {
-        "name": "hidden object",
+        "name": "dot property object",
         "base": {
             ".parent": {
                 "first": 1
@@ -109,6 +110,7 @@
         },
         "expected": {
             ".parent": {
+                "first": 1,
                 "second": 2
             }
         }
