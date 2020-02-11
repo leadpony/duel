@@ -34,7 +34,6 @@ import picocli.CommandLine.Command;
  */
 @Command(
         name = "duel",
-        description = "Duel CLI",
         mixinStandardHelpOptions = true,
         version = {
                 "Duel CLI ${project.version}",

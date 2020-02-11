@@ -35,8 +35,7 @@ import picocli.CommandLine.Option;
  *
  * @author leadpony
  */
-@Command(name = "test",
-    description = "Executes the tests")
+@Command(name = "test")
 class TestCommand extends AbstractCommand implements Callable<Integer> {
 
     private static final String[] ARGS = {
@@ -53,8 +52,7 @@ class TestCommand extends AbstractCommand implements Callable<Integer> {
     }
 
     @Option(names = {"-p", "--path"},
-            paramLabel = "DIRECTORY",
-            description = "Path to the directory containing the tests to run")
+            paramLabel = "DIRECTORY")
     public void setPath(Path path) {
         this.path = path;
     }
